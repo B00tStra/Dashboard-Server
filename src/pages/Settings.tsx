@@ -972,11 +972,6 @@ function LogsTab() {
 
 // ── Security Council ──────────────────────────────────────────────────────────
 
-interface SecurityReport {
-  content: string | null;
-  status: 'pending' | 'clean' | 'issues';
-  last_updated: string | null;
-}
 
 const severityStyles: Record<string, { bg: string; text: string; border: string }> = {
   CRITICAL: { bg: 'bg-red-500/10',    text: 'text-red-400',    border: 'border-red-500/30' },
