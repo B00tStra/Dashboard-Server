@@ -54,6 +54,13 @@ const en: Translations = {
   dash_last_updated:        'Last updated:',
   dash_pending_agent:       'pending agent run',
   dash_memory_files:        'Memory Files',
+  dash_valuation:           'Intrinsic Value',
+  dash_undervalued:         'Undervalued',
+  dash_overvalued:          'Overvalued',
+  dash_fair:                'Fair:',
+  dash_current:             'Current',
+  dash_bearish_range:       'Bearish Range',
+  dash_bullish_projection:  'Bullish Projection',
 
   // ── Earnings Reports ──────────────────────────────────────────────────────
   earn_title:            'Earnings Reports',
@@ -185,6 +192,11 @@ const en: Translations = {
   settings_sec_waiting:       'Waiting for agent…',
   settings_sec_no_report:     'No report available yet',
   settings_sec_no_report_sub: 'The Security Agent will place its report here after the first scan.',
+  settings_sec_risk_findings: 'Risk Findings',
+  settings_sec_severity_high: 'High',
+  settings_sec_severity_medium: 'Medium',
+  settings_sec_severity_low: 'Low',
+  settings_sec_recommendation: 'Recommendation',
 
   // ── Common ────────────────────────────────────────────────────────────────
   save:    'Save',
@@ -247,6 +259,13 @@ const de: Translations = {
   dash_last_updated:        'Zuletzt aktualisiert:',
   dash_pending_agent:       'ausstehend',
   dash_memory_files:        'Speicherdateien',
+  dash_valuation:           'Intrinsischer Wert',
+  dash_undervalued:         'Unterbewertet',
+  dash_overvalued:          'Überbewertet',
+  dash_fair:                'Fairer Wert:',
+  dash_current:             'Aktuell',
+  dash_bearish_range:       'Bärischer Bereich',
+  dash_bullish_projection:  'Bullische Prognose',
 
   // ── Earnings Reports ──────────────────────────────────────────────────────
   earn_title:            'Quartalsergebnisse',
@@ -378,6 +397,11 @@ const de: Translations = {
   settings_sec_waiting:       'Warte auf Agenten…',
   settings_sec_no_report:     'Noch kein Bericht verfügbar',
   settings_sec_no_report_sub: 'Der Sicherheits-Agent hinterlegt nach dem ersten Scan seinen Bericht hier.',
+  settings_sec_risk_findings: 'Risiko-Funde',
+  settings_sec_severity_high: 'Hoch',
+  settings_sec_severity_medium: 'Mittel',
+  settings_sec_severity_low: 'Niedrig',
+  settings_sec_recommendation: 'Empfehlung',
 
   // ── Common ────────────────────────────────────────────────────────────────
   save:    'Speichern',

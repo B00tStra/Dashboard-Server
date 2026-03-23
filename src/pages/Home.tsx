@@ -28,11 +28,9 @@ const cardVariants: Variants = {
 };
 
 const LOOP_SECONDS = 4;
-const FADE_SECONDS = 1.2;
-const CUT_BLEND_SECONDS = 0.35;
+const CROSSFADE_SECONDS = 0.8;
 const BASE_OPACITY = 0.3;
-const LOOP_OPACITY = 0.22;
-const CUT_DIP_OPACITY = 0.12;
+const FADED_OUT_OPACITY = 0;
 
 function NavCards() {
   const navigate = useNavigate();
@@ -146,80 +144,85 @@ function NavCards() {
 
 const Home: React.FC = () => {
   const { lang, setLang, t } = useLanguage();
-  const bgVideoRef = useRef<HTMLVideoElement | null>(null);
-  const [videoOpacity, setVideoOpacity] = useState(BASE_OPACITY);
+  
+  const videoRefA = useRef<HTMLVideoElement | null>(null);
+  const videoRefB = useRef<HTMLVideoElement | null>(null);
+  const [activeVideo, setActiveVideo] = useState<'A' | 'B'>('A');
+  const [isLooping, setIsLooping] = useState(false);
+  const transitioningRef = useRef(false);
 
   useEffect(() => {
-    const video = bgVideoRef.current;
-    if (!video) return;
+    const videoA = videoRefA.current;
+    const videoB = videoRefB.current;
+    if (!videoA || !videoB) return;
 
-    const getLoopStart = () => {
-      if (!Number.isFinite(video.duration) || video.duration <= LOOP_SECONDS) return 0;
-      return Math.max(0, video.duration - LOOP_SECONDS);
-    };
+    const handleTimeUpdate = (e: Event) => {
+      const activeVideoEl = e.target as HTMLVideoElement;
+      const currentActive = activeVideo === 'A' ? videoA : videoB;
+      
+      // Only the video that is currently "active" (visible) should trigger the next loop
+      if (activeVideoEl !== currentActive) return;
+      if (!activeVideoEl.duration || transitioningRef.current) return;
 
-    const handleTimeUpdate = () => {
-      if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+      const loopStart = Math.max(0, activeVideoEl.duration - LOOP_SECONDS);
+      // Determine if we should start the crossfade
+      const triggerTime = activeVideoEl.duration - CROSSFADE_SECONDS;
 
-      const loopStart = getLoopStart();
-      const fadeStart = Math.max(0, loopStart - FADE_SECONDS);
-      const t = video.currentTime;
+      if (activeVideoEl.currentTime >= triggerTime) {
+        transitioningRef.current = true;
+        
+        const nextVideoEl = activeVideo === 'A' ? videoB : videoA;
+        
+        // Prepare next video at loopStart or 0 depending on if we are already in loop mode
+        nextVideoEl.currentTime = isLooping ? loopStart : loopStart; // In this design, we always jump to loopStart for the next video
+        void nextVideoEl.play().catch(() => {});
+        
+        setActiveVideo(activeVideo === 'A' ? 'B' : 'A');
+        setIsLooping(true);
 
-      if (t >= fadeStart && t < loopStart && FADE_SECONDS > 0) {
-        const progress = Math.min(1, (t - fadeStart) / FADE_SECONDS);
-        setVideoOpacity(BASE_OPACITY - (BASE_OPACITY - LOOP_OPACITY) * progress);
-      } else if (t >= loopStart) {
-        const cutStart = Math.max(loopStart, video.duration - CUT_BLEND_SECONDS);
-        if (t >= cutStart) {
-          const cutProgress = Math.min(1, (t - cutStart) / Math.max(CUT_BLEND_SECONDS, 0.001));
-          setVideoOpacity(LOOP_OPACITY - (LOOP_OPACITY - CUT_DIP_OPACITY) * cutProgress);
-        } else {
-          setVideoOpacity(LOOP_OPACITY);
-        }
-      } else {
-        setVideoOpacity(BASE_OPACITY);
-      }
-
-      if (t >= video.duration - 0.05 && loopStart > 0) {
-        video.currentTime = loopStart;
-        setVideoOpacity(LOOP_OPACITY);
-        void video.play().catch(() => {});
+        // Reset transition flag after some time to allow the new active video to take over handleTimeUpdate
+        setTimeout(() => {
+          transitioningRef.current = false;
+        }, CROSSFADE_SECONDS * 1000 + 100);
       }
     };
 
-    const handleEnded = () => {
-      const loopStart = getLoopStart();
-      video.currentTime = loopStart > 0 ? loopStart : 0;
-      void video.play().catch(() => {});
-    };
+    videoA.addEventListener('timeupdate', handleTimeUpdate);
+    videoB.addEventListener('timeupdate', handleTimeUpdate);
 
-    const handleLoaded = () => {
-      setVideoOpacity(BASE_OPACITY);
-    };
-
-    video.addEventListener('loadedmetadata', handleLoaded);
-    video.addEventListener('timeupdate', handleTimeUpdate);
-    video.addEventListener('ended', handleEnded);
+    // Initial play
+    void videoA.play().catch(() => {});
 
     return () => {
-      video.removeEventListener('loadedmetadata', handleLoaded);
-      video.removeEventListener('timeupdate', handleTimeUpdate);
-      video.removeEventListener('ended', handleEnded);
+      videoA.removeEventListener('timeupdate', handleTimeUpdate);
+      videoB.removeEventListener('timeupdate', handleTimeUpdate);
     };
-  }, []);
+  }, [activeVideo, isLooping]);
 
   return (
     <div className="relative w-full min-h-screen bg-gray-900 overflow-x-hidden" style={{ backgroundColor: '#030712' }}>
       <div className="fixed inset-0 pointer-events-none z-0">
-        <video
-          ref={bgVideoRef}
+        <motion.video
+          ref={videoRefA}
           src="/background.mp4"
-          autoPlay
           muted
           playsInline
           preload="auto"
-          className="w-full h-full object-cover mix-blend-screen transition-opacity duration-700"
-          style={{ opacity: videoOpacity }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: activeVideo === 'A' ? BASE_OPACITY : FADED_OUT_OPACITY }}
+          transition={{ duration: CROSSFADE_SECONDS, ease: "linear" }}
+          className="absolute inset-0 w-full h-full object-cover mix-blend-screen"
+        />
+        <motion.video
+          ref={videoRefB}
+          src="/background.mp4"
+          muted
+          playsInline
+          preload="auto"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: activeVideo === 'B' ? BASE_OPACITY : FADED_OUT_OPACITY }}
+          transition={{ duration: CROSSFADE_SECONDS, ease: "linear" }}
+          className="absolute inset-0 w-full h-full object-cover mix-blend-screen"
         />
       </div>
 

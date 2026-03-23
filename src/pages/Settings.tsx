@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import {
@@ -377,55 +378,156 @@ function ConfigTab() {
 
 // ── Cron Jobs ─────────────────────────────────────────────────────────────────
 
+// Helper: Parse cron expression to human-readable description
+function parseCronSchedule(cron: string): string {
+  // Handle "cron 30 8 * * * @ Europe/Berlin" format
+  let cleanCron = cron.replace('cron ', '');
+  const tzParts = cleanCron.split(' @ ');
+  const schedule = tzParts[0];
+  const tz = tzParts[1] ? tzParts[1].replace('...', '').trim() : '';
+
+  const parts = schedule.split(' ');
+  if (parts.length < 5) return cron;
+
+  const [minute, hour, dayOfMonth, month, dayOfWeek] = parts;
+  let human = '';
+
+  // Every X minutes
+  if (minute.startsWith('*/')) {
+    const interval = minute.substring(2);
+    human = `Alle ${interval} Min.`;
+  }
+  // Daily at specific time
+  else if (hour !== '*' && minute !== '*' && dayOfMonth === '*' && month === '*') {
+    const weekdayPart = dayOfWeek === '*' ? '' : dayOfWeek === '1-5' ? ' (Mo-Fr)' : ` (${dayOfWeek})`;
+    human = `Täglich um ${hour.padStart(2, '0')}:${minute.padStart(2, '0')}${weekdayPart}`;
+  }
+  // Weekdays only
+  else if (dayOfWeek === '1-5' && hour !== '*' && minute !== '*') {
+    human = `Wochentags um ${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
+  }
+  // Weekly on specific day
+  else if (dayOfWeek !== '*' && dayOfWeek !== '1-5') {
+    const days = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+    const dayName = days[parseInt(dayOfWeek)] || dayOfWeek;
+    human = `Jeden ${dayName} um ${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
+  }
+  // Hourly
+  else if (minute !== '*' && hour === '*') {
+    human = `Std. zur Minute ${minute}`;
+  } else {
+    human = schedule;
+  }
+
+  return tz ? `${human} (${tz})` : human;
+}
+
 function CronTab() {
   const { t } = useLanguage();
   const [jobs, setJobs] = useState(mockCronJobs);
-  useEffect(() => { fetch('/api/cron').then(r => r.json()).then(d => { if (Array.isArray(d) && d.length) setJobs(d); }).catch(() => {}); }, []);
+  const [refreshing, setRefreshing] = useState<string | null>(null);
+
+  useEffect(() => { 
+    fetch('/api/cron').then(r => r.json()).then(d => { 
+      if (Array.isArray(d) && d.length) setJobs(d); 
+    }).catch(() => {}); 
+  }, []);
+
   const toggle = (id: string) => setJobs(j => j.map(x => x.id === id ? { ...x, status: x.status === 'active' ? 'paused' : 'active' } : x));
   const remove = (id: string) => setJobs(j => j.filter(x => x.id !== id));
+  
+  const runNow = async (id: string) => {
+    setRefreshing(id);
+    // Simuliere Ausführung
+    setTimeout(() => setRefreshing(null), 2000);
+  };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-white">{t('settings_cron_title')}</h2>
-          <p className="text-slate-400 text-sm">{jobs.filter(j => j.status === 'active').length} {t('settings_cron_active')} · {jobs.length} {t('settings_cron_total')}</p>
+          <h2 className="text-2xl font-bold text-white tracking-tight">{t('settings_cron_title')}</h2>
+          <div className="flex items-center gap-3 mt-1">
+            <span className="flex items-center gap-1.5 text-xs font-medium text-green-400 bg-green-400/10 px-2 py-0.5 rounded-full border border-green-400/20">
+              {jobs.filter(j => j.status === 'active').length} {t('settings_cron_active')}
+            </span>
+            <span className="text-slate-500 text-xs font-medium">
+              {jobs.length} {t('settings_cron_total')}
+            </span>
+          </div>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors">
-          <Plus size={14} /> {t('settings_new_job')}
+        <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold transition-all shadow-lg shadow-indigo-600/20 active:scale-95">
+          <Plus size={16} strokeWidth={2.5} /> {t('settings_new_job')}
         </button>
       </div>
-      <div className="space-y-3">
-        {jobs.map((job, i) => (
-          <motion.div key={job.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-            className="glass-card rounded-2xl p-5 flex items-center gap-4">
-            <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${job.status === 'active' ? 'bg-green-400 animate-pulse' : 'bg-slate-500'}`} />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-3 mb-1">
-                <span className="font-semibold text-white text-sm">{job.name}</span>
-                <code className="text-xs bg-slate-800 px-2 py-0.5 rounded text-indigo-300">{job.schedule}</code>
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        {jobs.map((job, i) => {
+          const humanSchedule = parseCronSchedule(job.schedule);
+          const isError = job.status === 'error';
+          
+          return (
+            <motion.div 
+              key={job.id} 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ delay: i * 0.05, duration: 0.5 }}
+              className={`
+                group glass-card rounded-3xl p-6 border transition-all duration-300
+                ${job.status === 'active' ? 'border-white/10' : 'border-white/5 opacity-80'}
+                hover:border-indigo-500/30 hover:shadow-2xl hover:shadow-indigo-500/10
+              `}
+            >
+              <div className="flex items-start justify-between gap-4 mb-5">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2.5 mb-1.5">
+                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                      job.status === 'active' ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.5)]' : 
+                      isError ? 'bg-red-400' : 'bg-slate-500'
+                    }`} />
+                    <h3 className="font-bold text-white text-lg truncate tracking-tight">{job.name}</h3>
+                  </div>
+                  <p className="text-sm text-slate-400 leading-relaxed line-clamp-2 min-h-[40px]">{job.description}</p>
+                </div>
+                
+                <div className="flex items-center gap-1">
+                  <button onClick={() => runNow(job.id)} disabled={refreshing === job.id} className="p-2.5 rounded-xl hover:bg-white/5 text-slate-400 hover:text-indigo-400 transition-all active:scale-90">
+                    <RefreshCw size={18} className={refreshing === job.id ? 'animate-spin text-indigo-400' : ''} />
+                  </button>
+                  <button onClick={() => toggle(job.id)} className="p-2.5 rounded-xl hover:bg-white/5 transition-all active:scale-90">
+                    {job.status === 'active'
+                      ? <ToggleRight size={24} className="text-indigo-400" />
+                      : <ToggleLeft size={24} className="text-slate-600" />}
+                  </button>
+                  <button onClick={() => remove(job.id)} className="p-2.5 rounded-xl hover:bg-red-500/10 text-slate-500 hover:text-red-400 transition-all active:scale-90">
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               </div>
-              <p className="text-xs text-slate-400">{job.description}</p>
-              <div className="flex gap-4 mt-2 text-xs text-slate-500">
-                <span>{t('settings_last')} <span className="text-slate-400">{job.lastRun}</span></span>
-                <span>{t('settings_next')} <span className="text-slate-400">{job.nextRun}</span></span>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="bg-white/3 rounded-2xl p-3 border border-white/5 flex flex-col gap-1">
+                  <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                    <Clock size={10} /> Schedule
+                  </div>
+                  <span className="text-indigo-300 text-xs font-bold truncate">{humanSchedule}</span>
+                </div>
+                
+                <div className="bg-white/3 rounded-2xl p-3 border border-white/5 flex flex-col gap-1">
+                  <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Letzter Lauf</span>
+                  <span className="text-slate-300 text-xs font-bold truncate">{job.lastRun || '-'}</span>
+                </div>
+                
+                <div className="bg-white/3 rounded-2xl p-3 border border-white/5 flex flex-col gap-1">
+                  <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Nächster Lauf</span>
+                  <span className={`text-xs font-bold truncate ${job.status === 'active' ? 'text-green-400' : 'text-slate-500'}`}>
+                    {job.status === 'active' ? (job.nextRun || 'in Kürze') : 'Pausiert'}
+                  </span>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <button onClick={() => toggle(job.id)} className="p-2 rounded-lg hover:bg-white/10 transition-colors">
-                {job.status === 'active'
-                  ? <ToggleRight size={20} className="text-green-400" />
-                  : <ToggleLeft size={20} className="text-slate-500" />}
-              </button>
-              <button className="p-2 rounded-lg hover:bg-white/10 transition-colors text-slate-400 hover:text-white">
-                <RefreshCw size={14} />
-              </button>
-              <button onClick={() => remove(job.id)} className="p-2 rounded-lg hover:bg-red-900/30 transition-colors text-slate-400 hover:text-red-400">
-                <Trash2 size={14} />
-              </button>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        })}
       </div>
     </div>
   );
@@ -973,62 +1075,6 @@ function LogsTab() {
 // ── Security Council ──────────────────────────────────────────────────────────
 
 
-const severityStyles: Record<string, { bg: string; text: string; border: string }> = {
-  CRITICAL: { bg: 'bg-red-500/10',    text: 'text-red-400',    border: 'border-red-500/30' },
-  HIGH:     { bg: 'bg-orange-500/10', text: 'text-orange-400', border: 'border-orange-500/30' },
-  MEDIUM:   { bg: 'bg-yellow-500/10', text: 'text-yellow-400', border: 'border-yellow-500/30' },
-  LOW:      { bg: 'bg-blue-500/10',   text: 'text-blue-400',   border: 'border-blue-500/30' },
-  PASS:     { bg: 'bg-green-500/10',  text: 'text-green-400',  border: 'border-green-500/30' },
-};
-
-function renderReportLine(line: string, idx: number) {
-  // H2 heading
-  if (line.startsWith('## ')) {
-    return (
-      <h3 key={idx} className="text-sm font-bold text-white mt-6 mb-2 flex items-center gap-2">
-        <span className="w-1 h-4 rounded-full bg-indigo-500 inline-block" />
-        {line.slice(3)}
-      </h3>
-    );
-  }
-  // H3 heading
-  if (line.startsWith('### ')) {
-    return <h4 key={idx} className="text-xs font-semibold text-slate-300 mt-3 mb-1 pl-3">{line.slice(4)}</h4>;
-  }
-  // List item
-  if (line.startsWith('- ') || line.startsWith('* ')) {
-    const text = line.slice(2);
-    // Check for inline severity badge e.g. `[CRITICAL]`
-    const badgeMatch = text.match(/^\[(CRITICAL|HIGH|MEDIUM|LOW|PASS)\]\s*/);
-    if (badgeMatch) {
-      const severity = badgeMatch[1];
-      const s = severityStyles[severity];
-      return (
-        <div key={idx} className={`flex items-start gap-2 px-3 py-2 rounded-lg border my-1 ${s.bg} ${s.border}`}>
-          <span className={`text-[10px] font-black tracking-wider px-1.5 py-0.5 rounded flex-shrink-0 mt-0.5 ${s.bg} ${s.text} border ${s.border}`}>
-            {severity}
-          </span>
-          <span className="text-sm text-slate-300">{text.slice(badgeMatch[0].length)}</span>
-        </div>
-      );
-    }
-    return (
-      <div key={idx} className="flex items-start gap-2 py-1 pl-3">
-        <span className="w-1.5 h-1.5 rounded-full bg-slate-600 flex-shrink-0 mt-1.5" />
-        <span className="text-sm text-slate-300">{text}</span>
-      </div>
-    );
-  }
-  // Horizontal rule
-  if (line.startsWith('---')) {
-    return <hr key={idx} className="border-white/5 my-4" />;
-  }
-  // Empty line
-  if (line.trim() === '') return <div key={idx} className="h-1" />;
-  // Default paragraph
-  return <p key={idx} className="text-sm text-slate-400 leading-relaxed pl-3">{line}</p>;
-}
-
 function SecurityTab() {
   const { t } = useLanguage();
   const [files, setFiles] = useState<any[]>([]);
@@ -1036,12 +1082,13 @@ function SecurityTab() {
   const [selectedFile, setSelectedFile] = useState<any | null>(null);
   const [reportContent, setReportContent] = useState<string | null>(null);
   const [reportStatus, setReportStatus] = useState<'pending' | 'clean' | 'issues'>('pending');
+  const [findings, setFindings] = useState<any[]>([]);
   const [loadingList, setLoadingList] = useState(true);
   const [loadingFile, setLoadingFile] = useState(false);
 
   const loadDir = () => {
     setLoadingList(true);
-    fetch('/api/fs/list?path=' + encodeURIComponent('/home/fabio/.openclaw/workspace/outputs/security-council/file-exchange'))
+    fetch('/api/fs/list?path=' + encodeURIComponent('/home/fabio/dashboard/outputs/security-council/file-exchange'))
       .then(r => r.json())
       .then(d => {
         if (d.entries) {
@@ -1078,19 +1125,27 @@ function SecurityTab() {
       const jsonData = await jsonRes.json();
       
       let finalStatus: 'pending' | 'clean' | 'issues' = 'clean';
+      let parsedFindings: any[] = [];
+
       if (jsonData.content) {
         try {
           const parsed = JSON.parse(jsonData.content);
           if (parsed.status) finalStatus = parsed.status;
           else if (parsed.summary?.highest_severity === 'critical' || parsed.summary?.highest_severity === 'high') finalStatus = 'issues';
           else if (parsed.summary?.highest_severity === 'medium' && parsed.finding_count > 0) finalStatus = 'issues';
+          
+          if (Array.isArray(parsed.findings)) {
+            parsedFindings = parsed.findings;
+          }
         } catch(e){}
       } else if (mdData.content) {
         // Fallback markdown parsing
         if (mdData.content.includes('[CRITICAL]') || mdData.content.includes('[HIGH]') || mdData.content.includes('issues')) finalStatus = 'issues';
       }
+      setFindings(parsedFindings);
       setReportStatus(finalStatus);
     } catch (e) {
+      setFindings([]);
       setReportStatus('issues');
     }
     setLoadingFile(false);
@@ -1098,13 +1153,22 @@ function SecurityTab() {
 
   const statusConfig = {
     pending: { icon: Shield,       color: 'text-slate-400', bg: 'bg-slate-500/10', border: 'border-slate-500/20', label: t('settings_sec_awaiting'), glow: '' },
-    clean:   { icon: ShieldCheck,  color: 'text-emerald-400', bg: 'bg-emerald-500/10',  border: 'border-emerald-500/30',  label: 'System Secure', glow: 'shadow-[0_0_15px_rgba(16,185,129,0.15)]' },
-    issues:  { icon: ShieldX,      color: 'text-rose-400',   bg: 'bg-rose-500/10',    border: 'border-rose-500/30',    label: 'Vulnerabilities Detected', glow: 'shadow-[0_0_15px_rgba(244,63,94,0.15)]' },
+    clean:   { icon: ShieldCheck,  color: 'text-emerald-400', bg: 'bg-emerald-500/10',  border: 'border-emerald-500/30',  label: t('settings_sec_clean'), glow: 'shadow-[0_0_15px_rgba(16,185,129,0.15)]' },
+    issues:  { icon: ShieldX,      color: 'text-rose-400',   bg: 'bg-rose-500/10',    border: 'border-rose-500/30',    label: t('settings_sec_issues'), glow: 'shadow-[0_0_15px_rgba(244,63,94,0.15)]' },
+  };
+
+  const getSeverityStyles = (severity: string) => {
+    switch(severity.toLowerCase()) {
+      case 'critical':
+      case 'high': return { color: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/20', label: t('settings_sec_severity_high') };
+      case 'medium': return { color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20', label: t('settings_sec_severity_medium') };
+      case 'low': return { color: 'text-sky-400', bg: 'bg-sky-500/10', border: 'border-sky-500/20', label: t('settings_sec_severity_low') };
+      default: return { color: 'text-slate-400', bg: 'bg-slate-500/10', border: 'border-slate-500/20', label: severity };
+    }
   };
 
   const s = statusConfig[reportStatus];
   const StatusIcon = s.icon;
-  const lines = (reportContent ?? '').split('\n');
   const filteredFiles = files.filter(f => f.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
@@ -1188,15 +1252,83 @@ function SecurityTab() {
               </button>
             </div>
 
-            {/* Markdown Report Content */}
-            <div className="flex-1 glass-panel rounded-2xl overflow-y-auto p-4 lg:p-8">
-              {reportContent ? (
-                <div className="space-y-0 max-w-4xl mx-auto">
-                  {lines.map((line, i) => renderReportLine(line, i))}
+            {/* Findings & Markdown Report */}
+            <div className="flex-1 overflow-y-auto space-y-6 pr-2">
+              {/* Risk Finding Cards */}
+              {findings.length > 0 && (
+                <div className="space-y-4">
+                  <h4 className="text-white font-bold text-sm flex items-center gap-2 px-1">
+                    <ShieldAlert size={16} className="text-rose-400" />
+                    {t('settings_sec_risk_findings')}
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {findings.map((finding, idx) => {
+                      const styles = getSeverityStyles(finding.severity);
+                      return (
+                        <motion.div
+                          key={idx}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: idx * 0.1 }}
+                          className={`glass-card p-5 rounded-2xl border ${styles.border} flex flex-col h-full hover:bg-white/5 transition-colors`}
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest ${styles.bg} ${styles.color} border ${styles.border}`}>
+                              {styles.label}
+                            </span>
+                            <span className="text-[10px] text-slate-500 font-mono">{finding.file}:{finding.line}</span>
+                          </div>
+                          <p className="text-sm font-semibold text-white mb-2 leading-snug">
+                            {finding.description}
+                          </p>
+                          {finding.recommendation && (
+                            <div className="mt-auto pt-3 border-t border-white/5">
+                              <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">{t('settings_sec_recommendation')}</p>
+                              <p className="text-xs text-slate-300 leading-relaxed italic">
+                                &quot;{finding.recommendation}&quot;
+                              </p>
+                            </div>
+                          )}
+                        </motion.div>
+                      );
+                    })}
+                  </div>
                 </div>
-              ) : (
-                <div className="text-center text-slate-500 py-12">No content available for this report.</div>
               )}
+
+              {/* Markdown Report Content */}
+              <div className="glass-panel rounded-2xl overflow-hidden flex flex-col">
+                <div className="px-5 py-3 border-b border-white/5 bg-white/5 flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Full Security Report</span>
+                  <div className="flex gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-white/10" />
+                    <div className="w-2 h-2 rounded-full bg-white/10" />
+                    <div className="w-2 h-2 rounded-full bg-white/10" />
+                  </div>
+                </div>
+                {reportContent ? (
+                  <div className="p-8 text-slate-300 prose prose-invert prose-sm max-w-none">
+                    <ReactMarkdown
+                      components={{
+                        h1: ({node, ...props}) => <h1 className="text-2xl font-bold text-white mb-6 mt-2 border-b border-white/10 pb-2" {...props} />,
+                        h2: ({node, ...props}) => <h2 className="text-xl font-bold text-indigo-300 mb-4 mt-8 flex items-center gap-2" {...props} />,
+                        h3: ({node, ...props}) => <h3 className="text-lg font-bold text-white mb-3 mt-6" {...props} />,
+                        p: ({node, ...props}) => <p className="mb-4 leading-relaxed text-slate-400" {...props} />,
+                        ul: ({node, ...props}) => <ul className="list-disc list-inside mb-4 space-y-2 text-slate-400" {...props} />,
+                        li: ({node, ...props}) => <li className="marker:text-indigo-500" {...props} />,
+                        code: ({node, ...props}: any) => (
+                          <code className="bg-black/40 rounded px-1.5 py-0.5 text-indigo-300 font-mono text-[11px]" {...props} />
+                        ),
+                        strong: ({node, ...props}) => <strong className="text-white font-bold" {...props} />,
+                      }}
+                    >
+                      {reportContent}
+                    </ReactMarkdown>
+                  </div>
+                ) : (
+                  <div className="text-center text-slate-500 py-12">No content available for this report.</div>
+                )}
+              </div>
             </div>
           </div>
         )}

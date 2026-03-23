@@ -5,6 +5,7 @@ import { createChart, ColorType } from 'lightweight-charts';
 import { TrendingUp, TrendingDown, Minus, Circle, RefreshCw, FileText, ExternalLink, Plus, Trash2 } from 'lucide-react';
 import { formatTimeAgo } from '../utils/mockData';
 import { useLanguage } from '../context/LanguageContext';
+import DCFChart, { ValuationBadge } from '../components/DCFChart';
 
 const API_BASE = '/api';
 
@@ -114,6 +115,7 @@ const Watchlist = ({ onAdd, refreshKey }: { onAdd: () => void; refreshKey: numbe
               <th className="px-4 sm:px-5 py-3 text-left">Ticker</th>
               <th className="px-3 sm:px-4 py-3 text-right">Price</th>
               <th className="px-3 sm:px-4 py-3 text-right">Change</th>
+              <th className="px-3 sm:px-4 py-3 text-right">{t('dash_fair').replace(':','')}</th>
               <th className="px-4 py-3 text-right hidden sm:table-cell">7d</th>
               <th className="px-3 sm:px-4 py-3 text-right"></th>
             </tr>
@@ -140,6 +142,9 @@ const Watchlist = ({ onAdd, refreshKey }: { onAdd: () => void; refreshKey: numbe
                       {pos ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                       {pos ? '+' : ''}{item.changePercent.toFixed(2)}%
                     </span>
+                  </td>
+                  <td className="px-3 sm:px-4 py-3.5 text-right">
+                    <ValuationBadge ticker={item.ticker} currentPrice={item.price} />
                   </td>
                   <td className="px-4 py-3.5 hidden sm:table-cell">
                     <div className="flex justify-end">
@@ -272,6 +277,9 @@ const StockNewsCard: React.FC<{ item: StockNews }> = ({ item }) => {
           {item.analysis}
         </p>
       </div>
+
+      {/* DCF Valuation Chart */}
+      <DCFChart ticker={item.ticker} />
 
       {/* Chart */}
       <div className="border-t border-white/5 pt-3 mt-1">

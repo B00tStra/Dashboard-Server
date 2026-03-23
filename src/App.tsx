@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { LanguageProvider } from './context/LanguageContext';
 import Layout from './components/Layout';
+import ChatWidget from './components/ChatWidget';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import EarningsReports from './pages/EarningsReports';
@@ -20,6 +21,7 @@ function App() {
         <Route path="/logs" element={<Layout><AgentLogs /></Layout>} />
         <Route path="/settings" element={<Layout><Settings /></Layout>} />
       </Routes>
+      <ChatWidget />
     </Router>
     </LanguageProvider>
   );
