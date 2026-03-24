@@ -893,21 +893,21 @@ app.get('/api/agents', (_req, res) => {
   res.json(live.length ? live : mockAgentActivity);
 });
 app.get('/api/agent-logs', (_req, res) => {
-  const output = safeExec('openclaw logs --tail 100 --no-color');
+  const output = safeExec('openclaw logs --limit 100 --no-color --plain');
   if (!output) {
     return res.json({ logs: [], error: 'openclaw logs not available' });
   }
 
-  const lines = output.split('\n').filter(line => line.trim());
+  const lines = output.split('\n').filter(line => line.trim() && !line.includes('Doctor warnings') && !line.includes('Log file:'));
   const logs = lines.map((line, idx) => {
-    // Parse log lines - format may vary, basic parsing:
-    const timestampMatch = line.match(/^\[?(\d{2}:\d{2}:\d{2})/);
-    const timestamp = timestampMatch ? timestampMatch[1] : '';
+    // Parse log lines - format: "2026-03-24T04:11:15.413Z warn tools ..."
+    const timestampMatch = line.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/);
+    const timestamp = timestampMatch ? new Date(timestampMatch[1]).toLocaleTimeString() : '';
 
     let type = 'info';
-    if (line.toLowerCase().includes('error') || line.toLowerCase().includes('failed')) type = 'error';
-    else if (line.toLowerCase().includes('warn')) type = 'warning';
-    else if (line.toLowerCase().includes('success') || line.toLowerCase().includes('✓')) type = 'success';
+    if (line.includes(' error ') || line.includes('failed')) type = 'error';
+    else if (line.includes(' warn ')) type = 'warning';
+    else if (line.includes('success') || line.includes('✓')) type = 'success';
 
     return {
       id: String(idx + 1),
