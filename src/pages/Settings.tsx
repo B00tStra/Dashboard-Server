@@ -541,15 +541,27 @@ function AgentsTab() {
   useEffect(() => {
     fetch('/api/agents').then(r => r.json()).then(d => {
       if (Array.isArray(d) && d.length) {
-        setAgents(d.map((item, idx) => ({
-          id: item.id || String(idx + 1),
-          name: item.agent || `Agent ${idx + 1}`,
-          description: item.action || 'Live agent activity',
-          status: item.status === 'running' ? 'running' : item.status === 'done' ? 'idle' : 'error',
-          model: item.ticker || '[live]',
-          tokensToday: 0,
-          tasks: 1,
-        })));
+        setAgents(d.map((item, idx) => {
+          // Parse token string like "51k/272k (19%) · 🗄️ 98% cached"
+          let tokensToday = 0;
+          if (item.tokens) {
+            const match = item.tokens.match(/^([\d.]+)k/);
+            if (match) {
+              tokensToday = parseFloat(match[1]) * 1000;
+            }
+          }
+
+          return {
+            id: item.id || String(idx + 1),
+            name: item.agent || `Agent ${idx + 1}`,
+            description: item.action || 'Live agent activity',
+            status: item.status === 'running' ? 'running' : item.status === 'done' ? 'idle' : 'error',
+            model: item.ticker || '[live]',
+            tokensToday: tokensToday,
+            tasks: 1,
+            rawTokens: item.tokens || '',
+          };
+        }));
       }
     }).catch(() => {});
   }, []);
@@ -594,6 +606,9 @@ function AgentsTab() {
             <div>
               <p className="text-xs text-slate-500 mb-0.5">{t('settings_tokens_today_short')}</p>
               <p className="text-sm font-semibold text-white">{(agent.tokensToday / 1000).toFixed(1)}K</p>
+              {(agent as any).rawTokens && (
+                <p className="text-[10px] text-slate-500 mt-0.5 font-mono">{(agent as any).rawTokens}</p>
+              )}
             </div>
             <div>
               <p className="text-xs text-slate-500 mb-0.5">{t('settings_tasks_done')}</p>

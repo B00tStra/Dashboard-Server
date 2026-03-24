@@ -892,6 +892,33 @@ app.get('/api/agents', (_req, res) => {
   const live = getLiveAgents();
   res.json(live.length ? live : mockAgentActivity);
 });
+app.get('/api/agent-logs', (_req, res) => {
+  const output = safeExec('openclaw logs --tail 100 --no-color');
+  if (!output) {
+    return res.json({ logs: [], error: 'openclaw logs not available' });
+  }
+
+  const lines = output.split('\n').filter(line => line.trim());
+  const logs = lines.map((line, idx) => {
+    // Parse log lines - format may vary, basic parsing:
+    const timestampMatch = line.match(/^\[?(\d{2}:\d{2}:\d{2})/);
+    const timestamp = timestampMatch ? timestampMatch[1] : '';
+
+    let type = 'info';
+    if (line.toLowerCase().includes('error') || line.toLowerCase().includes('failed')) type = 'error';
+    else if (line.toLowerCase().includes('warn')) type = 'warning';
+    else if (line.toLowerCase().includes('success') || line.toLowerCase().includes('✓')) type = 'success';
+
+    return {
+      id: String(idx + 1),
+      timestamp: timestamp || new Date().toLocaleTimeString(),
+      message: line,
+      type: type
+    };
+  });
+
+  res.json({ logs: logs.reverse() }); // newest first
+});
 app.get('/api/stock-news', (_req, res) => res.json(mockStockNews));
 app.get('/api/market-data', (req, res) => res.json(mockMarketData));
 app.get('/api/market-debate', (_req, res) => res.json(marketDebate));
