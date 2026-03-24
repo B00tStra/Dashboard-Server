@@ -348,6 +348,20 @@ const mockAgentActivity = [
   { id: '2', timestamp: new Date(Date.now() - 1000 * 60 * 2).toISOString(), agent: 'NewsParser', action: 'Ingested 14 new articles', ticker: 'NVDA', status: 'done' },
 ];
 
+// FALLBACK: Portfolio stats shown on dashboard
+const mockStats = [
+  { label: 'Portfolio Value', value: '$124,530.00', change: '+2.4% today', positive: true },
+  { label: 'Day P&L', value: '+$2,918.42', change: '+2.40%', positive: true },
+  { label: 'Active Agents', value: '7', change: '2 running now', positive: true },
+  { label: 'News Alerts', value: '14', change: '3 high priority', positive: false },
+];
+
+// FALLBACK: General news feed (not stock-specific)
+const mockNews = [
+  { id: '1', title: 'Apple Reports Strong Q4 Earnings', summary: 'Apple exceeded expectations with $119.4 billion in revenue.', timestamp: new Date(Date.now() - 1000 * 60 * 18).toISOString(), ticker: 'AAPL', sentiment: 'positive' },
+  { id: '2', title: 'Tesla Faces Production Challenges', summary: 'Tesla announces delays in Model Y production.', timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(), ticker: 'TSLA', sentiment: 'negative' },
+];
+
 // Helper for generating realistic looking stock charts (OHLC)
 function generateChartData(basePrice, volatility, points) {
   let open = basePrice;
@@ -540,6 +554,33 @@ const defaultMarketData = {
 let mockWatchlist = loadJSON(WATCHLIST_FILE, defaultWatchlist);
 let mockStockNews = loadJSON(STOCK_NEWS_FILE, defaultStockNews);
 let mockMarketData = loadJSON(MARKET_DATA_FILE, defaultMarketData);
+
+// Market Debate — Bull/Bear/Macro/Tech perspective
+let marketDebate = {
+  last_updated: new Date().toISOString(),
+  entries: [
+    {
+      analyst: 'Bull',
+      sentiment: 'bullish',
+      content: 'Der Markt zeigt starke Unterstützung auf den aktuellen Niveaus. Der KI-Rückenwind befindet sich noch in der Frühphase, und die Unternehmensgewinne bleiben robust. Wir erwarten einen Ausbruch im nächsten Quartal.'
+    },
+    {
+      analyst: 'Bear',
+      sentiment: 'bearish',
+      content: 'Die Bewertungen sind auf historische Extreme gedehnt. Die Inflation bleibt hartnäckig, was die Fed dazu zwingen könnte, die Zinsen länger hoch zu halten. Eine Korrektur ist überfällig.'
+    },
+    {
+      analyst: 'Macro',
+      sentiment: 'neutral',
+      content: 'Die globalen Einkaufsmanagerindizes (PMI) stabilisieren sich. Allerdings sorgen geopolitische Spannungen und bevorstehende Wahlen für Unsicherheit. Diversifikation ist hier der Schlüssel.'
+    },
+    {
+      analyst: 'Technician',
+      sentiment: 'bullish',
+      content: 'Die Indizes handeln über ihren 50-Tage- und 200-Tage-Linien. Der RSI befindet sich noch nicht im überkauften Bereich. Der Pfad des geringsten Widerstands führt weiterhin nach oben.'
+    }
+  ]
+};
 
 console.log(`Loaded ${mockWatchlist.length} watchlist items from disk`);
 console.log(`Loaded ${mockStockNews.length} stock news items from disk`);
@@ -853,6 +894,7 @@ app.get('/api/agents', (_req, res) => {
 });
 app.get('/api/stock-news', (_req, res) => res.json(mockStockNews));
 app.get('/api/market-data', (req, res) => res.json(mockMarketData));
+app.get('/api/market-debate', (_req, res) => res.json(marketDebate));
 
 app.post('/api/market-data', (req, res) => {
   if (req.body && req.body.stocks && req.body.crypto) {
@@ -934,7 +976,14 @@ app.post('/api/security-report', (req, res) => {
 app.post('/api/security-council', (req, res) => {
   const { entries } = req.body || {};
   if (!Array.isArray(entries)) return res.status(400).json({ error: 'entries array is required' });
-  marketDebate = { entries, last_updated: new Date().toISOString() };
+  marketDebate = { entries: entries, last_updated: new Date().toISOString() };
+  res.json({ ok: true, updated: entries.length });
+});
+
+app.post('/api/market-debate', (req, res) => {
+  const { entries } = req.body || {};
+  if (!Array.isArray(entries)) return res.status(400).json({ error: 'entries array is required' });
+  marketDebate = { entries: entries, last_updated: new Date().toISOString() };
   res.json({ ok: true, updated: entries.length });
 });
 
