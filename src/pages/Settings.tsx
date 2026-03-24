@@ -120,17 +120,6 @@ const mockConfigFiles = [
   { name: 'soul.md', type: 'file', content: '---\nname: Agent Soul\ntype: soul\n---\n\n# Core Identity\nYou are a professional financial intelligence assistant.\n\n# Values\n- Accuracy over speed\n- Data-driven insights\n- Transparent reasoning\n\n# Communication Style\nConcise, professional, numbers-first.' },
 ];
 
-const mockTokenUsage = [
-  { date: 'Mon', input: 48000, output: 12000 },
-  { date: 'Tue', input: 62000, output: 18000 },
-  { date: 'Wed', input: 55000, output: 14000 },
-  { date: 'Thu', input: 71000, output: 22000 },
-  { date: 'Fri', input: 89000, output: 28000 },
-  { date: 'Sat', input: 34000, output: 8000 },
-  { date: 'Sun', input: 28000, output: 6000 },
-];
-
-
 const mockAgentLogs = [
   { id: 1, ts: '03:14:22', agent: 'SentimentBot', level: 'info', msg: 'Initialized with 847 articles in queue' },
   { id: 2, ts: '03:14:23', agent: 'NewsParser', level: 'info', msg: 'Connected to Reuters feed' },
@@ -689,73 +678,99 @@ function SoulTab() {
 
 function TokensTab() {
   const { t } = useLanguage();
-  const totalInput = mockTokenUsage.reduce((s, d) => s + d.input, 0);
-  const totalOutput = mockTokenUsage.reduce((s, d) => s + d.output, 0);
-  const maxBar = Math.max(...mockTokenUsage.map(d => d.input + d.output));
+  const [agents, setAgents] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/agents').then(r => r.json()).then(d => {
+      if (Array.isArray(d) && d.length) {
+        const parsed = d.map(item => {
+          // Parse token string like "51k/272k (19%)"
+          let tokensUsed = 0;
+          let tokensLimit = 0;
+          if (item.tokens) {
+            const usedMatch = item.tokens.match(/^([\d.]+)k/);
+            const limitMatch = item.tokens.match(/\/([\d.]+)k/);
+            if (usedMatch) tokensUsed = parseFloat(usedMatch[1]) * 1000;
+            if (limitMatch) tokensLimit = parseFloat(limitMatch[1]) * 1000;
+          }
+          return {
+            id: item.id,
+            name: item.agent || 'Unknown Agent',
+            tokensUsed: tokensUsed,
+            tokensLimit: tokensLimit,
+            rawTokens: item.tokens || '',
+          };
+        });
+        setAgents(parsed);
+      }
+    }).catch(err => console.error('Failed to fetch agents:', err));
+  }, []);
+
+  const totalTokens = agents.reduce((sum, a) => sum + a.tokensUsed, 0);
+  const maxTokens = Math.max(...agents.map(a => a.tokensUsed), 1);
 
   return (
     <div className="space-y-5">
       <div>
         <h2 className="text-xl font-bold text-white">{t('settings_tokens_title')}</h2>
-        <p className="text-slate-400 text-sm">{t('settings_tokens_subtitle')}</p>
+        <p className="text-slate-400 text-sm">Live token usage across all running agents</p>
       </div>
-      <div className="grid grid-cols-3 gap-4">
-        {[
-          { label: t('settings_tokens_total_in'),  value: (totalInput / 1000).toFixed(0) + 'K', color: 'text-indigo-400' },
-          { label: t('settings_tokens_total_out'), value: (totalOutput / 1000).toFixed(0) + 'K', color: 'text-purple-400' },
-          { label: t('settings_tokens_total'),     value: ((totalInput + totalOutput) / 1000).toFixed(0) + 'K', color: 'text-cyan-400' },
-        ].map(s => (
-          <div key={s.label} className="glass-card rounded-2xl p-5">
-            <p className="text-xs text-slate-400 mb-1">{s.label}</p>
-            <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
-          </div>
-        ))}
+
+      {/* Total Tokens Card */}
+      <div className="glass-card rounded-2xl p-6">
+        <p className="text-xs text-slate-400 mb-2">Total Tokens Used Today</p>
+        <p className="text-4xl font-bold text-cyan-400">{(totalTokens / 1000).toFixed(1)}K</p>
+        <p className="text-xs text-slate-500 mt-2">{agents.length} active agents</p>
       </div>
-      <div className="glass-panel rounded-2xl p-5">
-        <p className="text-sm font-semibold text-white mb-5">{t('settings_daily_breakdown')}</p>
-        <div className="space-y-3">
-          {mockTokenUsage.map((d, i) => {
-            const total = d.input + d.output;
-            const pct = (total / maxBar) * 100;
-            const inPct = (d.input / total) * 100;
-            return (
-              <motion.div key={d.date} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-slate-400 w-10">{d.date}</span>
-                  <span className="text-xs text-slate-500">{(total / 1000).toFixed(0)}K total</span>
-                </div>
-                <div className="h-5 bg-slate-800 rounded-full overflow-hidden" style={{ width: '100%' }}>
-                  <div className="h-full rounded-full flex overflow-hidden transition-all duration-700" style={{ width: `${pct}%` }}>
-                    <div className="bg-indigo-500" style={{ width: `${inPct}%` }} />
-                    <div className="bg-purple-500 flex-1" />
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-        <div className="flex gap-4 mt-4 text-xs">
-          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-indigo-500" /> Input</span>
-          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-purple-500" /> Output</span>
-        </div>
-      </div>
+      {/* Per-Agent Breakdown */}
       <div className="glass-panel rounded-2xl p-5">
         <p className="text-sm font-semibold text-white mb-4">{t('settings_by_agent')}</p>
-        <div className="space-y-3">
-          {mockAgents.map((a, i) => {
-            const max = Math.max(...mockAgents.map(x => x.tokensToday));
-            return (
-              <motion.div key={a.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.05 }}
-                className="flex items-center gap-3">
-                <span className="text-xs text-slate-400 w-28 truncate">{a.name}</span>
-                <div className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
-                  <motion.div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
-                    initial={{ width: 0 }} animate={{ width: `${(a.tokensToday / max) * 100}%` }} transition={{ delay: i * 0.05 + 0.3, duration: 0.6 }} />
+        {agents.length === 0 ? (
+          <div className="text-center py-8 text-slate-500">
+            <p>No active agents</p>
+            <p className="text-xs mt-1">Start agents to see token usage</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {agents.map((a, i) => (
+              <motion.div
+                key={a.id}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.05 }}
+                className="space-y-2"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-300 truncate flex-1">{a.name}</span>
+                  <span className="text-sm font-semibold text-white ml-2">{(a.tokensUsed / 1000).toFixed(1)}K</span>
                 </div>
-                <span className="text-xs text-slate-400 w-12 text-right">{(a.tokensToday / 1000).toFixed(1)}K</span>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-3 bg-slate-800 rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(a.tokensUsed / maxTokens) * 100}%` }}
+                      transition={{ delay: i * 0.05 + 0.2, duration: 0.6 }}
+                    />
+                  </div>
+                </div>
+                {a.rawTokens && (
+                  <p className="text-[10px] text-slate-500 font-mono">{a.rawTokens}</p>
+                )}
               </motion.div>
-            );
-          })}
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Info Card */}
+      <div className="glass-panel rounded-2xl p-4 bg-blue-900/10 border border-blue-500/20">
+        <div className="flex items-start gap-3">
+          <AlertCircle size={18} className="text-blue-400 mt-0.5 flex-shrink-0" />
+          <div className="text-xs text-slate-300">
+            <p className="font-semibold mb-1">Live Token Data</p>
+            <p className="text-slate-400">Token usage is tracked in real-time from OpenClaw. Historical data (weekly breakdown) requires OpenClaw telemetry integration.</p>
+          </div>
         </div>
       </div>
     </div>
