@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LineChart, Line, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 import { createChart, ColorType } from 'lightweight-charts';
 import { TrendingUp, TrendingDown, Minus, Circle, RefreshCw, FileText, ExternalLink, Plus, Trash2 } from 'lucide-react';
 import { formatTimeAgo } from '../utils/mockData';
@@ -149,9 +149,23 @@ const Watchlist = ({ onAdd, refreshKey }: { onAdd: () => void; refreshKey: numbe
                   <td className="px-4 py-3.5 hidden sm:table-cell">
                     <div className="flex justify-end">
                       <ResponsiveContainer width={72} height={28}>
-                        <LineChart data={sparkData}>
-                          <Line type="monotone" dataKey="v" stroke={pos ? '#4ade80' : '#f87171'} strokeWidth={1.5} dot={false} />
-                        </LineChart>
+                        <AreaChart data={sparkData}>
+                          <defs>
+                            <linearGradient id={`grad-${item.ticker}`} x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor={pos ? '#4ade80' : '#f87171'} stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor={pos ? '#4ade80' : '#f87171'} stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <Area 
+                            type="monotone" 
+                            dataKey="v" 
+                            stroke={pos ? '#4ade80' : '#f87171'} 
+                            strokeWidth={2} 
+                            fillOpacity={1} 
+                            fill={`url(#grad-${item.ticker})`} 
+                            isAnimationActive={false}
+                          />
+                        </AreaChart>
                       </ResponsiveContainer>
                     </div>
                   </td>

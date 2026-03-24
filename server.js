@@ -330,16 +330,9 @@ function parseCronList() {
     });
 }
 
-// ====== Dashboard Mock Data & Endpoints ======
+// ====== Dashboard Data & Endpoints ======
 
-const mockStats = [
-  { label: 'Portfolio Value', value: '$124,530.00', change: '+2.4% today', positive: true },
-  { label: 'Day P&L', value: '+$2,918.42', change: '+2.40%', positive: true },
-  { label: 'Active Agents', value: '7', change: '2 running now', positive: true },
-  { label: 'News Alerts', value: '14', change: '3 high priority', positive: false },
-];
-
-// Default watchlist — will be overridden by loaded data if exists
+// Default watchlist — FALLBACK: will be overridden by loaded data if exists
 const defaultWatchlist = [
   { ticker: 'NVDA', name: 'NVIDIA Corporation',   price: 875.20, change: 48.30,  changePercent:  5.84, sparkline: [820, 830, 825, 845, 860, 855, 870, 875] },
   { ticker: 'AMD',  name: 'Advanced Micro Devices', price: 162.45, change: -3.10, changePercent: -1.87, sparkline: [170, 168, 165, 167, 164, 163, 165, 162] },
@@ -349,11 +342,7 @@ const defaultWatchlist = [
   { ticker: 'NOW',  name: 'ServiceNow Inc.',       price: 888.50, change: 22.10,  changePercent:  2.55, sparkline: [860, 862, 868, 870, 875, 878, 884, 889] },
 ];
 
-const mockNews = [
-  { id: '1', title: 'Apple Reports Strong Q4 Earnings', summary: 'Apple exceeded expectations with $119.4 billion in revenue.', timestamp: new Date(Date.now() - 1000 * 60 * 18).toISOString(), ticker: 'AAPL', sentiment: 'positive' },
-  { id: '2', title: 'Tesla Faces Production Challenges', summary: 'Tesla announces delays in Model Y production.', timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(), ticker: 'TSLA', sentiment: 'negative' },
-];
-
+// FALLBACK: shown when no live agents are running
 const mockAgentActivity = [
   { id: '1', timestamp: new Date(Date.now() - 1000 * 30).toISOString(), agent: 'SentimentBot', action: 'Scanning earnings call transcripts', ticker: 'AAPL', status: 'running' },
   { id: '2', timestamp: new Date(Date.now() - 1000 * 60 * 2).toISOString(), agent: 'NewsParser', action: 'Ingested 14 new articles', ticker: 'NVDA', status: 'done' },
@@ -394,13 +383,14 @@ function generateChartData(basePrice, volatility, points) {
 
 // Per-stock AI analysis — filled daily by the AI agent
 // Schema: { ticker, name, sentiment: 'bullish'|'bearish'|'neutral', news_summary, analysis, last_updated, chart_1w, chart_1m }
+// FALLBACK: These are shown for newly added tickers until AI agent updates them
 const defaultStockNews = [
   {
     ticker: 'NVDA',
     name: 'NVIDIA Corporation',
     sentiment: 'bullish',
-    news_summary: '[AI Agent: Tägliche News-Zusammenfassung für NVDA wird hier erscheinen.]',
-    analysis: '[AI Agent: Marktanalyse und Einschätzung bullish/bearish für NVDA.]',
+    news_summary: '⏳ Awaiting AI analysis... The agent will scan recent news, earnings reports, and market sentiment for this ticker. Check back in a few minutes.',
+    analysis: '🤖 AI-powered analysis pending. The agent will provide bullish/bearish assessment, key technical levels, and institutional sentiment once the scan completes.',
     last_updated: null,
     chart_1w: generateChartData(850, 8, 7),
     chart_1m: generateChartData(780, 15, 30),
@@ -416,8 +406,8 @@ const defaultStockNews = [
     ticker: 'AMD',
     name: 'Advanced Micro Devices',
     sentiment: 'neutral',
-    news_summary: '[AI Agent: Tägliche News-Zusammenfassung für AMD wird hier erscheinen.]',
-    analysis: '[AI Agent: Marktanalyse und Einschätzung bullish/bearish für AMD.]',
+    news_summary: '⏳ Awaiting AI analysis... The agent will scan recent news, earnings reports, and market sentiment for this ticker. Check back in a few minutes.',
+    analysis: '🤖 AI-powered analysis pending. The agent will provide bullish/bearish assessment, key technical levels, and institutional sentiment once the scan completes.',
     last_updated: null,
     chart_1w: generateChartData(165, 4, 7),
     chart_1m: generateChartData(155, 6, 30),
@@ -433,8 +423,8 @@ const defaultStockNews = [
     ticker: 'NFLX',
     name: 'Netflix Inc.',
     sentiment: 'bullish',
-    news_summary: '[AI Agent: Tägliche News-Zusammenfassung für NFLX wird hier erscheinen.]',
-    analysis: '[AI Agent: Marktanalyse und Einschätzung bullish/bearish für NFLX.]',
+    news_summary: '⏳ Awaiting AI analysis... The agent will scan recent news, earnings reports, and market sentiment for this ticker. Check back in a few minutes.',
+    analysis: '🤖 AI-powered analysis pending. The agent will provide bullish/bearish assessment, key technical levels, and institutional sentiment once the scan completes.',
     last_updated: null,
     chart_1w: generateChartData(880, 6, 7),
     chart_1m: generateChartData(820, 12, 30),
@@ -450,8 +440,8 @@ const defaultStockNews = [
     ticker: 'ANET',
     name: 'Arista Networks',
     sentiment: 'neutral',
-    news_summary: '[AI Agent: Tägliche News-Zusammenfassung für ANET wird hier erscheinen.]',
-    analysis: '[AI Agent: Marktanalyse und Einschätzung bullish/bearish für ANET.]',
+    news_summary: '⏳ Awaiting AI analysis... The agent will scan recent news, earnings reports, and market sentiment for this ticker. Check back in a few minutes.',
+    analysis: '🤖 AI-powered analysis pending. The agent will provide bullish/bearish assessment, key technical levels, and institutional sentiment once the scan completes.',
     last_updated: null,
     chart_1w: generateChartData(390, 4, 7),
     chart_1m: generateChartData(370, 7, 30),
@@ -467,8 +457,8 @@ const defaultStockNews = [
     ticker: 'CPRT',
     name: 'Copart Inc.',
     sentiment: 'neutral',
-    news_summary: '[AI Agent: Tägliche News-Zusammenfassung für CPRT wird hier erscheinen.]',
-    analysis: '[AI Agent: Marktanalyse und Einschätzung bullish/bearish für CPRT.]',
+    news_summary: '⏳ Awaiting AI analysis... The agent will scan recent news, earnings reports, and market sentiment for this ticker. Check back in a few minutes.',
+    analysis: '🤖 AI-powered analysis pending. The agent will provide bullish/bearish assessment, key technical levels, and institutional sentiment once the scan completes.',
     last_updated: null,
     chart_1w: generateChartData(53, 1.5, 7),
     chart_1m: generateChartData(50, 2, 30),
@@ -484,8 +474,8 @@ const defaultStockNews = [
     ticker: 'NOW',
     name: 'ServiceNow Inc.',
     sentiment: 'bullish',
-    news_summary: '[AI Agent: Tägliche News-Zusammenfassung für NOW wird hier erscheinen.]',
-    analysis: '[AI Agent: Marktanalyse und Einschätzung bullish/bearish für NOW.]',
+    news_summary: '⏳ Awaiting AI analysis... The agent will scan recent news, earnings reports, and market sentiment for this ticker. Check back in a few minutes.',
+    analysis: '🤖 AI-powered analysis pending. The agent will provide bullish/bearish assessment, key technical levels, and institutional sentiment once the scan completes.',
     last_updated: null,
     chart_1w: generateChartData(860, 8, 7),
     chart_1m: generateChartData(810, 14, 30),
@@ -1028,6 +1018,48 @@ app.post('/api/tickers', async (req, res) => {
 
   saveJSON(WATCHLIST_FILE, mockWatchlist);
   saveJSON(STOCK_NEWS_FILE, mockStockNews);
+
+  // Also update AI agent config if it exists
+  const stockConfigPath = '/home/fabio/.openclaw/workspace/stock_config.json';
+  if (fs.existsSync(stockConfigPath)) {
+    try {
+      let config = JSON.parse(fs.readFileSync(stockConfigPath, 'utf8'));
+      if (config.stocks && !config.stocks.find(s => s.ticker === symbol)) {
+        // Find company name from news if possible
+        const addedStock = mockStockNews.find(s => s.ticker === symbol);
+        const companyName = addedStock ? addedStock.name : symbol;
+        
+        config.stocks.push({
+          ticker: symbol,
+          name: companyName,
+          marker: symbol[0],
+          marker_label: `${symbol}-Markierung`,
+          accent: 'indigo',
+          identity: 'Neu hinzugefügt',
+          brand: {
+            badge_label: companyName,
+            ticker_label: symbol,
+            badge_bg: '#1e1b4b',
+            badge_border: 'rgba(99,102,241,0.24)',
+            badge_fg: '#f8fafc',
+            logo_url: '',
+            logo_alt: `${companyName} Logo`
+          },
+          queries: [
+            `${companyName} stock`,
+            `${symbol} earnings`,
+            `${symbol} news`,
+            `${symbol} analysis`
+          ]
+        });
+        fs.writeFileSync(stockConfigPath, JSON.stringify(config, null, 2));
+        console.log(`Added ${symbol} to AI agent config.`);
+      }
+    } catch (err) {
+      console.error('Failed to update stock_config.json:', err.message);
+    }
+  }
+
   res.json({ ok: true, symbol });
 });
 
@@ -1061,6 +1093,176 @@ if (fs.existsSync(distPath)) {
   });
   console.log('Serving production build from /dist');
 }
+
+// ====== Live Market Data API Polling ======
+// Fetch real market data from APIs every 5 minutes (not AI-interpreted)
+
+async function fetchFearAndGreedStocks() {
+  try {
+    // Primary: FearGreedMeter.com
+    const response = await fetch('https://feargreedmeter.com/');
+    const html = await response.text();
+    const match = html.match(/"value":\s*(\d+)/);
+    if (match) return parseInt(match[1]);
+  } catch (err) {
+    console.error('[F&G Stocks] Primary source failed:', err.message);
+  }
+
+  try {
+    // Fallback: CNN API
+    const response = await fetch('https://production.dataviz.cnn.io/index/fearandgreed/graphdata');
+    const data = await response.json();
+    return parseInt(data.fear_and_greed.score);
+  } catch (err) {
+    console.error('[F&G Stocks] Fallback failed:', err.message);
+  }
+
+  return null;
+}
+
+async function fetchFearAndGreedCrypto() {
+  try {
+    const response = await fetch('https://api.alternative.me/fng/?limit=5');
+    const data = await response.json();
+    return {
+      current: parseInt(data.data[0].value),
+      yesterday: parseInt(data.data[1]?.value || data.data[0].value),
+      lastWeek: parseInt(data.data[4]?.value || data.data[0].value),
+      status: data.data[0].value_classification,
+    };
+  } catch (err) {
+    console.error('[F&G Crypto] Failed:', err.message);
+    return null;
+  }
+}
+
+async function fetchCryptoMarketData() {
+  try {
+    const response = await fetch('https://api.coingecko.com/api/v3/global');
+    const data = await response.json();
+    return {
+      btcDominance: parseFloat(data.data.market_cap_percentage.btc.toFixed(1)),
+      totalMarketCap: (data.data.total_market_cap.usd / 1e12).toFixed(2), // in Trillions
+    };
+  } catch (err) {
+    console.error('[CoinGecko] Failed:', err.message);
+    return null;
+  }
+}
+
+async function fetchEthGas() {
+  try {
+    const response = await fetch('https://api.blocknative.com/gasprices/blockprices');
+    const data = await response.json();
+    return Math.round(data.blockPrices[0].baseFeePerGas);
+  } catch (err) {
+    console.error('[ETH Gas] Failed:', err.message);
+    return null;
+  }
+}
+
+async function updateMarketDataFromAPIs() {
+  console.log('[Market Data Poller] Fetching live data from APIs...');
+
+  const [stocksFG, cryptoFG, cryptoData, ethGas] = await Promise.all([
+    fetchFearAndGreedStocks(),
+    fetchFearAndGreedCrypto(),
+    fetchCryptoMarketData(),
+    fetchEthGas(),
+  ]);
+
+  // Load existing data
+  const existing = loadJSON(MARKET_DATA_FILE, {
+    stocks: { fearAndGreed: {}, macro: [] },
+    crypto: { fearAndGreed: {}, macro: [] },
+  });
+
+  // Update with fresh API data
+  if (stocksFG !== null) {
+    existing.stocks.fearAndGreed = {
+      current: stocksFG,
+      yesterday: existing.stocks.fearAndGreed?.yesterday || stocksFG,
+      lastWeek: existing.stocks.fearAndGreed?.lastWeek || stocksFG,
+      lastMonth: existing.stocks.fearAndGreed?.lastMonth || stocksFG,
+      lastYear: existing.stocks.fearAndGreed?.lastYear,
+      status: stocksFG <= 25 ? 'Extreme Fear' : stocksFG <= 45 ? 'Fear' : stocksFG <= 55 ? 'Neutral' : stocksFG <= 75 ? 'Greed' : 'Extreme Greed',
+      indicators: existing.stocks.fearAndGreed?.indicators || [
+        { name: 'Market Momentum', status: 'Fear', value: 'S&P 500 below 125-day MA' },
+        { name: 'Stock Price Strength', status: 'Fear', value: '52-week lows outpacing highs' },
+        { name: 'Put and Call Options', status: 'Fear', value: 'Put/Call ratio elevated' },
+        { name: 'Market Volatility', status: 'Fear', value: 'VIX elevated' },
+      ],
+    };
+  }
+
+  if (cryptoFG) {
+    existing.crypto.fearAndGreed = {
+      current: cryptoFG.current,
+      yesterday: cryptoFG.yesterday,
+      lastWeek: cryptoFG.lastWeek,
+      lastMonth: existing.crypto.fearAndGreed?.lastMonth || cryptoFG.current,
+      status: cryptoFG.status,
+      indicators: existing.crypto.fearAndGreed?.indicators || [
+        { name: 'Volatility', status: 'Fear', value: 'High volatility' },
+        { name: 'Market Momentum', status: 'Fear', value: 'Bearish crossovers' },
+        { name: 'Social Media', status: 'Fear', value: 'Negative sentiment' },
+      ],
+    };
+  }
+
+  if (cryptoData) {
+    const prevBTC = existing.crypto.macro?.find(m => m.label === 'BTC Dominance')?.value || '56.0%';
+    const prevCap = existing.crypto.macro?.find(m => m.label === 'Total Market Cap')?.value || '$2.40T';
+
+    existing.crypto.macro = [
+      {
+        label: 'BTC Dominance',
+        value: `${cryptoData.btcDominance}%`,
+        prev: prevBTC,
+        status: parseFloat(cryptoData.btcDominance) > parseFloat(prevBTC) ? 'hot' : 'good',
+      },
+      {
+        label: 'Total Market Cap',
+        value: `$${cryptoData.totalMarketCap}T`,
+        prev: prevCap,
+        status: parseFloat(cryptoData.totalMarketCap) > parseFloat(prevCap.replace(/[$T]/g, '')) ? 'good' : 'neutral',
+      },
+      existing.crypto.macro?.find(m => m.label === 'ETH Gas (Gwei)') || {
+        label: 'ETH Gas (Gwei)',
+        value: ethGas ? String(ethGas) : '12',
+        prev: '15',
+        status: 'good',
+      },
+    ];
+
+    if (ethGas !== null) {
+      existing.crypto.macro[2] = {
+        label: 'ETH Gas (Gwei)',
+        value: String(ethGas),
+        prev: existing.crypto.macro[2]?.value || '15',
+        status: ethGas < 20 ? 'good' : 'hot',
+      };
+    }
+  }
+
+  // Keep stocks macro data (Fed Rate, CPI, Payrolls) - these are updated by AI less frequently
+  if (!existing.stocks.macro || existing.stocks.macro.length === 0) {
+    existing.stocks.macro = [
+      { label: 'Fed Target Rate', value: '5.25 - 5.50%', prev: '5.25 - 5.50%', status: 'neutral' },
+      { label: 'CPI (YoY)', value: '2.8%', prev: '3.1%', status: 'good' },
+      { label: 'Non-Farm Payrolls', value: '275K', prev: '229K', status: 'hot' },
+    ];
+  }
+
+  saveJSON(MARKET_DATA_FILE, existing);
+  mockMarketData = existing; // Update in-memory cache
+  console.log('[Market Data Poller] ✓ Updated successfully');
+}
+
+// Poll every 5 minutes
+setInterval(updateMarketDataFromAPIs, 5 * 60 * 1000);
+// Initial fetch on startup
+updateMarketDataFromAPIs();
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
