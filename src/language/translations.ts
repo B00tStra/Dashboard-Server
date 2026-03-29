@@ -7,6 +7,8 @@ const en: Translations = {
   nav_dashboard:    'Dashboard',
   nav_earnings:     'Earnings Reports',
   nav_analysis:     'Market Analysis',
+  nav_debate:       'Market Debate',
+  nav_token_usage:  'Token Usage',
   nav_settings:     'Settings',
 
   // ── Home ──────────────────────────────────────────────────────────────────
@@ -41,6 +43,15 @@ const en: Translations = {
   card_settings_stat2:    'Config Files',
   card_settings_stat3:    'Agents',
 
+  // ── Market Debate ─────────────────────────────────────────────────────────
+  debate_title:     'Market Debate',
+  debate_subtitle:  'Autonomous analysis from four distinct perspectives',
+  debate_bull:      'The Bull',
+  debate_bear:      'The Bear',
+  debate_macro:     'The Macro',
+  debate_tech:      'The Technician',
+  debate_last_updated: 'Last Debate Update:',
+
   // ── Dashboard ─────────────────────────────────────────────────────────────
   dash_watchlist:           'Watchlist',
   dash_add_placeholder:     'Add ticker…',
@@ -61,6 +72,13 @@ const en: Translations = {
   dash_current:             'Current',
   dash_bearish_range:       'Bearish Range',
   dash_bullish_projection:  'Bullish Projection',
+
+  dcf_info_title:    'DCF Valuation Model',
+  dcf_info_p1:       'The system calculates the value of a company based on its future cash flows:',
+  dcf_info_step1:    'Phase 1 (Growth): Projects free cash flows for the next 10 years. Growth rate (based on analyst estimates) is used for the first 5 years, then gradually slows to a terminal rate (2.5%).',
+  dcf_info_step2:    'Phase 2 (Terminal Value): Calculates the value of the business beyond the 10-year projection (Terminal Value).',
+  dcf_info_step3:    'Discounting: All future sums are discounted to the present day using the "Cost of Equity" (CAPM with current Beta and risk-free rate).',
+  dcf_info_step4:    'Net Debt: Cash is added and debt is subtracted to arrive at the equity value per share.',
 
   // ── Earnings Reports ──────────────────────────────────────────────────────
   earn_title:            'Earnings Reports',
@@ -119,7 +137,6 @@ const en: Translations = {
   settings_tab_tokens:     'Token Usage',
   settings_tab_reporting:  'Explorer',
   settings_tab_logs:       'Agent Logs',
-  settings_tab_security:   'Security Council',
 
   // ── Settings – Overview ───────────────────────────────────────────────────
   settings_overview_title:    'Control Hub',
@@ -180,23 +197,6 @@ const en: Translations = {
   settings_logs_title:    'Agent Logs',
   settings_logs_subtitle: 'Live terminal output from all agents',
 
-  // ── Settings – Security Council ───────────────────────────────────────────
-  settings_sec_title:         'Security Council',
-  settings_sec_subtitle:      'AI Agent scans the server for vulnerabilities and files a daily report here.',
-  settings_sec_refresh:       'Refresh',
-  settings_sec_awaiting:      'Awaiting Scan',
-  settings_sec_clean:         'No Issues Found',
-  settings_sec_issues:        'Issues Detected',
-  settings_sec_last_scan:     'Last scan:',
-  settings_sec_no_scan:       'No scan has been run yet',
-  settings_sec_waiting:       'Waiting for agent…',
-  settings_sec_no_report:     'No report available yet',
-  settings_sec_no_report_sub: 'The Security Agent will place its report here after the first scan.',
-  settings_sec_risk_findings: 'Risk Findings',
-  settings_sec_severity_high: 'High',
-  settings_sec_severity_medium: 'Medium',
-  settings_sec_severity_low: 'Low',
-  settings_sec_recommendation: 'Recommendation',
 
   // ── Common ────────────────────────────────────────────────────────────────
   save:    'Save',
@@ -212,6 +212,8 @@ const de: Translations = {
   nav_dashboard:    'Dashboard',
   nav_earnings:     'Berichte',
   nav_analysis:     'Marktanalyse',
+  nav_debate:       'Markt-Debatte',
+  nav_token_usage:  'Token-Verbrauch',
   nav_settings:     'Einstellungen',
 
   // ── Home ──────────────────────────────────────────────────────────────────
@@ -240,11 +242,20 @@ const de: Translations = {
   card_analysis_stat3:    'Signale',
 
   card_settings_title:    'Einstellungen',
-  card_settings_subtitle: 'Konfig · Dateien · Zeitplan',
-  card_settings_desc:     'Kontrollzentrum für Agentkonfiguration, Cron-Jobs, Dateiexplorer, Token-Verbrauch und Soul-Editor.',
+  card_settings_subtitle: 'Konfig · Dateien · Zeitpläne',
+  card_settings_desc:     'Kontrollzentrum für Agenten-Konfiguration, Cron-Jobs, Dateiexplorer, Token-Nutzung und System-Soul-Editor.',
   card_settings_stat1:    'Cron-Jobs',
-  card_settings_stat2:    'Konfigdateien',
+  card_settings_stat2:    'Dateien',
   card_settings_stat3:    'Agenten',
+
+  // ── Markt-Debatte ─────────────────────────────────────────────────────────
+  debate_title:     'Markt-Debatte',
+  debate_subtitle:  'Autonome Analyse aus vier verschiedenen Perspektiven',
+  debate_bull:      'Der Bulle',
+  debate_bear:      'Der Bär',
+  debate_macro:     'Der Makro-Experte',
+  debate_tech:      'Der Techniker',
+  debate_last_updated: 'Letzte Aktualisierung der Debatte:',
 
   // ── Dashboard ─────────────────────────────────────────────────────────────
   dash_watchlist:           'Watchlist',
@@ -266,6 +277,13 @@ const de: Translations = {
   dash_current:             'Aktuell',
   dash_bearish_range:       'Bärischer Bereich',
   dash_bullish_projection:  'Bullische Prognose',
+
+  dcf_info_title:    'DCF-Bewertungsmodell',
+  dcf_info_p1:       'Das System berechnet den Wert eines Unternehmens basierend auf seinen zukünftigen Cashflows:',
+  dcf_info_step1:    'Phase 1 (Wachstum): Prognostiziert die freien Cashflows der nächsten 10 Jahre. Wachstumsrate (Analystenschätzungen) für die ersten 5 Jahre, danach langsame Annäherung an Endwert (2,5%).',
+  dcf_info_step2:    'Phase 2 (Endwert): Berechnet den Wert des Unternehmens nach diesen 10 Jahren (Terminal Value).',
+  dcf_info_step3:    'Abzinsung: Alle zukünftigen Summen werden mit den "Kapitalkosten" (CAPM mit aktuellem Beta und risikolosem Zins) abgezinst.',
+  dcf_info_step4:    'Netto-Schulden: Cash wird addiert und Schulden abgezogen, um den Eigenkapitalwert pro Aktie zu erhalten.',
 
   // ── Earnings Reports ──────────────────────────────────────────────────────
   earn_title:            'Quartalsergebnisse',
@@ -324,7 +342,6 @@ const de: Translations = {
   settings_tab_tokens:     'Token-Verbrauch',
   settings_tab_reporting:  'Explorer',
   settings_tab_logs:       'Agenten-Logs',
-  settings_tab_security:   'Sicherheitsrat',
 
   // ── Settings – Overview ───────────────────────────────────────────────────
   settings_overview_title:    'Kontrollzentrum',
@@ -385,23 +402,6 @@ const de: Translations = {
   settings_logs_title:    'Agenten-Logs',
   settings_logs_subtitle: 'Live-Terminal-Ausgabe aller Agenten',
 
-  // ── Settings – Security Council ───────────────────────────────────────────
-  settings_sec_title:         'Sicherheitsrat',
-  settings_sec_subtitle:      'Der KI-Agent scannt den Server auf Schwachstellen und hinterlegt täglich einen Bericht hier.',
-  settings_sec_refresh:       'Aktualisieren',
-  settings_sec_awaiting:      'Warte auf Scan',
-  settings_sec_clean:         'Keine Probleme gefunden',
-  settings_sec_issues:        'Probleme erkannt',
-  settings_sec_last_scan:     'Letzter Scan:',
-  settings_sec_no_scan:       'Es wurde noch kein Scan durchgeführt',
-  settings_sec_waiting:       'Warte auf Agenten…',
-  settings_sec_no_report:     'Noch kein Bericht verfügbar',
-  settings_sec_no_report_sub: 'Der Sicherheits-Agent hinterlegt nach dem ersten Scan seinen Bericht hier.',
-  settings_sec_risk_findings: 'Risiko-Funde',
-  settings_sec_severity_high: 'Hoch',
-  settings_sec_severity_medium: 'Mittel',
-  settings_sec_severity_low: 'Niedrig',
-  settings_sec_recommendation: 'Empfehlung',
 
   // ── Common ────────────────────────────────────────────────────────────────
   save:    'Speichern',

@@ -3,6 +3,8 @@ import { motion, Variants } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { BarChart3, FileText, TrendingUp, Settings as SettingsIcon } from 'lucide-react';
+// Removed FearAndGreedGauge import as it is no longer used on this page
+
 
 interface NavCard {
   title: string;
@@ -142,6 +144,8 @@ function NavCards() {
   );
 }
 
+
+
 const Home: React.FC = () => {
   const { lang, setLang, t } = useLanguage();
   
@@ -272,6 +276,8 @@ const Home: React.FC = () => {
             {t('home_tagline')}
           </motion.p>
         </motion.div>
+
+        {/* ── Market Snapshot removed ── */}
 
         <NavCards />
       </div>

@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AreaChart, Area, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, ResponsiveContainer, YAxis } from 'recharts';
 import { createChart, ColorType } from 'lightweight-charts';
-import { TrendingUp, TrendingDown, Minus, Circle, RefreshCw, FileText, ExternalLink, Plus, Trash2 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Circle, RefreshCw, FileText, ExternalLink, Plus, Trash2, Info } from 'lucide-react';
 import { formatTimeAgo } from '../utils/mockData';
 import { useLanguage } from '../context/LanguageContext';
 import DCFChart, { ValuationBadge } from '../components/DCFChart';
+// @ts-ignore
+import { motion } from 'framer-motion';
 
 const API_BASE = '/api';
 
@@ -115,7 +117,19 @@ const Watchlist = ({ onAdd, refreshKey }: { onAdd: () => void; refreshKey: numbe
               <th className="px-4 sm:px-5 py-3 text-left">Ticker</th>
               <th className="px-3 sm:px-4 py-3 text-right">Price</th>
               <th className="px-3 sm:px-4 py-3 text-right">Change</th>
-              <th className="px-3 sm:px-4 py-3 text-right">{t('dash_fair').replace(':','')}</th>
+              <th className="px-3 sm:px-4 py-3 text-right">
+                <div className="flex items-center justify-end gap-1.5 group/header relative">
+                  <span>{t('dash_fair').replace(':','')}</span>
+                  <div className="relative group/fair">
+                    <Info size={11} className="text-slate-600 cursor-help hover:text-indigo-400 transition-colors" />
+                    <div className="absolute top-full right-0 mt-3 w-64 p-3 bg-[#0a0a0c] border border-white/10 rounded-xl text-[10px] text-slate-400 opacity-0 group-hover/fair:opacity-100 transition-all transform -translate-y-2 group-hover/fair:translate-y-0 pointer-events-none z-50 shadow-2xl backdrop-blur-xl font-medium normal-case">
+                      <p className="font-bold text-slate-200 mb-1.5 uppercase tracking-wider">{t('dcf_info_title')}</p>
+                      <p className="leading-relaxed">{t('dcf_info_p1')}</p>
+                      <p className="mt-1.5 text-[9px] text-slate-500 italic">Click onto a news card for full details.</p>
+                    </div>
+                  </div>
+                </div>
+              </th>
               <th className="px-4 py-3 text-right hidden sm:table-cell">7d</th>
               <th className="px-3 sm:px-4 py-3 text-right"></th>
             </tr>
@@ -134,12 +148,12 @@ const Watchlist = ({ onAdd, refreshKey }: { onAdd: () => void; refreshKey: numbe
                       <p className="text-slate-400 text-xs truncate hidden sm:block">{item.name}</p>
                     </div>
                   </td>
-                  <td className="px-3 sm:px-4 py-3.5 text-right text-white font-mono text-sm font-medium">
+                  <td className={`px-3 sm:px-4 py-3.5 text-right font-mono text-sm font-bold shadow-sm transition-colors duration-300 ${pos ? 'text-emerald-400' : 'text-rose-400'}`}>
                     ${item.price.toFixed(2)}
                   </td>
                   <td className="px-3 sm:px-4 py-3.5 text-right">
-                    <span className={`flex items-center justify-end gap-1 text-sm font-medium ${pos ? 'text-green-400' : 'text-red-400'}`}>
-                      {pos ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                    <span className={`inline-flex items-center justify-end gap-1 px-2 py-1 rounded-lg text-xs font-black tracking-tight ${pos ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
+                      {pos ? <TrendingUp size={12} strokeWidth={3} /> : <TrendingDown size={12} strokeWidth={3} />}
                       {pos ? '+' : ''}{item.changePercent.toFixed(2)}%
                     </span>
                   </td>
@@ -148,19 +162,20 @@ const Watchlist = ({ onAdd, refreshKey }: { onAdd: () => void; refreshKey: numbe
                   </td>
                   <td className="px-4 py-3.5 hidden sm:table-cell">
                     <div className="flex justify-end">
-                      <ResponsiveContainer width={72} height={28}>
+                      <ResponsiveContainer width={100} height={42}>
                         <AreaChart data={sparkData}>
                           <defs>
                             <linearGradient id={`grad-${item.ticker}`} x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor={pos ? '#4ade80' : '#f87171'} stopOpacity={0.3}/>
-                              <stop offset="95%" stopColor={pos ? '#4ade80' : '#f87171'} stopOpacity={0}/>
+                              <stop offset="5%" stopColor={pos ? '#10b981' : '#f43f5e'} stopOpacity={0.4}/>
+                              <stop offset="95%" stopColor={pos ? '#10b981' : '#f43f5e'} stopOpacity={0}/>
                             </linearGradient>
                           </defs>
+                          <YAxis hide domain={['dataMin', 'dataMax']} />
                           <Area 
                             type="monotone" 
                             dataKey="v" 
-                            stroke={pos ? '#4ade80' : '#f87171'} 
-                            strokeWidth={2} 
+                            stroke={pos ? '#34d399' : '#fb7185'} 
+                            strokeWidth={2.5} 
                             fillOpacity={1} 
                             fill={`url(#grad-${item.ticker})`} 
                             isAnimationActive={false}
@@ -384,7 +399,8 @@ const Dashboard: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0);
 
   return (
-    <div className="p-4 sm:p-6 space-y-6 sm:space-y-8 pb-12">
+    <div className="p-4 sm:p-6 space-y-8 pb-12">
+
       <Watchlist refreshKey={refreshKey} onAdd={() => setRefreshKey(k => k + 1)} />
       <StockNewsFeed refreshKey={refreshKey} />
       <MemoryLinks />

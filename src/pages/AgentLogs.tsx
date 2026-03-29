@@ -136,7 +136,7 @@ const AgentLogs: React.FC = () => {
               <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
               <div className="w-3 h-3 rounded-full bg-green-500/80" />
             </div>
-            <span className="text-xs font-mono text-slate-400 ml-2">openclaw logs --tail 100</span>
+            <span className="text-xs font-mono text-slate-400 ml-2">agent logs (OpenClaw removed)</span>
           </div>
           {isAutoRefresh && (
             <div className="flex items-center gap-2 text-xs text-green-400">

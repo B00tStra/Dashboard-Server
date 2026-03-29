@@ -96,12 +96,31 @@ const DCFChart = ({ ticker }: { ticker: string }) => {
           <div className="group/info relative">
             <div className="group/info relative">
               <Info size={12} className="text-slate-600 cursor-help hover:text-indigo-400 transition-colors" />
-              <div className="absolute bottom-full left-0 mb-3 w-56 p-3 bg-[#0a0a0c] border border-white/10 rounded-xl text-[10px] text-slate-400 opacity-0 group-hover/info:opacity-100 transition-all transform translate-y-2 group-hover/info:translate-y-0 pointer-events-none z-50 shadow-2xl backdrop-blur-xl">
-                <p className="font-bold text-slate-200 mb-1.5 uppercase tracking-wider">DCF Valuation Model</p>
-                <div className="space-y-1">
-                  <div className="flex justify-between"><span>Beta</span> <span className="text-white">{data.assumptions.beta}</span></div>
-                  <div className="flex justify-between"><span>Growth Rate</span> <span className="text-white">{data.assumptions.growthRate}%</span></div>
-                  <div className="flex justify-between"><span>Discount Rate</span> <span className="text-white">{data.assumptions.costOfEquity}%</span></div>
+              <div className="absolute bottom-full left-0 mb-3 w-80 p-4 bg-[#0a0a0c] border border-white/10 rounded-2xl text-[10px] text-slate-400 opacity-0 group-hover/info:opacity-100 transition-all transform translate-y-2 group-hover/info:translate-y-0 pointer-events-none z-50 shadow-2xl backdrop-blur-xl">
+                <p className="font-bold text-slate-200 mb-2 uppercase tracking-wider">{t('dcf_info_title')}</p>
+                <p className="mb-3 text-slate-500 leading-relaxed italic">{t('dcf_info_p1')}</p>
+                <ul className="space-y-2 text-slate-300">
+                  <li className="flex gap-2">
+                    <span className="text-indigo-400 font-bold">•</span>
+                    <span>{t('dcf_info_step1')}</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-indigo-400 font-bold">•</span>
+                    <span>{t('dcf_info_step2')}</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-indigo-400 font-bold">•</span>
+                    <span>{t('dcf_info_step3')}</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-indigo-400 font-bold">•</span>
+                    <span>{t('dcf_info_step4')}</span>
+                  </li>
+                </ul>
+                <div className="mt-4 pt-3 border-t border-white/5 flex gap-4 text-[9px] font-bold text-slate-500">
+                  <span>BETA: <span className="text-white">{data.assumptions.beta}</span></span>
+                  <span>WGR: <span className="text-white">{data.assumptions.growthRate}%</span></span>
+                  <span>DR: <span className="text-white">{data.assumptions.costOfEquity}%</span></span>
                 </div>
               </div>
             </div>

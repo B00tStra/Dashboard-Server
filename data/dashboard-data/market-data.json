@@ -1,0 +1,99 @@
+{
+  "stocks": {
+    "fearAndGreed": {
+      "current": 10,
+      "yesterday": 10,
+      "lastWeek": 10,
+      "lastMonth": 10,
+      "status": "Extreme Fear",
+      "indicators": [
+        {
+          "name": "Market Momentum",
+          "status": "Fear",
+          "value": "S&P 500 below 125-day MA"
+        },
+        {
+          "name": "Stock Price Strength",
+          "status": "Fear",
+          "value": "52-week lows outpacing highs"
+        },
+        {
+          "name": "Put and Call Options",
+          "status": "Fear",
+          "value": "Put/Call ratio elevated"
+        },
+        {
+          "name": "Market Volatility",
+          "status": "Fear",
+          "value": "VIX elevated"
+        }
+      ]
+    },
+    "macro": [
+      {
+        "label": "Fed Target Rate",
+        "value": "5.25 - 5.50%",
+        "prev": "5.25 - 5.50%",
+        "status": "neutral"
+      },
+      {
+        "label": "CPI (YoY)",
+        "value": "2.8%",
+        "prev": "3.1%",
+        "status": "good"
+      },
+      {
+        "label": "Non-Farm Payrolls",
+        "value": "275K",
+        "prev": "229K",
+        "status": "hot"
+      }
+    ]
+  },
+  "crypto": {
+    "fearAndGreed": {
+      "current": 9,
+      "yesterday": 12,
+      "lastWeek": 14,
+      "lastMonth": 9,
+      "status": "Extreme Fear",
+      "indicators": [
+        {
+          "name": "Volatility",
+          "status": "Fear",
+          "value": "High volatility"
+        },
+        {
+          "name": "Market Momentum",
+          "status": "Fear",
+          "value": "Bearish crossovers"
+        },
+        {
+          "name": "Social Media",
+          "status": "Fear",
+          "value": "Negative sentiment"
+        }
+      ]
+    },
+    "macro": [
+      {
+        "label": "BTC Dominance",
+        "value": "56.1%",
+        "prev": "56.1%",
+        "status": "good"
+      },
+      {
+        "label": "Total Market Cap",
+        "value": "$2.37T",
+        "prev": "$2.37T",
+        "status": "neutral"
+      },
+      {
+        "label": "ETH Gas (Gwei)",
+        "value": "0",
+        "prev": "0",
+        "status": "good"
+      }
+    ]
+  }
+}

@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 // ====== Persistent Data Storage ======
-const DATA_DIR = '/home/fabio/.openclaw/workspace/dashboard-data';
+const DATA_DIR = '/home/fabio/dashboard/data/dashboard-data';
 const STOCK_NEWS_FILE = path.join(DATA_DIR, 'stock-news.json');
 const MARKET_DATA_FILE = path.join(DATA_DIR, 'market-data.json');
 const WATCHLIST_FILE = path.join(DATA_DIR, 'watchlist.json');
@@ -51,17 +51,8 @@ const YAHOO_HEADERS = {
   'Referer': 'https://finance.yahoo.com/'
 };
 
-// If deployed, protect POST routes so only your AI Agent can update data.
-const AGENT_API_KEY = process.env.AGENT_API_KEY;
-app.use((req, res, next) => {
-  if (req.method === 'POST' && AGENT_API_KEY && req.path.startsWith('/api/') && !req.path.includes('/chat')) {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || authHeader !== `Bearer ${AGENT_API_KEY}`) {
-      return res.status(401).json({ error: 'Unauthorized: Invalid or missing API Key' });
-    }
-  }
-  next();
-});
+// API Key protection removed - OpenClaw agent no longer used
+// Future: Add API authentication when integrating NotebookLM or other services
 
 // Resolve and normalize a path safely
 function resolvePath(p) {
@@ -135,9 +126,9 @@ app.post('/api/fs/write', (req, res) => {
 app.get('/api/fs/drives', (_req, res) => {
   const candidates = [
     '/',
-    '/home/fabio/.openclaw/workspace',
+    '/home/fabio/dashboard/data',
     '/home/fabio/dashboard',
-    '/home/fabio/.openclaw/secrets',
+    '/home/fabio/dashboard/data/secrets',
   ];
   const drives = candidates.filter((p, idx, arr) => arr.indexOf(p) === idx).filter((p) => {
     try { fs.accessSync(p); return true; } catch { return false; }
@@ -158,14 +149,13 @@ app.get('/api/cron', (_req, res) => {
 
 app.get('/api/config-files', (_req, res) => {
   const files = [
-    { group: 'core', path: '/home/fabio/.openclaw/workspace/SOUL.md' },
-    { group: 'core', path: '/home/fabio/.openclaw/workspace/MEMORY.md' },
-    { group: 'core', path: '/home/fabio/.openclaw/workspace/USER.md' },
-    { group: 'core', path: '/home/fabio/.openclaw/workspace/AGENTS.md' },
-    { group: 'core', path: '/home/fabio/.openclaw/workspace/HEARTBEAT.md' },
-    { group: 'ops', path: '/home/fabio/.openclaw/workspace/cron.md' },
-    { group: 'ops', path: '/home/fabio/.openclaw/workspace/stock_config.json' },
-    { group: 'ops', path: '/home/fabio/.openclaw/workspace/security_council_config.json' },
+    { group: 'core', path: '/home/fabio/dashboard/data/SOUL.md' },
+    { group: 'core', path: '/home/fabio/dashboard/data/MEMORY.md' },
+    { group: 'core', path: '/home/fabio/dashboard/data/USER.md' },
+    { group: 'core', path: '/home/fabio/dashboard/data/AGENTS.md' },
+    { group: 'core', path: '/home/fabio/dashboard/data/HEARTBEAT.md' },
+    { group: 'ops', path: '/home/fabio/dashboard/data/cron.md' },
+    { group: 'ops', path: '/home/fabio/dashboard/data/stock_config.json' },
     { group: 'dashboard', path: '/home/fabio/dashboard/agent/AGENT.md' },
     { group: 'dashboard', path: '/home/fabio/dashboard/agent/memory.md' },
   ];
@@ -216,40 +206,9 @@ function parseAgeToMinutes(ageStr) {
   }
 }
 
+// OpenClaw agent removed - returning empty array (mock data used as fallback)
 function getLiveAgents() {
-  const out = safeExec('openclaw status');
-  if (!out) return [];
-  const lines = out.split('\n').filter(line => line.includes('│ agent:'));
-
-  const allAgents = lines.map((line, idx) => {
-    const cells = line.split('│').slice(1, -1).map(cell => cell.trim()).filter(Boolean);
-    const technicalName = cells[0] || `agent-${idx + 1}`;
-    const friendlyName = getFriendlyAgentName(technicalName);
-
-    return {
-      id: String(idx + 1),
-      agent: friendlyName,
-      technicalName: technicalName,
-      action: `${cells[1] || 'session'} · ${cells[2] || ''}`.trim(),
-      ticker: cells[3] || '[live]',
-      status: /ago|active|direct/i.test(`${cells[1] || ''} ${cells[2] || ''}`) ? 'running' : 'idle',
-      age: cells[2] || '',
-      ageValue: parseAgeToMinutes(cells[2] || ''),
-      tokens: cells[4] || '',
-    };
-  });
-
-  // Deduplicate: keep only the newest run per agent name
-  const deduped = new Map();
-  for (const agent of allAgents) {
-    const existing = deduped.get(agent.agent);
-    if (!existing || agent.ageValue < existing.ageValue) {
-      deduped.set(agent.agent, agent);
-    }
-  }
-
-  return Array.from(deduped.values())
-    .map((agent, idx) => ({ ...agent, id: String(idx + 1) }));
+  return [];
 }
 
 const CRON_DESCRIPTIONS = {
@@ -257,7 +216,6 @@ const CRON_DESCRIPTIONS = {
   'market-data-update': 'Aktualisiert Marktindikatoren, Fear & Greed Index und Makro-Daten.',
   'stock-news-update': 'Analysiert neueste Nachrichten und aktualisiert die Stimmungsanalyse für Watchlist-Ticker.',
   'market-debate': 'Bull/Bear/Macro/Technician-Debatte für Dashboard-Ticker via API.',
-  'security-report': 'Technischer Sicherheits-Scan mit Findings und Empfehlungen für das Dashboard.',
   'training-workflow-weekly': 'Wöchentlicher Workflow zur Planung und Optimierung von Trainingsplänen.',
 };
 
@@ -266,7 +224,6 @@ const AGENT_NAME_MAPPING = {
   'fc9d516d-0397-4': 'Market Data Agent',
   'f1fe2b5e-573e-4': 'Stock News Agent',
   '47460b82-bf1a-4': 'Market Debate Agent',
-  'e493e603-686f-4': 'Security Report Agent',
   '63ed126f': 'Training Workflow Agent',
 };
 
@@ -295,39 +252,9 @@ function getFriendlyAgentName(technicalName) {
   return technicalName;
 }
 
+// OpenClaw cron removed - returning empty array
 function parseCronList() {
-  const out = safeExec('openclaw cron list');
-  if (!out) return [];
-  const lines = out.split('\n');
-  const header = lines.find(line => line.trim().startsWith('ID'));
-  if (!header) return [];
-
-  const idxName = header.indexOf('Name');
-  const idxSchedule = header.indexOf('Schedule');
-  const idxNext = header.indexOf('Next');
-  const idxLast = header.indexOf('Last');
-  const idxStatus = header.indexOf('Status');
-  const idxTarget = header.indexOf('Target');
-  const idxAgent = header.indexOf('Agent ID');
-  const idxModel = header.indexOf('Model');
-
-  return lines
-    .filter(line => /^[0-9a-f]{8}-[0-9a-f-]{27}/i.test(line.trim()))
-    .map(line => {
-      const name = line.slice(idxName, idxSchedule).trim();
-      return {
-        id: line.slice(0, idxName).trim(),
-        name,
-        schedule: line.slice(idxSchedule, idxNext).trim(),
-        nextRun: line.slice(idxNext, idxLast).trim(),
-        lastRun: line.slice(idxLast, idxStatus).trim(),
-        status: /ok|idle|active/i.test(line.slice(idxStatus, idxTarget).trim()) ? 'active' : line.slice(idxStatus, idxTarget).trim() === 'error' ? 'error' : 'paused',
-        target: line.slice(idxTarget, idxAgent).trim(),
-        agentId: line.slice(idxAgent, idxModel).trim(),
-        model: line.slice(idxModel).trim(),
-        description: CRON_DESCRIPTIONS[name] || 'OpenClaw cron job',
-      };
-    });
+  return [];
 }
 
 // ====== Dashboard Data & Endpoints ======
@@ -893,31 +820,23 @@ app.get('/api/agents', (_req, res) => {
   res.json(live.length ? live : mockAgentActivity);
 });
 app.get('/api/agent-logs', (_req, res) => {
-  const output = safeExec('openclaw logs --limit 100 --no-color --plain');
-  if (!output) {
-    return res.json({ logs: [], error: 'openclaw logs not available' });
-  }
+  // OpenClaw removed - no agent logs available
+  res.json({ logs: [], error: 'AI Agent logs not available (OpenClaw removed)' });
+});
 
-  const lines = output.split('\n').filter(line => line.trim() && !line.includes('Doctor warnings') && !line.includes('Log file:'));
-  const logs = lines.map((line, idx) => {
-    // Parse log lines - format: "2026-03-24T04:11:15.413Z warn tools ..."
-    const timestampMatch = line.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/);
-    const timestamp = timestampMatch ? new Date(timestampMatch[1]).toLocaleTimeString() : '';
-
-    let type = 'info';
-    if (line.includes(' error ') || line.includes('failed')) type = 'error';
-    else if (line.includes(' warn ')) type = 'warning';
-    else if (line.includes('success') || line.includes('✓')) type = 'success';
-
-    return {
-      id: String(idx + 1),
-      timestamp: timestamp || new Date().toLocaleTimeString(),
-      message: line,
-      type: type
-    };
+app.get('/api/token-usage', (_req, res) => {
+  // OpenClaw removed - no token usage data available
+  res.json({
+    error: 'Token usage not available (OpenClaw removed)',
+    sessions: [],
+    summary: {
+      totalUsed: 0,
+      totalLimit: 0,
+      averageLimit: 0,
+      percentUsed: 0,
+      sessionCount: 0
+    }
   });
-
-  res.json({ logs: logs.reverse() }); // newest first
 });
 app.get('/api/stock-news', (_req, res) => res.json(mockStockNews));
 app.get('/api/market-data', (req, res) => res.json(mockMarketData));
@@ -945,67 +864,19 @@ app.post('/api/stock-news', (req, res) => {
   res.json({ ok: true, updated: updates.length });
 });
 
-// Security Council — filled by the AI Security Agent
-let securityReport = {
-  content: null,      // null = no report yet; string = markdown report
-  status: 'pending',  // 'pending' | 'clean' | 'issues'
-  last_updated: null,
-};
 
-// Auto-load on startup from file system if they exist
-try {
-  const scMdPath = '/home/fabio/dashboard/outputs/security-council/file-exchange/security_council_latest.md';
-  const scJsonPath = '/home/fabio/dashboard/outputs/security-council/file-exchange/security_council_latest.json';
-  
-  if (fs.existsSync(scMdPath)) {
-    securityReport.content = fs.readFileSync(scMdPath, 'utf-8');
-    securityReport.last_updated = fs.statSync(scMdPath).mtime.toISOString();
-    securityReport.status = 'issues'; // Assume issues unless JSON overrides it
-  }
-  if (fs.existsSync(scJsonPath)) {
-    const scData = JSON.parse(fs.readFileSync(scJsonPath, 'utf-8'));
-    if (scData.status) securityReport.status = scData.status;
-  }
-} catch (e) {
-  console.warn('Could not load initial security council report from disk:', e.message);
-}
 
-app.get('/api/security-report', (_req, res) => res.json(securityReport));
-
-// --- Brian Chat Endpoint ---
+// Chat Endpoint - OpenClaw agent removed
+// Future: Integrate with NotebookLM or other AI services
 app.post('/api/chat', (req, res) => {
   const { message } = req.body;
   if (!message) return res.status(400).json({ error: 'Message is required' });
-  try {
-    // Use absolute path for openclaw to ensure it's found
-    const OPENCLAW_PATH = '/home/fabio/.npm-global/bin/openclaw';
-    const cmd = `${OPENCLAW_PATH} agent --session-id dashboard --message ${JSON.stringify(message)} --json`;
-    const out = execSync(cmd, { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] });
-    const data = JSON.parse(out);
-    
-    // The agent's response is in data.result.payloads[0].text
-    const reply = data.result?.payloads?.[0]?.text || data.output || data.agent_response || "Brian ist gerade beschäftigt.";
-    res.json({ reply });
-  } catch (err) {
-    console.error('Brian Chat Error:', err.message);
-    res.status(500).json({ error: 'Fehler bei der Kommunikation mit Brian.' });
-  }
+
+  res.json({
+    reply: 'AI Chat is currently unavailable. OpenClaw agent has been removed. Future integration with NotebookLM or API-based AI services planned.'
+  });
 });
 
-// AI Agent submits report: { status: 'clean'|'issues', content: '## Summary\n...' }
-app.post('/api/security-report', (req, res) => {
-  const { status, content } = req.body;
-  if (!content) return res.status(400).json({ error: 'content is required' });
-  securityReport = { content, status: status || 'issues', last_updated: new Date().toISOString() };
-  res.json({ ok: true });
-});
-
-app.post('/api/security-council', (req, res) => {
-  const { entries } = req.body || {};
-  if (!Array.isArray(entries)) return res.status(400).json({ error: 'entries array is required' });
-  marketDebate = { entries: entries, last_updated: new Date().toISOString() };
-  res.json({ ok: true, updated: entries.length });
-});
 
 app.post('/api/market-debate', (req, res) => {
   const { entries } = req.body || {};
@@ -1096,7 +967,7 @@ app.post('/api/tickers', async (req, res) => {
   saveJSON(STOCK_NEWS_FILE, mockStockNews);
 
   // Also update AI agent config if it exists
-  const stockConfigPath = '/home/fabio/.openclaw/workspace/stock_config.json';
+  const stockConfigPath = '/home/fabio/dashboard/data/stock_config.json';
   if (fs.existsSync(stockConfigPath)) {
     try {
       let config = JSON.parse(fs.readFileSync(stockConfigPath, 'utf8'));

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, Stars } from '@react-three/drei';
+import { Float } from '@react-three/drei';
 import * as THREE from 'three';
 import {
   BarChart3, FileText, TrendingUp, Settings,
@@ -15,6 +15,7 @@ const mainNavDef = [
   { key: 'nav_dashboard', href: '/dashboard', icon: BarChart3 },
   { key: 'nav_earnings',  href: '/earnings',  icon: FileText },
   { key: 'nav_analysis',  href: '/analysis',  icon: TrendingUp },
+  { key: 'nav_debate',    href: '/debate',    icon: Menu },
 ];
 
 const bottomNavDef = [
@@ -45,18 +46,46 @@ const AIBrain = () => {
   );
 };
 
-const AnimatedStars = () => {
-  const ref = useRef<THREE.Group>(null);
-  useFrame((_, delta) => {
-    if (ref.current) {
-      ref.current.rotation.y -= delta * 0.02;
-      ref.current.rotation.x -= delta * 0.01;
+const DigitalNexus = () => {
+  const pointsRef = useRef<THREE.Points>(null);
+  const count = 1500;
+  
+  const positions = React.useMemo(() => {
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 50;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 50;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 50;
+    }
+    return pos;
+  }, []);
+
+  useFrame((state) => {
+    if (pointsRef.current) {
+      pointsRef.current.rotation.y = state.clock.elapsedTime * 0.015;
+      pointsRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.05;
     }
   });
+
   return (
-    <group ref={ref}>
-      <Stars radius={100} depth={50} count={3500} factor={4} saturation={0} fade speed={1} />
-    </group>
+    <points ref={pointsRef}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          count={count}
+          array={positions}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        size={0.035}
+        color="#818cf8"
+        transparent
+        opacity={0.15}
+        sizeAttenuation
+        blending={THREE.AdditiveBlending}
+      />
+    </points>
   );
 };
 
@@ -155,13 +184,26 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 
   return (
-    <div className="min-h-screen flex relative overflow-hidden bg-slate-950">
+    <div className="min-h-screen flex relative overflow-hidden bg-[#020617]">
+      {/* ── Background Layer ────────────────────────────────────────────────── */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-[#030712]">
+        {/* Dynamic 3D Nexus */}
+        <div className="absolute inset-0 opacity-40">
+          <Canvas camera={{ position: [0, 0, 1] }}>
+            <DigitalNexus />
+          </Canvas>
+        </div>
 
-      {/* 3D background */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
-        <Canvas camera={{ position: [0, 0, 1] }}>
-          <AnimatedStars />
-        </Canvas>
+        {/* Ambient Glowing Orbs - Increased Opacity for Visibility */}
+        <div className="absolute top-[-5%] left-[-5%] w-[60%] h-[60%] bg-indigo-500/25 blur-[120px] rounded-full animate-pulse-slow" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-[70%] h-[70%] bg-cyan-500/15 blur-[150px] rounded-full animate-float-slow" />
+        <div className="absolute top-[30%] right-[10%] w-[40%] h-[40%] bg-violet-600/15 blur-[100px] rounded-full animate-pulse-slow" style={{ animationDelay: '2s' }} />
+        
+        {/* Noise/Grain Overlay */}
+        <div className="absolute inset-0 opacity-[0.05] mix-blend-overlay pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+        
+        {/* Deep Vignette */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-[#030712]/40" />
       </div>
 
       {/* ── Mobile overlay backdrop ─────────────────────────────────────────── */}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis,
@@ -8,8 +9,12 @@ import {
 } from 'recharts';
 import { 
   TrendingUp, TrendingDown, Minus, Zap, AlertTriangle, CheckCircle, 
-  Newspaper, Brain, Compass 
+  Newspaper, Brain, Activity
 } from 'lucide-react';
+import { 
+  FearAndGreedGauge, 
+  FearAndGreedData 
+} from '../components/FearAndGreedGauge';
 
 const API_BASE = '/api';
 
@@ -41,22 +46,6 @@ interface TickerSentiment {
   priceHistoryDaily?: { day: string; price: number }[];
   chart_1w?: any[];
   chart_1m?: any[];
-}
-
-interface FearAndGreedIndicator {
-  name: string;
-  status: string;
-  value: string;
-}
-
-interface FearAndGreedData {
-  current: number;
-  yesterday: number;
-  lastWeek: number;
-  lastMonth: number;
-  lastYear?: number;
-  status: string;
-  indicators: FearAndGreedIndicator[];
 }
 
 interface MarketData {
@@ -268,49 +257,7 @@ function DetailPanel({ ticker }: { ticker: TickerSentiment }) {
 
 // ── Overview Bar Chart & Gauge ────────────────────────────────────────────────
 
-function FearAndGreedGauge({ score, status, title }: { score: number | undefined; status: string | undefined; title: string }) {
-  const s = typeof score === 'number' ? score : 50;
-  const angle = (s / 100) * 180;
-  return (
-    <motion.div className="glass-panel rounded-2xl p-5 flex flex-col items-center relative overflow-hidden" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-      <div className="flex items-center gap-2 mb-6 w-full justify-start">
-        <Compass size={15} className="text-emerald-400" />
-        <p className="text-sm font-semibold text-white">{title}</p>
-      </div>
-      
-      {/* Semi-circle Gauge */}
-      <div className="relative w-56 h-28 overflow-hidden mb-2 translate-y-2">
-        {/* Rainbow Arch */}
-        <div 
-          className="absolute top-0 left-0 w-56 h-56 rounded-full opacity-90" 
-          style={{ 
-            background: 'conic-gradient(from 270deg, #ef4444 0deg, #eab308 90deg, #10b981 180deg, transparent 180deg)', 
-            WebkitMaskImage: 'radial-gradient(transparent 65%, black 66%)',
-            maskImage: 'radial-gradient(transparent 65%, black 66%)' 
-          }} 
-        />
-        <div className="absolute top-0 left-0 w-56 h-56 rounded-full blur-2xl opacity-30 mix-blend-screen" style={{ background: 'conic-gradient(from 270deg, #ef4444 0deg, #eab308 90deg, #10b981 180deg, transparent 180deg)' }} />
-
-        <span className="absolute bottom-2 left-6 text-[9px] font-black text-red-400 uppercase tracking-wider drop-shadow-md">Fear</span>
-        <span className="absolute bottom-2 right-6 text-[9px] font-black text-emerald-400 uppercase tracking-wider drop-shadow-md">Greed</span>
-
-        <div className="absolute bottom-0 left-1/2 w-8 h-8 rounded-full bg-slate-900 border-4 border-slate-700 transform -translate-x-1/2 translate-y-1/2 z-30 shadow-2xl" />
-
-        <div 
-          className="absolute bottom-0 left-1/2 w-1.5 h-[5.5rem] origin-bottom transition-all duration-1000 ease-out z-20"
-          style={{ transform: `translateX(-50%) rotate(${angle - 90}deg)` }}
-        >
-          <div className="w-full h-full bg-white rounded-t-full shadow-[0_0_12px_rgba(255,255,255,0.9)]" />
-        </div>
-      </div>
-
-      <div className="text-center z-10 mt-auto">
-        <h3 className="text-4xl font-black text-white drop-shadow-lg">{s}</h3>
-        <p className="text-xs uppercase tracking-widest text-slate-400 font-bold mt-1">{status || 'Neutral'}</p>
-      </div>
-    </motion.div>
-  );
-}
+// Components imported from ../components/FearAndGreedGauge
 
 function SentimentSpectrum({ data }: { data: { name: string; score: number }[] }) {
   return (
@@ -358,20 +305,26 @@ function SentimentSpectrum({ data }: { data: { name: string; score: number }[] }
 
 // ── New Widgets ───────────────────────────────────────────────────────────────
 
-function MacroWidget({ data, fearAndGreed }: { data: any[]; fearAndGreed: FearAndGreedData | undefined }) {
-  const getScoreColor = (score: number) => {
-    if (score <= 25) return 'text-red-500';
-    if (score <= 45) return 'text-orange-500';
-    if (score <= 55) return 'text-yellow-500';
-    if (score <= 75) return 'text-emerald-400';
-    return 'text-emerald-500 underline decoration-indigo-500 decoration-2';
-  };
+function NavButton() {
+  const navigate = useNavigate();
+  return (
+    <button
+      onClick={() => navigate('/fear-and-greed')}
+      className="mt-6 w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border-2 border-indigo-500/40 text-white hover:bg-indigo-500/30 hover:border-indigo-400/60 transition-all group shadow-lg hover:shadow-indigo-500/20 text-base font-bold"
+    >
+      <Activity size={18} className="text-indigo-300 group-hover:text-white transition-colors" />
+      <span className="group-hover:scale-105 transition-transform">View all 7 Fear &amp; Greed Indicators</span>
+      <span className="ml-auto text-sm font-black text-indigo-300 group-hover:text-white group-hover:translate-x-1 transition-all">→</span>
+    </button>
+  );
+}
 
+function MacroWidget({ data, fearAndGreed }: { data: any[]; fearAndGreed: FearAndGreedData | undefined }) {
   const getStatusColor = (status: string | undefined) => {
     const s = (status || '').toLowerCase();
     if (s.includes('extreme fear')) return 'bg-red-500/20 text-red-400 border-red-500/30';
     if (s.includes('fear')) return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
-    if (s.includes('neutral')) return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+    if (s.includes('neutral')) return 'bg-gray-500/20 text-slate-400 border-slate-500/30';
     if (s.includes('extreme greed')) return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
     if (s.includes('greed')) return 'bg-emerald-400/20 text-emerald-300 border-emerald-400/30';
     return 'bg-slate-700/50 text-slate-400 border-slate-600/30';
@@ -380,100 +333,47 @@ function MacroWidget({ data, fearAndGreed }: { data: any[]; fearAndGreed: FearAn
   if (!fearAndGreed) return null;
 
   return (
-    <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-      {/* ── Fear & Greed Main ── */}
-      <div className="glass-panel rounded-3xl p-6 relative overflow-hidden mb-6">
-        <div className="flex flex-col lg:flex-row gap-8 items-start text-left">
-          <div className="flex-1 w-full lg:max-w-xs text-center border-r border-white/5 pr-8">
-             <h3 className="text-slate-400 uppercase tracking-widest text-[10px] font-bold mb-4 flex items-center justify-center gap-2 text-center">
-                <Compass size={12} className="text-blue-400" /> Fear & Greed Index
-             </h3>
-             <div className="relative inline-flex items-center justify-center w-40 h-40">
-                <svg className="w-full h-full transform -rotate-90">
-                  <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-white/5" />
-                  <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" 
-                    strokeDasharray={440} 
-                    strokeDashoffset={440 - (440 * (fearAndGreed.current || 0)) / 100}
-                    strokeLinecap="round"
-                    className={`${getScoreColor(fearAndGreed.current || 0)} transition-all duration-1000 ease-out`}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-4xl font-extrabold text-white tracking-tighter">{fearAndGreed.current || 0}</span>
-                  <span className={`text-[10px] font-bold uppercase ${getScoreColor(fearAndGreed.current || 0)}`}>{fearAndGreed.status || 'N/A'}</span>
-                </div>
-             </div>
-          </div>
-
-          <div className="flex-1 w-full flex flex-col justify-between self-stretch text-left">
-            <h3 className="text-slate-400 uppercase tracking-widest text-[10px] font-bold mb-4 flex items-center gap-2 text-left">
-                <TrendingUp size={12} className="text-blue-400" /> Timeline History
-            </h3>
-            <div className="space-y-3">
-               {[
-                 { label: 'Yesterday', value: fearAndGreed.yesterday },
-                 { label: 'Last Week', value: fearAndGreed.lastWeek },
-                 { label: 'Last Month', value: fearAndGreed.lastMonth },
-                 { label: 'Last Year', value: fearAndGreed.lastYear || '-' }
-               ].map((h, i) => (
-                 <div key={i} className="flex items-center justify-between text-xs px-3 py-2 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition-colors">
-                   <span className="text-slate-400">{h.label}</span>
-                   <div className="flex items-center gap-3">
-                      <div className="w-16 h-1 bg-white/10 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full ${getScoreColor(typeof h.value === 'number' ? h.value : 50).replace('text-', 'bg-')}`} 
-                          style={{ width: `${typeof h.value === 'number' ? h.value : 0}%` }} 
-                        />
-                      </div>
-                      <span className={`font-bold w-6 text-right ${getScoreColor(typeof h.value === 'number' ? h.value : 50)}`}>{h.value || 0}</span>
-                   </div>
-                 </div>
-               ))}
-            </div>
-          </div>
-        </div>
-
-        {/* ── Sub-Indicators Grid ── */}
-        <div className="mt-8 pt-8 border-t border-white/10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
-          {(fearAndGreed.indicators || []).map((ind, i) => (
-            <div key={i} className="flex flex-col gap-1 p-3 rounded-2xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.06] transition-all text-left">
-              <span className="text-[10px] text-slate-500 font-bold uppercase">{ind.name}</span>
-              <div className="flex items-center gap-2 mt-1 text-left">
-                <span className={`text-[10px] px-1.5 py-0.5 rounded border ${getStatusColor(ind.status)} font-bold`}>
-                  {ind.status}
-                </span>
-              </div>
-              <span className="text-[10px] text-slate-400 mt-1 leading-tight line-clamp-2 text-left">{ind.value}</span>
-            </div>
-          ))}
-        </div>
+    <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
+      {/* ── Fear & Greed + CTA button ── */}
+      <div>
+        <FearAndGreedGauge data={fearAndGreed} title="Fear and Greed Index" showLegend={true} />
+        <NavButton />
       </div>
 
       {/* ── Macro Indicators ── */}
-      <h3 className="text-slate-400 uppercase tracking-widest text-[10px] font-bold mb-4 pl-2 flex items-center gap-2 text-left">
-        <Zap size={12} className="text-blue-400" /> Global Macro Indicators
-      </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-left">
-        {data.map((item, index) => (
-          <div key={index} className="glass-panel p-5 rounded-2xl border border-white/10 hover:border-white/20 transition-all text-left">
-             <div className="flex justify-between items-start mb-3 text-left">
-                <div className="text-left">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">{item.label}</p>
-                  <p className="text-xl font-extrabold text-white tracking-tight">{item.value}</p>
+      <div>
+        <h3 className="text-slate-400 uppercase tracking-[0.2em] text-[10px] font-black mb-5 pl-2 flex items-center gap-3">
+          <div className="w-6 h-px bg-indigo-500/50" />
+          Global Macro Indicators
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {data.map((item, index) => (
+            <div key={index} className="glass-panel p-6 rounded-[1.5rem] border border-white/5 hover:border-white/15 transition-all group">
+               <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">{item.label}</p>
+                    <p className="text-2xl font-black text-white tracking-tight group-hover:text-indigo-300 transition-colors">{item.value}</p>
+                  </div>
+                  <span className={`text-[9px] px-2.5 py-1 rounded-lg font-black border uppercase tracking-tighter ${getStatusColor(item.status)} shadow-lg`}>
+                    {item.status}
+                  </span>
+               </div>
+               <div className="h-12 w-full mt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={item.history || []}>
+                      <defs>
+                        <linearGradient id={`grad-${index}`} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <Area type="monotone" dataKey="v" stroke="#6366f1" strokeWidth={2.5} fill={`url(#grad-${index})`} dot={false} isAnimationActive={false} />
+                    </AreaChart>
+                  </ResponsiveContainer>
                 </div>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold border ${getStatusColor(item.status)}`}>
-                  {item.status.toUpperCase()}
-                </span>
-             </div>
-             <div className="h-10 w-full mt-4">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={item.history || []}>
-                    <Area type="monotone" dataKey="v" stroke="#22d3ee" strokeWidth={2} fill="#0891b2" fillOpacity={0.1} dot={false} isAnimationActive={false} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-          </div>
-        ))}
+            </div>
+          ))}
+        </div>
       </div>
     </motion.div>
   );
@@ -592,9 +492,8 @@ const MarketAnalysis: React.FC = () => {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="xl:col-span-2 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6">
             <SentimentSpectrum data={currentOverall} />
-            <FearAndGreedGauge score={fearAndGreed?.current} status={fearAndGreed?.status} title={isStocks ? "Market Sentiment" : "Crypto Sentiment"} />
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
