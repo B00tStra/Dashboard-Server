@@ -8,6 +8,7 @@ import { useLanguage } from '../context/LanguageContext';
 import DCFChart, { ValuationBadge } from '../components/DCFChart';
 // @ts-ignore
 import { motion } from 'framer-motion';
+import TopMarketWidget from '../components/TopMarketWidget';
 
 const API_BASE = '/api';
 
@@ -400,7 +401,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="p-4 sm:p-6 space-y-8 pb-12">
-
+      <TopMarketWidget />
       <Watchlist refreshKey={refreshKey} onAdd={() => setRefreshKey(k => k + 1)} />
       <StockNewsFeed refreshKey={refreshKey} />
       <MemoryLinks />

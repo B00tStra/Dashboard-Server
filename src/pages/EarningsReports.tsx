@@ -4,7 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
 } from 'recharts';
 import {
-  TrendingUp, TrendingDown, ChevronUp, ChevronDown,
+  TrendingUp, TrendingDown, ChevronUp, ChevronDown, Clock,
   Search, Filter, BarChart2, Percent, Layers, DollarSign, Calendar
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
@@ -451,32 +451,61 @@ function EarningsTable({ selected, onSelect }: { selected: string | null; onSele
 
 function EarningsTimeline({ data, title }: { data: any[]; title: string }) {
   return (
-    <div className="glass-panel rounded-2xl p-6">
-      <h3 className="text-slate-400 uppercase tracking-widest text-xs font-bold mb-5 flex items-center gap-2">
+    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="glass-panel border-white/5 rounded-[2rem] p-6 shadow-2xl relative overflow-hidden">
+      {/* Background glow for the section */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-[100px] pointer-events-none -mt-48 -mr-48" />
+
+      <h3 className="text-slate-400 uppercase tracking-[0.2em] text-[10px] font-black mb-6 flex items-center gap-3 relative z-10">
+        <div className="w-6 h-px bg-purple-500/50" />
         <Calendar size={14} className="text-purple-400" /> {title}
       </h3>
-      <div className="relative border-l border-white/10 ml-2 space-y-6 pb-2">
-        {data.map((e, i) => (
-          <div key={i} className="relative pl-5">
-            <span className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-purple-500 ring-4 ring-slate-900" />
-            <p className="text-xs text-purple-300 font-bold mb-2 tracking-wide uppercase">{e.date}</p>
-            <div className="glass-card rounded-xl p-3.5 flex justify-between items-center border border-white/5 hover:bg-white/5 transition-colors">
-              <div className="flex items-center gap-3">
-                <img src={`https://financialmodelingprep.com/image-stock/${e.ticker}.png`} alt={e.ticker} className="w-7 h-7 rounded-full bg-white/10" onError={(evt) => { evt.currentTarget.style.display = 'none'; }} />
-                <div>
-                  <p className="text-sm font-bold text-white leading-tight">{e.ticker}</p>
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wide mt-0.5">{e.time}</p>
-                </div>
-              </div>
-              <div className="text-right">
-                 <p className="text-[10px] text-slate-400 uppercase tracking-wide">Est. EPS</p>
-                 <p className="text-sm font-bold text-white mt-0.5">{e.estEPS}</p>
-              </div>
-            </div>
-          </div>
-        ))}
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
+        {data.map((e, i) => {
+          // split "Apr 24, 2026"
+          const parts = e.date.split(' ');
+          const month = parts[0]?.toUpperCase() || '';
+          const day = parts[1]?.replace(',', '') || '';
+
+          return (
+            <motion.div 
+               key={i}
+               initial={{ opacity: 0, scale: 0.95 }}
+               animate={{ opacity: 1, scale: 1 }}
+               transition={{ delay: 0.2 + i * 0.05 }}
+               className="flex bg-slate-900/60 rounded-2xl border border-white/5 overflow-hidden group hover:border-purple-500/40 hover:shadow-[0_0_20px_rgba(168,85,247,0.15)] transition-all duration-300"
+            >
+               {/* Date Tear-off Block */}
+               <div className="bg-gradient-to-b from-purple-900/30 to-purple-900/10 border-r border-white/5 p-4 flex flex-col items-center justify-center min-w-[75px] relative">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-purple-500" />
+                  <span className="text-[10px] text-purple-400 font-bold uppercase tracking-widest leading-none mb-1">{month}</span>
+                  <span className="text-3xl font-black text-white leading-tight tracking-tighter">{day}</span>
+               </div>
+               
+               {/* Details Block */}
+               <div className="p-4 flex-1 flex flex-col justify-center relative">
+                 <div className="absolute bottom-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-[20px] pointer-events-none group-hover:bg-purple-500/10 transition-colors" />
+                 
+                 <div className="flex items-center gap-3 mb-2.5">
+                    <img src={`https://financialmodelingprep.com/image-stock/${e.ticker}.png`} alt={e.ticker} className="w-10 h-10 rounded-full bg-slate-800 border-2 border-slate-700 shadow-md flex-shrink-0" onError={(evt) => { evt.currentTarget.src = `https://ui-avatars.com/api/?name=${e.ticker}&background=a855f7&color=fff&rounded=true&bold=true`; }} />
+                    <div className="flex flex-col overflow-hidden">
+                       <p className="text-lg font-black text-white leading-none tracking-tight truncate">{e.ticker}</p>
+                       <p className="text-[9px] text-slate-400 uppercase tracking-widest mt-1.5 font-bold flex items-center gap-1.5 whitespace-nowrap">
+                          <Clock size={10} className="text-slate-500 flex-shrink-0" /> <span className="truncate">{e.time}</span>
+                       </p>
+                    </div>
+                 </div>
+
+                 <div className="flex justify-between items-end border-t border-slate-700/50 pt-2.5 mt-auto">
+                    <p className="text-[9px] text-slate-500 uppercase tracking-[0.2em] font-bold">EST EPS</p>
+                    <p className="text-sm font-black text-white bg-white/5 px-2 py-0.5 rounded-lg border border-white/5">{e.estEPS}</p>
+                 </div>
+               </div>
+            </motion.div>
+          );
+        })}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -507,7 +536,11 @@ const EarningsReports: React.FC = () => {
 
       <SummaryBar />
 
-      <div className="grid grid-cols-1 xl:grid-cols-5 gap-4 xl:gap-6 items-start">
+      <div className="mt-8 mb-8">
+        <EarningsTimeline data={upcomingCalendar} title="Upcoming Earnings Calendar" />
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-5 gap-4 xl:gap-8 items-start">
         {/* Table — left */}
         <div className="xl:col-span-3">
           <EarningsTable selected={selected} onSelect={setSelected} />
@@ -521,7 +554,6 @@ const EarningsReports: React.FC = () => {
               : <EmptyState key="empty" />
             }
           </AnimatePresence>
-          <EarningsTimeline data={upcomingCalendar} title="Upcoming Events" />
         </div>
       </div>
     </div>
