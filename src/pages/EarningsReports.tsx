@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
 } from 'recharts';
 import {
   TrendingUp, TrendingDown, ChevronUp, ChevronDown, Clock,
-  Search, Filter, BarChart2, Percent, Layers, DollarSign, Calendar
+  Search, Filter, BarChart2, Percent, Layers, DollarSign, Calendar, X, RefreshCw,
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -521,6 +521,70 @@ function EmptyState() {
   );
 }
 
+// ── Ticker Search ─────────────────────────────────────────────────────────────
+
+interface SearchResult { ticker: string; name: string; exchange: string; }
+
+const TickerSearch: React.FC = () => {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    if (!query.trim()) { setResults([]); setOpen(false); return; }
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/portfolio/search?q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        setResults(data.slice(0, 6));
+        setOpen(data.length > 0);
+      } catch { setResults([]); }
+      finally { setLoading(false); }
+    }, 300);
+    return () => clearTimeout(debounceRef.current);
+  }, [query]);
+
+  return (
+    <div className="relative w-full max-w-sm">
+      <div className="flex items-center gap-2 bg-slate-800/60 border border-white/10 rounded-xl px-3 py-2.5 focus-within:border-indigo-500/50 transition-colors">
+        <Search size={15} className="text-slate-500 flex-shrink-0" />
+        <input
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          placeholder="Unternehmen suchen — z.B. Apple, AMD…"
+          className="flex-1 bg-transparent text-sm text-white placeholder-slate-500 outline-none"
+        />
+        {loading && <RefreshCw size={13} className="text-indigo-400 animate-spin flex-shrink-0" />}
+        {query && !loading && (
+          <button onClick={() => { setQuery(''); setOpen(false); }} className="text-slate-500 hover:text-slate-300">
+            <X size={13} />
+          </button>
+        )}
+      </div>
+      {open && (
+        <div className="absolute top-full left-0 right-0 mt-1.5 z-50 bg-slate-900 border border-white/10 rounded-xl shadow-2xl overflow-hidden">
+          {results.map(r => (
+            <div key={r.ticker} className="flex items-center gap-3 px-3 py-2.5 hover:bg-white/5 cursor-pointer">
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold text-white">{r.ticker}</div>
+                <div className="text-xs text-slate-400 truncate">{r.name}</div>
+              </div>
+              <span className="text-[10px] text-slate-500 bg-slate-800 px-1.5 py-0.5 rounded">{r.exchange}</span>
+            </div>
+          ))}
+          <div className="px-3 py-2 border-t border-white/5 text-[11px] text-slate-600">
+            Analyse-Funktion folgt in Kürze
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 const EarningsReports: React.FC = () => {
@@ -530,8 +594,15 @@ const EarningsReports: React.FC = () => {
   return (
     <div className="p-4 lg:p-6 space-y-4">
       <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-bold text-white">{t('earn_title')}</h1>
-        <p className="text-slate-400 text-sm mt-1">{t('earn_subtitle')}</p>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div>
+            <h1 className="text-2xl font-bold text-white">{t('earn_title')}</h1>
+            <p className="text-slate-400 text-sm mt-1">{t('earn_subtitle')}</p>
+          </div>
+          <div className="sm:ml-auto">
+            <TickerSearch />
+          </div>
+        </div>
       </motion.div>
 
       <SummaryBar />

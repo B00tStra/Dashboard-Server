@@ -1,0 +1,76 @@
+{
+  "positions": [
+    {
+      "ticker": "AMD",
+      "isin": "US0079031078",
+      "companyName": "AMD",
+      "shares": 5.21204,
+      "avgBuyPrice": 110.6975,
+      "buyDate": "",
+      "source": "trade_republic"
+    },
+    {
+      "ticker": "ANET",
+      "isin": "US0404132054",
+      "companyName": "Arista Networks",
+      "shares": 4.0,
+      "avgBuyPrice": 75.8425,
+      "buyDate": "",
+      "source": "trade_republic"
+    },
+    {
+      "ticker": "FTNT",
+      "isin": "US34959E1091",
+      "companyName": "Fortinet",
+      "shares": 4.140491,
+      "avgBuyPrice": 70.2719,
+      "buyDate": "",
+      "source": "trade_republic"
+    },
+    {
+      "ticker": "NFLX",
+      "isin": "US64110L1061",
+      "companyName": "Netflix",
+      "shares": 6.792259,
+      "avgBuyPrice": 78.1978,
+      "buyDate": "",
+      "source": "trade_republic"
+    },
+    {
+      "ticker": "NOW",
+      "isin": "US81762P1021",
+      "companyName": "ServiceNow",
+      "shares": 41.256253,
+      "avgBuyPrice": 102.7658,
+      "buyDate": "",
+      "source": "trade_republic"
+    },
+    {
+      "ticker": "ADA-EUR",
+      "isin": "XF000ADA0018",
+      "companyName": "Cardano",
+      "shares": 87.152325,
+      "avgBuyPrice": 1.159,
+      "buyDate": "",
+      "source": "trade_republic"
+    },
+    {
+      "ticker": "BTC-EUR",
+      "isin": "XF000BTC0017",
+      "companyName": "Bitcoin",
+      "shares": 0.007749,
+      "avgBuyPrice": 64656.7589,
+      "buyDate": "",
+      "source": "trade_republic"
+    },
+    {
+      "ticker": "SOL-EUR",
+      "isin": "XF000SOL0012",
+      "companyName": "Solana",
+      "shares": 1.6927,
+      "avgBuyPrice": 149.7998,
+      "buyDate": "",
+      "source": "trade_republic"
+    }
+  ]
+}

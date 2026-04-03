@@ -1,0 +1,15 @@
+[Unit]
+Description=AI Hub Dashboard Server
+After=network.target
+
+[Service]
+Type=simple
+User=fabio
+WorkingDirectory=/home/fabio/dashboard
+ExecStart=/usr/bin/node server/index.js
+Restart=on-failure
+RestartSec=5
+EnvironmentFile=/home/fabio/dashboard/.env
+
+[Install]
+WantedBy=multi-user.target

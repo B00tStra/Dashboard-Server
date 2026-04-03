@@ -5,6 +5,7 @@ const en: Translations = {
   // ── Layout / Nav ──────────────────────────────────────────────────────────
   nav_home:         'Home',
   nav_dashboard:    'Dashboard',
+  nav_portfolio:    'Portfolio',
   nav_earnings:     'Earnings Reports',
   nav_analysis:     'Market Analysis',
   nav_debate:       'Market Debate',
@@ -210,6 +211,7 @@ const de: Translations = {
   // ── Layout / Nav ──────────────────────────────────────────────────────────
   nav_home:         'Startseite',
   nav_dashboard:    'Dashboard',
+  nav_portfolio:    'Portfolio',
   nav_earnings:     'Berichte',
   nav_analysis:     'Marktanalyse',
   nav_debate:       'Markt-Debatte',

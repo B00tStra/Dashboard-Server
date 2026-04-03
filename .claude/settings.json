@@ -1,0 +1,51 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -m pip install Pillow --break-system-packages)",
+      "Bash(apt list:*)",
+      "Bash(python3 -c \"import PIL; print\\('Pillow already installed'\\)\")",
+      "Bash(sudo apt-get:*)",
+      "Bash(python3 -c ':*)",
+      "Bash(python3 /tmp/get-pip.py --break-system-packages)",
+      "Bash(/home/fabio/.local/bin/pip install:*)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); fc=d.get\\('fredCharts',{}\\); snap=fc.get\\('yieldCurveSnapshot',[]\\); print\\('snapshot count:', len\\(snap\\)\\); print\\(snap[:3]\\)\")",
+      "Bash(fuser 3001/tcp 5173/tcp)",
+      "Bash(curl -s http://localhost:3001/)",
+      "Bash(grep -c \"YieldCurvePanel\\\\|Vollständige Zinskurve\\\\|yieldCurveSnapshot\" /home/fabio/dashboard/dist/assets/index-*.js)",
+      "Bash(node /home/fabio/dashboard/server.js)",
+      "Read(//tmp/**)",
+      "Bash(ls -la /home/fabio/dashboard/data/dashboard-data/ /home/fabio/dashboard/data/*.json)",
+      "Bash(node server/index.js)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('fredCharts keys:', list\\(d.get\\('fredCharts',{}\\).keys\\(\\)\\)[:5], '| watchlist macro:', len\\(d.get\\('stocks',{}\\).get\\('macro',[]\\)\\)\\)\")",
+      "Bash(pkill -f \"node server\")",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git push:*)",
+      "Bash(pkill -f \"node server/index\")",
+      "Bash(node /home/fabio/dashboard/server/index.js)",
+      "Bash(curl -s http://localhost:3001/api/portfolio)",
+      "Bash(curl -s \"http://localhost:3001/api/portfolio/search?q=servicenow\")",
+      "Bash(curl -s http://localhost:5174/portfolio -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s http://localhost:5174/ -o /dev/null -w \"%{http_code}\")",
+      "Bash(pkill -f \"node_modules/.bin/vite\")",
+      "Bash(kill 819422 844917)",
+      "Bash(node node_modules/.bin/vite)",
+      "Bash(curl -s http://localhost:5173/src/pages/Portfolio.tsx -o /dev/null -w \"%{http_code}\")",
+      "Bash(kill 844917 819422)",
+      "Bash(ls -la /home/fabio/dashboard/src/pages/AgentLogs*)",
+      "Bash(curl -s http://localhost:3001/portfolio -o /dev/null -w \"%{http_code}\")",
+      "Bash(pip3 --version)",
+      "Bash(pip3 install:*)",
+      "Bash(pytr --help)",
+      "Bash(pytr login:*)",
+      "Bash(pytr portfolio:*)",
+      "Bash(python3 python/scripts/tr_sync.py)",
+      "Bash(python3 -c \"from pytr.api import TradeRepublicApi; import inspect; print\\([m for m in dir\\(TradeRepublicApi\\) if not m.startswith\\('__'\\)]\\)\")"
+    ],
+    "additionalDirectories": [
+      "/home/fabio",
+      "/tmp"
+    ]
+  }
+}

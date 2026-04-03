@@ -62,7 +62,6 @@ router.get('/fs/parent', (req, res) => {
   res.json({ parent: parent === p ? null : parent });
 });
 
-// Cron — OpenClaw removed, returns empty list
 router.get('/cron', (_req, res) => res.json([]));
 
 // Config files

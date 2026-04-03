@@ -21,9 +21,8 @@ router.get('/market-data',  (_req, res) => res.json(mockMarketData));
 router.get('/market-debate',(_req, res) => res.json(marketDebate));
 
 router.get('/agents', (_req, res) => res.json(mockAgentActivity));
-router.get('/agent-logs', (_req, res) => res.json({ logs: [], error: 'AI Agent logs not available (OpenClaw removed)' }));
+router.get('/agent-logs', (_req, res) => res.json({ logs: [] }));
 router.get('/token-usage', (_req, res) => res.json({
-  error: 'Token usage not available (OpenClaw removed)',
   sessions: [],
   summary: { totalUsed: 0, totalLimit: 0, averageLimit: 0, percentUsed: 0, sessionCount: 0 },
 }));

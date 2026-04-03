@@ -2,15 +2,24 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, ResponsiveContainer, YAxis } from 'recharts';
 import { createChart, ColorType } from 'lightweight-charts';
-import { TrendingUp, TrendingDown, Minus, Circle, RefreshCw, FileText, ExternalLink, Plus, Trash2, Info } from 'lucide-react';
-import { formatTimeAgo } from '../utils/mockData';
+import { TrendingUp, TrendingDown, Minus, Circle, RefreshCw, ExternalLink, Plus, Trash2, Info } from 'lucide-react';
+
 import { useLanguage } from '../context/LanguageContext';
 import DCFChart, { ValuationBadge } from '../components/DCFChart';
 // @ts-ignore
 import { motion } from 'framer-motion';
 import TopMarketWidget from '../components/TopMarketWidget';
+import { TV_LOGO_MAP } from '../utils/formatters';
 
 const API_BASE = '/api';
+
+const formatTimeAgo = (date: Date): string => {
+  const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+};
 
 function useFetch<T>(endpoint: string, initialData: T, dependencies: React.DependencyList = []): T {
   const [data, setData] = useState<T>(initialData);
@@ -23,25 +32,10 @@ function useFetch<T>(endpoint: string, initialData: T, dependencies: React.Depen
   return data;
 }
 
-const tradingViewLogoMap: Record<string, string> = {
-  NVDA: 'nvidia',
-  AMD: 'advanced-micro-devices',
-  NFLX: 'netflix',
-  ANET: 'arista-networks',
-  CPRT: 'copart',
-  NOW: 'servicenow',
-  AAPL: 'apple',
-  TSLA: 'tesla',
-  MSFT: 'microsoft',
-  AMZN: 'amazon',
-  META: 'meta-platforms',
-  GOOGL: 'alphabet',
-};
-
 const getCompanyLogo = (ticker: string) => {
-  const tvName = tradingViewLogoMap[ticker];
-  return tvName 
-    ? `https://s3-symbol-logo.tradingview.com/${tvName}--big.svg`
+  const name = TV_LOGO_MAP[ticker];
+  return name
+    ? `https://s3-symbol-logo.tradingview.com/${name}--big.svg`
     : `https://financialmodelingprep.com/image-stock/${ticker}.png`;
 };
 
@@ -360,33 +354,39 @@ const StockNewsFeed: React.FC<{ refreshKey: number }> = ({ refreshKey }) => {
   );
 };
 
-// ── Memory Links ──────────────────────────────────────────────────────────────
+// ── Quick Navigation ──────────────────────────────────────────────────────────
 
-const memoryFiles = [
-  { name: 'user_profile.md',      label: 'User Profile' },
-  { name: 'project_context.md',   label: 'Project Context' },
-  { name: 'feedback_responses.md',label: 'Feedback' },
-  { name: 'reference_sources.md', label: 'References' },
+const quickLinks = [
+  { href: '/portfolio',    label: 'Portfolio Tracker',  desc: 'P&L · Gewichtung · Positionen',   icon: '💼', color: 'indigo' },
+  { href: '/earnings',     label: 'Earnings Reports',   desc: 'DCF · EPS · Quartalsergebnisse',   icon: '📊', color: 'sky' },
+  { href: '/analysis',     label: 'Market Analysis',    desc: 'FRED · Heatmap · Fear & Greed',    icon: '📈', color: 'emerald' },
+  { href: '/settings',     label: 'Settings',           desc: 'API Keys · Token Nexus',           icon: '⚙️', color: 'slate' },
 ];
 
-const MemoryLinks: React.FC = () => {
+const colorMap: Record<string, string> = {
+  indigo:  'hover:border-indigo-500/40 hover:bg-indigo-500/8',
+  sky:     'hover:border-sky-500/40 hover:bg-sky-500/8',
+  emerald: 'hover:border-emerald-500/40 hover:bg-emerald-500/8',
+  slate:   'hover:border-slate-400/40 hover:bg-slate-500/8',
+};
+
+const QuickNav: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
   return (
-    <div className="glass-panel rounded-2xl px-4 sm:px-5 py-4 flex items-center gap-4 flex-wrap">
-      <div className="flex items-center gap-2 text-slate-400 flex-shrink-0">
-        <FileText size={14} />
-        <span className="text-xs font-semibold uppercase tracking-wider">{t('dash_memory_files')}</span>
-      </div>
-      <div className="flex items-center gap-2 flex-wrap flex-1">
-        {memoryFiles.map(f => (
+    <div>
+      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+        <ExternalLink size={12} /> Quick Access
+      </p>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {quickLinks.map(link => (
           <button
-            key={f.name}
-            onClick={() => navigate('/settings')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-indigo-500/15 border border-white/10 hover:border-indigo-500/30 text-slate-400 hover:text-indigo-300 text-xs font-medium transition-all duration-200"
+            key={link.href}
+            onClick={() => navigate(link.href)}
+            className={`glass-panel rounded-xl p-4 text-left border border-white/8 transition-all duration-200 group ${colorMap[link.color]}`}
           >
-            {f.label}
-            <ExternalLink size={10} className="opacity-60" />
+            <div className="text-xl mb-2">{link.icon}</div>
+            <div className="text-sm font-semibold text-white group-hover:text-white">{link.label}</div>
+            <div className="text-xs text-slate-500 mt-0.5">{link.desc}</div>
           </button>
         ))}
       </div>
@@ -402,9 +402,9 @@ const Dashboard: React.FC = () => {
   return (
     <div className="p-4 sm:p-6 space-y-8 pb-12">
       <TopMarketWidget />
+      <QuickNav />
       <Watchlist refreshKey={refreshKey} onAdd={() => setRefreshKey(k => k + 1)} />
       <StockNewsFeed refreshKey={refreshKey} />
-      <MemoryLinks />
     </div>
   );
 };

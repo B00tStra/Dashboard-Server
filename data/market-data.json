@@ -1,7 +1,7 @@
 {
   "stocks": {
     "fearAndGreed": {
-      "current": 15,
+      "current": 19,
       "yesterday": 10,
       "lastWeek": 10,
       "lastMonth": 10,
@@ -302,9 +302,9 @@
   },
   "crypto": {
     "fearAndGreed": {
-      "current": 12,
-      "yesterday": 8,
-      "lastWeek": 9,
+      "current": 9,
+      "yesterday": 12,
+      "lastWeek": 8,
       "lastMonth": 9,
       "status": "Extreme Fear",
       "indicators": [
@@ -328,14 +328,14 @@
     "macro": [
       {
         "label": "BTC Dominance",
-        "value": "55.9%",
-        "prev": "55.8%",
-        "status": "hot"
+        "value": "56.1%",
+        "prev": "56.1%",
+        "status": "good"
       },
       {
         "label": "Total Market Cap",
         "value": "$2.39T",
-        "prev": "$2.40T",
+        "prev": "$2.39T",
         "status": "neutral"
       },
       {

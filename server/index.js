@@ -5,9 +5,10 @@ import path from 'path';
 import fs from 'fs';
 import { refreshQuotes } from './services/quotes.js';
 import { startPoller } from './services/poller.js';
-import fsRoutes      from './routes/fs.js';
-import marketRoutes  from './routes/market.js';
-import financeRoutes from './routes/finance.js';
+import fsRoutes        from './routes/fs.js';
+import marketRoutes    from './routes/market.js';
+import financeRoutes   from './routes/finance.js';
+import portfolioRoutes from './routes/portfolio.js';
 
 const app = express();
 app.use(cors());
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use('/api', fsRoutes);
 app.use('/api', marketRoutes);
 app.use('/api', financeRoutes);
+app.use('/api', portfolioRoutes);
 
 // ── Production static serving ─────────────────────────────────────────────────
 const __dirname = path.dirname(new URL(import.meta.url).pathname);

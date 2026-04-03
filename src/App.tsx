@@ -6,10 +6,9 @@ import Dashboard from './pages/Dashboard';
 import EarningsReports from './pages/EarningsReports';
 import MarketAnalysis from './pages/MarketAnalysis';
 import FearAndGreedPage from './pages/FearAndGreedPage';
-import AgentLogs from './pages/AgentLogs';
 import Settings from './pages/Settings';
-import MarketDebate from './pages/MarketDebate';
 import TokenUsage from './pages/TokenUsage';
+import Portfolio from './pages/Portfolio';
 
 function App() {
   return (
@@ -18,11 +17,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
+        <Route path="/portfolio" element={<Layout><Portfolio /></Layout>} />
         <Route path="/earnings" element={<Layout><EarningsReports /></Layout>} />
         <Route path="/analysis" element={<Layout><MarketAnalysis /></Layout>} />
         <Route path="/fear-and-greed" element={<Layout><FearAndGreedPage /></Layout>} />
-        <Route path="/logs" element={<Layout><AgentLogs /></Layout>} />
-        <Route path="/debate" element={<Layout><MarketDebate /></Layout>} />
         <Route path="/token-usage" element={<Layout><TokenUsage /></Layout>} />
         <Route path="/settings" element={<Layout><Settings /></Layout>} />
       </Routes>

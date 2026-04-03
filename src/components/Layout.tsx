@@ -5,17 +5,17 @@ import { Float } from '@react-three/drei';
 import * as THREE from 'three';
 import {
   BarChart3, FileText, TrendingUp, Settings,
-  Home, ChevronLeft, ChevronRight, Menu, X,
+  Home, ChevronLeft, ChevronRight, Menu, X, Briefcase,
 } from 'lucide-react';
 import { useRef } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
 const mainNavDef = [
-  { key: 'nav_home',      href: '/',          icon: Home },
-  { key: 'nav_dashboard', href: '/dashboard', icon: BarChart3 },
-  { key: 'nav_earnings',  href: '/earnings',  icon: FileText },
-  { key: 'nav_analysis',  href: '/analysis',  icon: TrendingUp },
-  { key: 'nav_debate',    href: '/debate',    icon: Menu },
+  { key: 'nav_home',      href: '/',           icon: Home },
+  { key: 'nav_dashboard', href: '/dashboard',  icon: BarChart3 },
+  { key: 'nav_portfolio', href: '/portfolio',  icon: Briefcase },
+  { key: 'nav_earnings',  href: '/earnings',   icon: FileText },
+  { key: 'nav_analysis',  href: '/analysis',   icon: TrendingUp },
 ];
 
 const bottomNavDef = [
