@@ -36,10 +36,25 @@ async def fetch():
     from pytr.portfolio import Portfolio
 
     api = TradeRepublicApi(save_cookies=True)
-    ok = api.resume_websession()
+
+    # Step 1: try to resume existing web session (cookies)
+    ok = False
+    try:
+        ok = api.resume_websession()
+    except Exception:
+        pass
+
+    # Step 2: if cookie session invalid, try fresh login with stored credentials
     if not ok:
-        print('[TR Sync] FEHLER: Session abgelaufen. Bitte erneut einloggen: pytr login --store_credentials')
-        sys.exit(1)
+        try:
+            print('[TR Sync] Cookie-Session abgelaufen — versuche Login mit gespeicherten Credentials...')
+            api.login()
+            ok = True
+            print('[TR Sync] Login erfolgreich.', flush=True)
+        except Exception as e:
+            msg = str(e)
+            print(f'SESSION_EXPIRED: Kann nicht einloggen — Device-Reset erforderlich? ({msg})')
+            sys.exit(2)
 
     p = Portfolio(api, lang='en')
     await p.portfolio_loop()

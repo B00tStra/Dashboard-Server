@@ -1,5 +1,5 @@
 [Unit]
-Description=AI Hub Dashboard Server
+Description=Investment Tracker Dashboard Server
 After=network.target
 
 [Service]

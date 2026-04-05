@@ -1,269 +1,170 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Float } from '@react-three/drei';
-import * as THREE from 'three';
 import {
-  BarChart3, FileText, TrendingUp, Settings,
-  Home, ChevronLeft, ChevronRight, Menu, X, Briefcase,
+  LayoutDashboard, Briefcase, TrendingUp, Newspaper,
+  FileBarChart, CalendarDays, ChevronLeft, ChevronRight,
+  Menu, Sun, Moon, Activity
 } from 'lucide-react';
-import { useRef } from 'react';
-import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const mainNavDef = [
-  { key: 'nav_home',      href: '/',           icon: Home },
-  { key: 'nav_dashboard', href: '/dashboard',  icon: BarChart3 },
-  { key: 'nav_portfolio', href: '/portfolio',  icon: Briefcase },
-  { key: 'nav_earnings',  href: '/earnings',   icon: FileText },
-  { key: 'nav_analysis',  href: '/analysis',   icon: TrendingUp },
+// ── Nav Definition ─────────────────────────────────────────────────────────────
+
+const NAV_ITEMS = [
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/investment', label: 'Investment', icon: Briefcase },
+  { href: '/markets', label: 'Märkte', icon: TrendingUp },
+  { href: '/news', label: 'News Feed', icon: Newspaper },
+  { href: '/earnings', label: 'Ergebnisse', icon: FileBarChart },
+  { href: '/earnings-calendar', label: 'Ergebnis-Kalender', icon: CalendarDays },
 ];
 
-const bottomNavDef = [
-  { key: 'nav_settings', href: '/settings', icon: Settings },
-];
+// ── NavItem ────────────────────────────────────────────────────────────────────
 
-const AIBrain = () => {
-  const meshRef = useRef<THREE.Group>(null);
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x = state.clock.elapsedTime * 0.15;
-      meshRef.current.rotation.y = state.clock.elapsedTime * 0.25;
-    }
-  });
-  return (
-    <Float speed={2.5} rotationIntensity={0.5} floatIntensity={1.5}>
-      <group ref={meshRef}>
-        <mesh>
-          <icosahedronGeometry args={[1.2, 0]} />
-          <meshStandardMaterial color="#818cf8" wireframe emissive="#4f46e5" emissiveIntensity={0.6} transparent opacity={0.6} />
-        </mesh>
-        <mesh scale={0.6}>
-          <octahedronGeometry args={[1, 0]} />
-          <meshStandardMaterial color="#38bdf8" emissive="#0ea5e9" emissiveIntensity={1} />
-        </mesh>
-      </group>
-    </Float>
-  );
-};
-
-const DigitalNexus = () => {
-  const pointsRef = useRef<THREE.Points>(null);
-  const count = 1500;
-  
-  const positions = React.useMemo(() => {
-    const pos = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 50;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 50;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 50;
-    }
-    return pos;
-  }, []);
-
-  useFrame((state) => {
-    if (pointsRef.current) {
-      pointsRef.current.rotation.y = state.clock.elapsedTime * 0.015;
-      pointsRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.05;
-    }
-  });
+const NavItem: React.FC<{
+  item: typeof NAV_ITEMS[0];
+  collapsed: boolean;
+  onClick?: () => void;
+}> = ({ item, collapsed, onClick }) => {
+  const location = useLocation();
+  const Icon = item.icon;
+  const isActive = location.pathname === item.href;
 
   return (
-    <points ref={pointsRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={count}
-          array={positions}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.035}
-        color="#818cf8"
-        transparent
-        opacity={0.15}
-        sizeAttenuation
-        blending={THREE.AdditiveBlending}
+    <Link
+      to={item.href}
+      onClick={onClick}
+      title={collapsed ? item.label : undefined}
+      className={`
+        nav-item ${isActive ? 'active' : ''}
+        ${collapsed ? 'justify-center px-0' : ''}
+      `}
+    >
+      <Icon
+        size={18}
+        className="flex-shrink-0"
       />
-    </points>
+      {!collapsed && (
+        <span className="truncate">{item.label}</span>
+      )}
+    </Link>
   );
 };
 
-const AILogo3D = ({ collapsed = false }: { collapsed?: boolean }) => (
-  <div className={`${collapsed ? 'w-9 h-9' : 'w-12 h-12'} flex-shrink-0 pointer-events-none transition-all duration-300`}>
-    <Canvas camera={{ position: [0, 0, 3.2], fov: 50 }}>
-      <ambientLight intensity={0.6} />
-      <pointLight position={[10, 10, 10]} intensity={1} color="#c084fc" />
-      <pointLight position={[-10, -10, -5]} intensity={0.5} color="#38bdf8" />
-      <AIBrain />
-    </Canvas>
-  </div>
-);
+// ── Layout ─────────────────────────────────────────────────────────────────────
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
-  const { lang, setLang, t } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
 
-  // Close mobile drawer on navigation
   React.useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 
-  // Desktop: w-56 expanded / w-16 collapsed
-  const desktopW = collapsed ? 'w-16' : 'w-56';
+  const currentPage = NAV_ITEMS.find(n => n.href === location.pathname)?.label ?? 'Dashboard';
 
-  const mainNav = mainNavDef.map(n => ({ ...n, name: t(n.key) }));
-  const bottomNav = bottomNavDef.map(n => ({ ...n, name: t(n.key) }));
-
-  const allNav = [...mainNav, ...bottomNav];
-  const currentPage = allNav.find(n => n.href === location.pathname)?.name ?? 'Dashboard';
-
-  const NavItem = ({ item }: { item: typeof mainNav[0] }) => {
-    const Icon = item.icon;
-    const isActive = location.pathname === item.href;
-    return (
-      <Link
-        to={item.href}
-        title={collapsed ? item.name : undefined}
-        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
-          isActive
-            ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/20 shadow-sm'
-            : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
-        }`}
-      >
-        <Icon size={18} className="flex-shrink-0" />
-        {/* Always show label in mobile drawer; hide when desktop-collapsed */}
-        <span className={`text-sm font-medium truncate lg:hidden`}>{item.name}</span>
-        <span className={`text-sm font-medium truncate hidden lg:block ${collapsed ? 'lg:hidden' : ''}`}>{item.name}</span>
-        {!collapsed && isActive && (
-          <div className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-400 hidden lg:block" />
-        )}
-      </Link>
-    );
-  };
-
-  const SidebarContent = ({ mobile = false }: { mobile?: boolean }) => (
-    <>
-      {/* Logo */}
-      <div className="flex items-center h-16 px-3 border-b border-white/10 flex-shrink-0 relative">
-        <div className={`flex-1 flex items-center ${collapsed && !mobile ? 'justify-start' : 'gap-2 pl-1'}`}>
-          <AILogo3D collapsed={collapsed && !mobile} />
-          {(!collapsed || mobile) && (
-            <h1 className="text-xl font-display font-black tracking-tight text-white drop-shadow-md">
-              AI <span className="text-indigo-400">Hub</span>
-            </h1>
-          )}
+  const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
+    <div className="flex flex-col h-full bg-[var(--bg-sidebar)]">
+      <div className={`flex items-center h-14 px-4 border-b border-[var(--border-main)] flex-shrink-0 ${collapsed && !isMobile ? 'justify-center' : 'gap-3'}`}>
+        <div className="w-6 h-6 rounded bg-[var(--accent-blue)] flex items-center justify-center flex-shrink-0">
+          <Activity size={12} className="text-white" />
         </div>
-        {/* Mobile close */}
-        {mobile && (
-          <button onClick={() => setMobileOpen(false)} className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors">
-            <X size={18} />
-          </button>
-        )}
-        {/* Desktop collapse toggle */}
-        {!mobile && (
-          <button
-            onClick={() => setCollapsed(c => !c)}
-            className="absolute -right-3.5 top-5 bg-indigo-600 border border-indigo-400/50 p-1.5 rounded-full hover:bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)] transition-all z-50"
-          >
-            {collapsed ? <ChevronRight size={16} strokeWidth={3} /> : <ChevronLeft size={16} strokeWidth={3} />}
-          </button>
+        {(!collapsed || isMobile) && (
+          <span className="text-sm font-bold tracking-tight text-[var(--text-primary)]">
+            Trading<span className="text-[var(--accent-blue)]">View</span>
+          </span>
         )}
       </div>
 
-      {/* Main nav */}
-      <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
-        {mainNav.map(item => <NavItem key={item.href} item={item} />)}
+      <nav className="flex-1 py-2 overflow-y-auto">
+        {NAV_ITEMS.map(item => (
+          <NavItem
+            key={item.href}
+            item={item}
+            collapsed={collapsed && !isMobile}
+            onClick={isMobile ? () => setMobileOpen(false) : undefined}
+          />
+        ))}
       </nav>
 
-      {/* Settings at bottom */}
-      <div className="px-2 pb-3 pt-2 border-t border-white/10 space-y-0.5">
-        {bottomNav.map(item => <NavItem key={item.href} item={item} />)}
+      <div className="p-4 border-t border-[var(--border-main)] flex-shrink-0 bg-[var(--bg-sidebar)]">
+        <div className="flex items-center gap-3">
+           <div className="w-2 h-2 rounded-full bg-[var(--accent-green)]" />
+           {(!collapsed || isMobile) && <span className="text-[11px] font-medium text-[var(--accent-green)]">CONNECTED</span>}
+        </div>
       </div>
-    </>
+    </div>
   );
 
   return (
-    <div className="min-h-screen flex relative overflow-hidden bg-[#020617]">
-      {/* ── Background Layer ────────────────────────────────────────────────── */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-[#030712]">
-        {/* Dynamic 3D Nexus */}
-        <div className="absolute inset-0 opacity-40">
-          <Canvas camera={{ position: [0, 0, 1] }}>
-            <DigitalNexus />
-          </Canvas>
-        </div>
+    <div className="min-h-screen flex text-[var(--text-primary)] bg-[var(--bg-main)]">
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm lg:hidden"
+              onClick={() => setMobileOpen(false)}
+            />
+            <motion.aside
+              initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }}
+              transition={{ type: 'tween', duration: 0.2, ease: 'easeOut' }}
+              className="fixed inset-y-0 left-0 z-[70] w-64 bg-[var(--bg-sidebar)] border-r border-[var(--border-main)] shadow-2xl lg:hidden"
+            >
+              <SidebarContent isMobile />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
 
-        {/* Ambient Glowing Orbs - Increased Opacity for Visibility */}
-        <div className="absolute top-[-5%] left-[-5%] w-[60%] h-[60%] bg-indigo-500/25 blur-[120px] rounded-full animate-pulse-slow" />
-        <div className="absolute bottom-[-10%] right-[-5%] w-[70%] h-[70%] bg-cyan-500/15 blur-[150px] rounded-full animate-float-slow" />
-        <div className="absolute top-[30%] right-[10%] w-[40%] h-[40%] bg-violet-600/15 blur-[100px] rounded-full animate-pulse-slow" style={{ animationDelay: '2s' }} />
-        
-        {/* Noise/Grain Overlay */}
-        <div className="absolute inset-0 opacity-[0.05] mix-blend-overlay pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-        
-        {/* Deep Vignette */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-[#030712]/40" />
-      </div>
-
-      {/* ── Mobile overlay backdrop ─────────────────────────────────────────── */}
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/60 lg:hidden"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
-
-      {/* ── Mobile drawer ──────────────────────────────────────────────────── */}
-      <aside className={`
-        fixed inset-y-0 left-0 z-50 w-64 flex flex-col glass-panel border-r border-white/10
-        transition-transform duration-300 lg:hidden
-        ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
-        <SidebarContent mobile />
-      </aside>
-
-      {/* ── Desktop sidebar ────────────────────────────────────────────────── */}
-      <aside className={`
-        hidden lg:flex flex-col relative z-50
-        ${desktopW} glass-panel border-r border-white/10 transition-all duration-300
-      `}>
+      <aside
+        className={`
+          hidden lg:flex flex-col z-40 flex-shrink-0
+          bg-[var(--bg-sidebar)] border-r border-[var(--border-main)]
+          transition-all duration-250 ease-in-out
+          ${collapsed ? 'w-[60px]' : 'w-56'}
+        `}
+      >
         <SidebarContent />
       </aside>
 
-      {/* ── Main area ──────────────────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col relative z-10 min-w-0">
-
-        {/* Top bar */}
-        <header className="sticky top-0 z-20 h-16 flex items-center px-4 lg:px-8 glass-panel border-b border-white/10 backdrop-blur-xl flex-shrink-0 bg-slate-900/40">
-          {/* Hamburger — mobile only */}
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+        <header className="sticky top-0 z-[40] h-14 flex items-center px-5 lg:px-6 bg-[var(--bg-main)] border-b border-[var(--border-main)] flex-shrink-0">
           <button
             onClick={() => setMobileOpen(true)}
-            className="lg:hidden mr-3 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="lg:hidden mr-3 p-1.5 rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] transition-colors"
           >
-            <Menu size={20} />
+            <Menu size={18} />
           </button>
-          <h2 className="text-lg font-display font-bold text-white tracking-wide">{currentPage}</h2>
-          <div className="ml-auto flex items-center gap-1 bg-white/5 border border-white/10 rounded-lg p-1">
-            {(['de', 'en'] as const).map(l => (
-              <button
-                key={l}
-                onClick={() => setLang(l)}
-                className={`px-2.5 py-1 rounded-md text-xs font-bold uppercase transition-all duration-200 ${
-                  lang === l
-                    ? 'bg-indigo-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                {l}
-              </button>
-            ))}
+
+          <button
+            onClick={() => setCollapsed(c => !c)}
+            className="hidden lg:flex mr-4 p-1.5 rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] transition-colors duration-150"
+          >
+            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          </button>
+
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[var(--text-primary)]">
+              {currentPage}
+            </span>
+          </div>
+
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="p-1.5 rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-hover)] transition-colors duration-150"
+            >
+              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
           </div>
         </header>
 
-        {/* Page content */}
-        <main className="flex-1 overflow-auto">
-          {children}
+        <main className="flex-1 overflow-y-auto px-5 lg:px-8 py-8 custom-scrollbar">
+          <div className="max-w-[1920px] mx-auto w-full">
+            {children}
+          </div>
         </main>
       </div>
     </div>

@@ -8,6 +8,7 @@ import { fetchTradingViewQuotes } from '../services/quotes.js';
 const router = express.Router();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORTFOLIO_FILE = path.join(__dirname, '../../data/portfolio.json');
+const HISTORY_FILE   = path.join(__dirname, '../../data/portfolio_history.json');
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -127,6 +128,123 @@ router.delete('/portfolio/:ticker', (req, res) => {
   res.json({ ok: true });
 });
 
+// ── GET /api/portfolio/history ────────────────────────────────────────────────
+
+router.get('/portfolio/history', (req, res) => {
+  try {
+    const data = JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf-8'));
+    res.json(data);
+  } catch {
+    res.json({ series: [], total_invested: 0, generated_at: null });
+  }
+});
+
+// ── POST /api/portfolio/history/refresh ───────────────────────────────────────
+
+router.post('/portfolio/history/refresh', (req, res) => {
+  const scriptPath = path.join(__dirname, '../../python/scripts/portfolio_history.py');
+  const proc = spawn('python3', [scriptPath]);
+  let out = '', err = '', settled = false;
+
+  const timeout = setTimeout(() => {
+    if (settled) return;
+    settled = true;
+    proc.kill();
+    res.status(504).json({ ok: false, error: 'Timeout (120s)' });
+  }, 120_000);
+
+  proc.stdout.on('data', d => { out += d.toString(); });
+  proc.stderr.on('data', d => { err += d.toString(); });
+  proc.on('close', code => {
+    if (settled) return;
+    settled = true;
+    clearTimeout(timeout);
+    if (code === 0) return res.json({ ok: true, output: out });
+    res.status(500).json({ ok: false, error: err || out || 'Unknown error' });
+  });
+});
+
+// ── POST /api/portfolio/auth/request ─────────────────────────────────────────
+// Initiates device reset — TR sends 4-digit code to the TR app
+
+router.post('/portfolio/auth/request', (req, res) => {
+  const authScript = path.join(__dirname, '../../python/scripts/tr_auth.py');
+  let out = '', err = '', settled = false;
+
+  const proc = spawn('python3', [authScript, 'request']);
+
+  const timeout = setTimeout(() => {
+    if (settled) return;
+    settled = true;
+    proc.kill();
+    res.status(504).json({ ok: false, error: 'Timeout (30s)' });
+  }, 30_000);
+
+  proc.stdout.on('data', d => { out += d; });
+  proc.stderr.on('data', d => { err += d; });
+  proc.on('close', exitCode => {
+    if (settled) return;
+    settled = true;
+    clearTimeout(timeout);
+    const combined = out + err;
+    if (combined.includes('RESET_REQUESTED') || combined.includes('SESSION_OK')) {
+      return res.json({ ok: true, sessionOk: combined.includes('SESSION_OK') });
+    }
+    res.status(500).json({ ok: false, error: combined || 'Request failed' });
+  });
+});
+
+// ── POST /api/portfolio/auth ──────────────────────────────────────────────────
+// Re-authenticates TR session with a 4-digit device code from the TR app.
+// On success, automatically runs the sync script.
+
+router.post('/portfolio/auth', (req, res) => {
+  const { code } = req.body ?? {};
+  if (!code || !/^\d{4,6}$/.test(String(code))) {
+    return res.status(400).json({ ok: false, error: 'Ungültiger Code — bitte 4-stelligen TR-Code eingeben.' });
+  }
+
+  const authScript = path.join(__dirname, '../../python/scripts/tr_auth.py');
+  const syncScript = path.join(__dirname, '../../python/scripts/tr_sync.py');
+  let out = '', err = '', settled = false;
+
+  const proc = spawn('python3', [authScript, 'complete', String(code)]);
+
+  const timeout = setTimeout(() => {
+    if (settled) return;
+    settled = true;
+    proc.kill();
+    res.status(504).json({ ok: false, error: 'Auth Timeout (30s)' });
+  }, 30_000);
+
+  proc.stdout.on('data', d => { out += d; });
+  proc.stderr.on('data', d => { err += d; });
+
+  proc.on('close', exitCode => {
+    if (settled) return;
+    settled = true;
+    clearTimeout(timeout);
+    const combined = out + err;
+
+    if (combined.includes('AUTH_OK')) {
+      // Device reset complete — auto-run sync
+      const sync = spawn('python3', [syncScript]);
+      let sOut = '', sErr = '';
+      sync.stdout.on('data', d => { sOut += d; });
+      sync.stderr.on('data', d => { sErr += d; });
+      sync.on('close', sc => {
+        if (sc === 0) return res.json({ ok: true, message: 'Auth erfolgreich & Sync abgeschlossen.' });
+        res.json({ ok: true, authOk: true, syncError: sErr || sOut });
+      });
+    } else {
+      const msg = combined.includes('AUTH_FAIL')
+        ? 'Falscher Code oder Login fehlgeschlagen.'
+        : combined || 'Unbekannter Fehler';
+      res.status(401).json({ ok: false, error: msg });
+    }
+  });
+});
+
 // ── GET /api/portfolio/search?q=servicenow ────────────────────────────────────
 
 router.get('/portfolio/search', async (req, res) => {
@@ -175,8 +293,24 @@ router.post('/portfolio/sync', (req, res) => {
     if (settled) return;
     settled = true;
     clearTimeout(timeout);
-    if (code === 0) res.json({ ok: true, output: out });
-    else res.status(500).json({ ok: false, error: err || out });
+    if (code === 0) return res.json({ ok: true, output: out });
+    const combined = (out + err).toLowerCase();
+    const isSessionExpired =
+      code === 2 ||
+      combined.includes('session_expired') ||
+      combined.includes('waf') ||
+      combined.includes('aws token') ||
+      combined.includes('resume_websession') ||
+      combined.includes('abgelaufen');
+    if (isSessionExpired) {
+      return res.status(401).json({
+        ok: false,
+        sessionExpired: true,
+        error: 'TR-Session abgelaufen. Bitte im Terminal neu einloggen.',
+        hint: 'pytr login --store_credentials',
+      });
+    }
+    res.status(500).json({ ok: false, error: (out + err) || 'Unbekannter Fehler' });
   });
 });
 

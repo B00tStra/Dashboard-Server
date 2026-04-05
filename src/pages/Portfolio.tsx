@@ -1,376 +1,505 @@
-import { useState, useEffect, useCallback } from 'react';
-import { TrendingUp, TrendingDown, RefreshCw, DollarSign, BarChart2, Activity, Trash2 } from 'lucide-react';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis } from 'recharts';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  RefreshCw, Activity, Trash2, AlertTriangle, X,
+  ShieldCheck, Globe
+} from 'lucide-react';
+import {
+  PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
+  AreaChart, Area, CartesianGrid, XAxis, YAxis
+} from 'recharts';
+import { motion, AnimatePresence } from 'framer-motion';
 import { fmt, fmtEur, getLogoUrl } from '../utils/formatters';
+import DCFChart, { ValuationBadge } from '../components/DCFChart';
+import { useTheme } from '../context/ThemeContext';
 
-const API = '/api';
+const RANGES = ['1D', '5D', '1M', '6M', '1Y', 'ALL'];
+const CHART_COLORS = ['#2962ff', '#26a69a', '#ef5350', '#ffb100', '#9c27b0', '#00bcd4', '#ff5722'];
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
-interface Position {
-  ticker: string;
-  shares: number;
-  avgBuyPrice: number;
-  buyDate: string;
-  currentPrice: number;
-  previousClose: number;
-  companyName: string;
-  currency: string;
-  cost: number;
-  value: number;
-  pnl: number;
-  pnlPct: number;
-  dayChange: number;
-  dayChangePct: number;
-  weight: number;
-}
-
-interface Summary {
-  totalValue: number;
-  totalCost: number;
-  totalPnl: number;
-  totalPnlPct: number;
-}
-
-const PNL_POS = '#10b981';
-const PNL_NEG = '#f43f5e';
-
-const CHART_COLORS = [
-  '#6366f1', '#22d3ee', '#f59e0b', PNL_POS, PNL_NEG,
-  '#a78bfa', '#34d399', '#fb923c', '#38bdf8', '#e879f9',
-];
-
-// ── Sparkbar (mini P&L bar per position) ─────────────────────────────────────
-
-const MiniBar = ({ pct, color }: { pct: number; color: string }) => (
-  <div className="w-full h-1 rounded-full bg-slate-800 overflow-hidden mt-1">
-    <div
-      className="h-full rounded-full transition-all duration-500"
-      style={{ width: `${Math.min(Math.abs(pct), 100)}%`, backgroundColor: color, marginLeft: pct < 0 ? 'auto' : undefined }}
-    />
-  </div>
-);
-
-// ── Main Page ─────────────────────────────────────────────────────────────────
-
-const Portfolio = () => {
-  const [positions, setPositions] = useState<Position[]>([]);
-  const [summary, setSummary] = useState<Summary>({ totalValue: 0, totalCost: 0, totalPnl: 0, totalPnlPct: 0 });
+const Portfolio: React.FC = () => {
+  // ── Data & State ─────────────────────────────────────────────────────────────
+  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
-  const [lastSync, setLastSync] = useState<string | null>(null);
+  const [syncError, setSyncError] = useState<any>(null);
+  const [authStep, setAuthStep] = useState<'none' | 'request' | 'verify'>('none');
+  const [authCode, setAuthCode] = useState('');
+  const [authing, setAuthing] = useState(false);
+  
+  const [expandedTicker, setExpandedTicker] = useState<string | null>(null);
+  const [perfRange, setPerfRange] = useState('ALL');
+  const { theme } = useTheme();
 
   const load = useCallback(async () => {
-    setLoading(true);
     try {
-      const res = await fetch(`${API}/portfolio`);
-      const data = await res.json();
-      setPositions(data.positions ?? []);
-      setSummary(data.summary ?? { totalValue: 0, totalCost: 0, totalPnl: 0, totalPnlPct: 0 });
-    } catch { /* silent */ }
-    finally { setLoading(false); }
+      const resp = await fetch('/api/portfolio');
+      const d = await resp.json();
+      setData(d);
+      setLoading(false);
+    } catch (e) {
+      console.error('Fetch error:', e);
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { load(); }, [load]);
 
-  const deletePosition = async (ticker: string) => {
-    await fetch(`${API}/portfolio/${ticker}`, { method: 'DELETE' });
-    load();
-  };
-
   const syncTR = async () => {
     setSyncing(true);
     try {
-      const res = await fetch(`${API}/portfolio/sync`, { method: 'POST' });
-      const data = await res.json();
-      if (data.ok) {
-        setLastSync(new Date().toLocaleTimeString('de-DE'));
-        await load();
+      const resp = await fetch('/api/tr/sync', { method: 'POST' });
+      const d = await resp.json();
+      if (d.error) {
+        if (d.sessionExpired) setAuthStep('request');
+        setSyncError(d);
       } else {
-        alert('Sync Fehler: ' + (data.error ?? 'Unbekannt'));
+        await load();
       }
-    } catch {
-      alert('Netzwerkfehler beim Sync');
-    } finally {
-      setSyncing(false);
+    } catch (e) {
+      setSyncError({ message: 'Netzwerkfehler' });
+    }
+    setSyncing(false);
+  };
+
+  const requestLogin = async () => {
+    setAuthing(true);
+    const resp = await fetch('/api/tr/login', { method: 'POST' });
+    const d = await resp.json();
+    setAuthing(false);
+    if (!d.error) setAuthStep('verify');
+    else setSyncError(d);
+  };
+
+  const submitAuth = async () => {
+    setAuthing(true);
+    const resp = await fetch('/api/tr/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: authCode }),
+    });
+    const d = await resp.json();
+    setAuthing(false);
+    if (!d.error) {
+      setAuthStep('none');
+      setAuthCode('');
+      syncTR();
+    } else {
+      setSyncError(d);
     }
   };
 
-  const pieData = positions.map((p, i) => ({
+  const deletePosition = async (ticker: string) => {
+    if (!confirm(`Möchtest du ${ticker} wirklich löschen?`)) return;
+    await fetch(`/api/portfolio/${ticker}`, { method: 'DELETE' });
+    load();
+  };
+
+  const ChartTooltip = ({ active, payload, label }: any) => {
+    if (!active || !payload?.length) return null;
+    return (
+      <div className="term-card px-3 py-2.5 text-xs shadow-xl min-w-[140px]">
+        <div className="text-[10px] font-bold text-[var(--text-muted)] mb-1.5 uppercase tracking-wider">{label}</div>
+        {payload.map((p: any) => (
+          <div key={p.name} className="flex items-center justify-between gap-4 mb-0.5">
+            <div className="flex items-center gap-2">
+               <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: p.color }} />
+               <span className="text-[var(--text-secondary)] font-medium">{p.name}:</span>
+            </div>
+            <span className="text-[var(--text-primary)] font-bold tabular-nums">{fmtEur(p.value)}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  if (loading || !data) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
+        <RefreshCw size={20} className="animate-spin text-[var(--accent-blue)]" />
+        <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Initialisiere Portfolio...</span>
+      </div>
+    );
+  }
+
+  const { summary, positions, history } = data;
+  const isDark = theme === 'dark';
+  const chartColors = {
+    grid: isDark ? 'rgba(42, 46, 57, 0.4)' : '#f0f3fa',
+    text: '#787b86',
+    area: '#2962ff'
+  };
+
+  const perfData = history?.history || [];
+  const tickInterval = Math.ceil(perfData.length / 10);
+  const pieData = positions.map((p: any, i: number) => ({
     name: p.ticker,
-    value: p.value,
+    value: p.marketValue,
     color: CHART_COLORS[i % CHART_COLORS.length],
   }));
 
-  const barData = positions
-    .filter(p => p.currentPrice > 0)
-    .map((p) => ({
-      name: p.ticker,
-      pnl: Math.round(p.pnlPct * 100) / 100,
-      fill: p.pnlPct >= 0 ? PNL_POS : '#f43f5e',
-    }));
-
-  const dayPnl = positions.reduce((s, p) => s + (p.dayChange * p.shares), 0);
-
   return (
-    <div className="p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
-
-      {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-2xl font-black text-white tracking-tight">Portfolio</h1>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
-              Trade Republic
-            </span>
-          </div>
-          {positions.length > 0 && (
-            <div className="flex items-baseline gap-3">
-              <span className="text-4xl font-black text-white">{fmtEur(summary.totalValue)}</span>
-              <span className={`text-sm font-semibold ${dayPnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                {dayPnl >= 0 ? '+' : ''}{fmtEur(dayPnl)} heute
-              </span>
+    <div className="space-y-6 pb-20 max-w-[1600px] mx-auto animate-in fade-in duration-500">
+      {/* ── TradingView Header Ticker ────────────────────────────────────────── */}
+      <div className="flex flex-wrap items-center gap-8 px-1 py-2 border-b border-[var(--border-main)] mb-6 overflow-x-auto no-scrollbar">
+         <div className="flex flex-col">
+            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Gesamtvermögen</span>
+            <div className="flex items-center gap-2">
+               <span className="text-xl font-bold text-[var(--text-primary)] tabular-nums">{fmtEur(summary.totalValue)}</span>
+               <span className={`text-xs font-bold ${summary.totalPnlPct >= 0 ? 'text-pos' : 'text-neg'}`}>
+                  {summary.totalPnlPct >= 0 ? '▲' : '▼'} {fmt(Math.abs(summary.totalPnlPct))}%
+               </span>
             </div>
-          )}
+         </div>
+         
+         <div className="h-10 w-px bg-[var(--border-main)] hidden sm:block" />
+         
+         <div className="flex flex-col">
+            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">24H Ergebnis</span>
+            <span className={`text-sm font-bold tabular-nums ${summary.dayChangePct >= 0 ? 'text-pos' : 'text-neg'}`}>
+               {summary.dayChangePct >= 0 ? '+' : ''}{fmtEur(summary.dayChange || 0)}
+            </span>
+         </div>
+         
+         <div className="flex flex-col">
+            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Investitionskapital</span>
+            <span className="text-sm font-bold text-[var(--text-primary)] tabular-nums">{fmtEur(summary.totalCost)}</span>
+         </div>
+
+         <div className="ml-auto flex items-center gap-4">
+            <div className="flex items-center gap-2.5 px-3 py-1.5 bg-[var(--bg-main)] border border-[var(--border-main)] rounded shadow-sm">
+               <div className="w-2 h-2 rounded-full bg-[var(--accent-green)] animate-pulse shadow-[0_0_8px_var(--accent-green)]" />
+               <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">Live Market Feed</span>
+            </div>
+            <button
+                onClick={syncTR} disabled={syncing}
+                className="p-2 border border-[var(--border-main)] hover:border-[var(--accent-blue)] transition-all rounded bg-[var(--bg-card)] shadow-sm disabled:opacity-40"
+              >
+                <RefreshCw size={14} className={syncing ? 'animate-spin' : ''} />
+              </button>
+         </div>
+      </div>
+
+      {/* ── Main Performance Chart ──────────────────────────────────────────── */}
+      <div className="term-card overflow-visible">
+        <div className="flex flex-wrap items-center justify-between px-4 py-2 bg-[var(--bg-main)] border-b border-[var(--border-main)]">
+           <div className="flex items-center gap-5">
+              <span className="text-[11px] font-extrabold text-[var(--text-primary)] uppercase tracking-widest">Portfolio Performance</span>
+              <div className="flex items-center bg-[var(--bg-card)] rounded-sm p-0.5 border border-[var(--border-main)]">
+                 {RANGES.map(tf => (
+                    <button
+                       key={tf}
+                       onClick={() => setPerfRange(tf)}
+                       className={`px-3 py-1 text-[9px] font-bold rounded-sm transition-all ${perfRange === tf ? 'bg-[var(--accent-blue)] text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
+                    >
+                       {tf}
+                    </button>
+                 ))}
+              </div>
+           </div>
+           <div className="hidden sm:flex items-center gap-3">
+              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tight">Benchmark: <span className="text-[var(--text-secondary)]">S&P 500 (+12.4%)</span></span>
+           </div>
         </div>
-        <div className="flex items-center gap-2">
-          {lastSync && <span className="text-xs text-slate-500">Sync: {lastSync}</span>}
-          <button
-            onClick={syncTR}
-            disabled={syncing}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 text-xs font-semibold transition-colors disabled:opacity-50"
-          >
-            <RefreshCw size={13} className={syncing ? 'animate-spin' : ''} />
-            {syncing ? 'Synchronisiere…' : 'Sync TR'}
-          </button>
-          <button onClick={load} className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors">
-            <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
-          </button>
+        
+        <div className="h-[450px] w-full p-6 relative">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={perfData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+              <defs>
+                <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={chartColors.area} stopOpacity={0.15}/>
+                  <stop offset="95%" stopColor={chartColors.area} stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chartColors.grid} />
+              <XAxis 
+                dataKey="label" 
+                axisLine={false} tickLine={false}
+                tick={{ fontSize: 10, fill: chartColors.text, fontWeight: 500 }}
+                dy={12}
+                interval={tickInterval}
+              />
+              <YAxis 
+                axisLine={false} tickLine={false}
+                tick={{ fontSize: 10, fill: chartColors.text, fontWeight: 500 }}
+                tickFormatter={v => `€${(v / 1000).toFixed(1)}k`}
+                width={55}
+                domain={['auto', 'auto']}
+              />
+              <Tooltip 
+                 content={<ChartTooltip />}
+                 cursor={{ stroke: chartColors.text, strokeWidth: 1, strokeDasharray: '4 4' }}
+              />
+              <Area 
+                type="monotone" 
+                dataKey="portfolio" 
+                name="Portfolio"
+                stroke={chartColors.area} 
+                strokeWidth={2.5}
+                fillOpacity={1} 
+                fill="url(#colorValue)" 
+                animationDuration={1000}
+                isAnimationActive={false}
+              />
+              <Area 
+                type="stepAfter" 
+                dataKey="invested" 
+                name="Investiert"
+                stroke={isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} 
+                strokeWidth={1}
+                strokeDasharray="5 5"
+                fill="none"
+                isAnimationActive={false}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
-      {/* ── KPI Cards ──────────────────────────────────────────────────────── */}
-      {positions.length > 0 && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {[
-            {
-              label: 'Gesamtwert',
-              value: fmtEur(summary.totalValue),
-              sub: `${positions.length} Positionen`,
-              icon: DollarSign,
-              color: 'indigo',
-            },
-            {
-              label: 'Investiert',
-              value: fmtEur(summary.totalCost),
-              sub: 'Einstandswert',
-              icon: BarChart2,
-              color: 'slate',
-            },
-            {
-              label: 'Gesamt P&L',
-              value: `${summary.totalPnl >= 0 ? '+' : ''}${fmtEur(summary.totalPnl)}`,
-              sub: `${summary.totalPnlPct >= 0 ? '+' : ''}${fmt(summary.totalPnlPct)}%`,
-              icon: summary.totalPnl >= 0 ? TrendingUp : TrendingDown,
-              color: summary.totalPnl >= 0 ? 'emerald' : 'red',
-            },
-            {
-              label: 'Heute',
-              value: `${dayPnl >= 0 ? '+' : ''}${fmtEur(dayPnl)}`,
-              sub: 'Tagesveränderung',
-              icon: Activity,
-              color: dayPnl >= 0 ? 'emerald' : 'red',
-            },
-          ].map(card => {
-            const Icon = card.icon;
-            const colors: Record<string, { icon: string; text: string }> = {
-              indigo:  { icon: 'bg-indigo-500/10 text-indigo-400',   text: 'text-indigo-300' },
-              slate:   { icon: 'bg-slate-500/10 text-slate-400',     text: 'text-slate-300' },
-              emerald: { icon: 'bg-emerald-500/10 text-emerald-400', text: 'text-emerald-400' },
-              red:     { icon: 'bg-red-500/10 text-red-400',         text: 'text-red-400' },
-            };
-            const c = colors[card.color];
-            return (
-              <div key={card.label} className="bg-slate-900/60 border border-white/8 rounded-2xl p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className={`p-1.5 rounded-lg ${c.icon}`}><Icon size={13} /></div>
-                  <span className="text-xs text-slate-500">{card.label}</span>
-                </div>
-                <div className={`text-xl font-bold ${c.text}`}>{card.value}</div>
-                <div className="text-xs text-slate-600 mt-0.5">{card.sub}</div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      {/* ── Allocation & Matrix Row ─────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+         {/* Allocation Pie */}
+         <div className="lg:col-span-4 term-card">
+            <div className="term-header py-2.5 px-4 bg-[var(--bg-main)]">
+               <span className="text-[11px] font-bold text-[var(--text-primary)] uppercase tracking-widest">Asset Allocation</span>
+            </div>
+            <div className="p-6 flex flex-col items-center justify-center min-h-[300px]">
+               <div className="relative w-full h-[240px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={pieData} cx="50%" cy="50%"
+                        innerRadius={70} outerRadius={90}
+                        paddingAngle={3} dataKey="value"
+                        stroke="var(--bg-card)" strokeWidth={2}
+                      >
+                        {pieData.map((entry: any, i: number) => <Cell key={i} fill={entry.color} />)}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-main)', fontSize: '10px' }}
+                        formatter={(v: any) => [fmtEur(v), 'Market Value']}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                     <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Total P/L</span>
+                     <span className={`text-lg font-bold tabular-nums ${summary.totalPnl >= 0 ? 'text-pos' : 'text-neg'}`}>
+                        {summary.totalPnl >= 0 ? '+' : ''}{fmtEur(summary.totalPnl)}
+                     </span>
+                  </div>
+               </div>
+            </div>
+         </div>
 
-      {positions.length === 0 && !loading ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center mb-4">
-            <BarChart2 size={28} className="text-indigo-400" />
-          </div>
-          <p className="text-slate-300 font-semibold mb-1">Keine Positionen</p>
-          <p className="text-slate-500 text-sm">Klicke "Sync TR" um dein Trade Republic Portfolio zu laden.</p>
-        </div>
-      ) : (
-        <>
-          {/* ── Main Grid ──────────────────────────────────────────────────── */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+         {/* Matrix Table */}
+         <div className="lg:col-span-8 term-card">
+            <div className="term-header py-2.5 px-4 bg-[var(--bg-main)]">
+               <div className="flex items-center gap-2">
+                  <Activity size={14} className="text-[var(--accent-blue)]" />
+                  <span className="text-[11px] font-bold text-[var(--text-primary)] uppercase tracking-widest">Asset Matrix</span>
+               </div>
+            </div>
+            <div className="overflow-x-auto text-sm">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-[var(--border-main)] bg-[var(--bg-card)]/30">
+                    <th className="px-5 py-3 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Asset</th>
+                    <th className="px-5 py-3 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest text-right">Price</th>
+                    <th className="px-5 py-3 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest text-right">Volume</th>
+                    <th className="px-5 py-3 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest text-right">24H</th>
+                    <th className="px-5 py-3 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest text-right">Return</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--border-main)]">
+                  {positions.map((asset: any) => (
+                    <React.Fragment key={asset.ticker}>
+                      <tr 
+                        onClick={() => setExpandedTicker(expandedTicker === asset.ticker ? null : asset.ticker)}
+                        className={`
+                          group cursor-pointer transition-all duration-150
+                          hover:bg-[var(--bg-card-hover)]
+                          ${expandedTicker === asset.ticker ? 'bg-[var(--bg-card-hover)]' : ''}
+                        `}
+                      >
+                        <td className="px-5 py-4">
+                          <div className="flex items-center gap-3">
+                            <img 
+                              src={getLogoUrl(asset.ticker) ?? undefined} 
+                              className="w-8 h-8 rounded-full bg-white p-0.5 border border-[var(--border-main)] shadow-sm" 
+                              alt="" 
+                            />
+                            <div className="flex flex-col">
+                              <span className="text-sm font-bold text-[var(--text-primary)]">{asset.ticker}</span>
+                              <span className="text-[10px] text-[var(--text-muted)] font-medium truncate max-w-[120px]">{asset.name}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-5 py-4 text-right">
+                           <span className="data-value text-xs text-[var(--text-primary)] font-semibold">{fmtEur(asset.price)}</span>
+                        </td>
+                        <td className="px-5 py-4 text-right">
+                           <div className="flex flex-col items-end">
+                              <span className="data-value text-xs text-[var(--text-primary)] font-bold">{fmtEur(asset.marketValue)}</span>
+                              <span className="text-[9px] text-[var(--text-muted)] font-bold">{fmt(asset.weight, 1)}%</span>
+                           </div>
+                        </td>
+                        <td className="px-5 py-4 text-right">
+                           <span className={`text-[11px] font-bold tabular-nums ${asset.dayChangePct >= 0 ? 'text-pos' : 'text-neg'}`}>
+                              {asset.dayChangePct >= 0 ? '+' : ''}{fmt(asset.dayChangePct, 2)}%
+                           </span>
+                        </td>
+                        <td className="px-5 py-4 text-right">
+                           <div className="flex flex-col items-end">
+                              <span className={`text-xs font-bold tabular-nums ${asset.pnl >= 0 ? 'text-pos' : 'text-neg'}`}>{fmtEur(asset.pnl)}</span>
+                              <span className={`text-[9px] font-bold tabular-nums ${asset.pnlPct >= 0 ? 'text-pos' : 'text-neg'}`}>
+                                 {asset.pnlPct >= 0 ? '+' : ''}{fmt(asset.pnlPct, 1)}%
+                              </span>
+                           </div>
+                        </td>
+                      </tr>
 
-            {/* Positions Table */}
-            <div className="xl:col-span-2 bg-slate-900/60 border border-white/8 rounded-2xl overflow-hidden">
-              <div className="px-5 py-3.5 border-b border-white/8 flex items-center justify-between">
-                <span className="text-sm font-semibold text-white">Positionen</span>
-                <span className="text-xs text-slate-500">{positions.length} Assets</span>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-xs text-slate-500 border-b border-white/5">
-                      <th className="text-left px-5 py-3 font-medium">Asset</th>
-                      <th className="text-right px-3 py-3 font-medium">Stück</th>
-                      <th className="text-right px-3 py-3 font-medium">Kurs</th>
-                      <th className="text-right px-3 py-3 font-medium">Wert</th>
-                      <th className="text-right px-3 py-3 font-medium">P&amp;L</th>
-                      <th className="text-right px-3 py-3 font-medium">Tag</th>
-                      <th className="text-right px-3 py-3 font-medium">Anteil</th>
-                      <th className="px-3 py-3" />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {positions.map((p, i) => {
-                      const logo = getLogoUrl(p.ticker);
-                      return (
-                        <tr key={p.ticker} className="border-b border-white/5 hover:bg-white/3 transition-colors group">
-                          <td className="px-5 py-3">
-                            <div className="flex items-center gap-2.5">
-                              <div className="w-1 h-9 rounded-full flex-shrink-0" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
-                              {logo ? (
-                                <img src={logo} alt={p.ticker}
-                                  className="w-8 h-8 rounded-lg object-contain bg-slate-800/80 p-1 flex-shrink-0"
-                                  onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-                              ) : (
-                                <div className="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-xs font-bold text-slate-400 bg-slate-800"
-                                  style={{ color: CHART_COLORS[i % CHART_COLORS.length] }}>
-                                  {p.ticker.slice(0, 2)}
+                      <AnimatePresence>
+                        {expandedTicker === asset.ticker && (
+                          <tr>
+                            <td colSpan={5} className="p-0 bg-[var(--bg-main)]/50">
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }} 
+                                animate={{ height: 'auto', opacity: 1 }} 
+                                exit={{ height: 0, opacity: 0 }}
+                                className="overflow-hidden border-b border-[var(--border-main)]"
+                              >
+                                <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
+                                   <div className="lg:col-span-8 space-y-4">
+                                      <div className="flex items-center justify-between px-2">
+                                         <div className="flex items-center gap-3">
+                                            <h4 className="text-[11px] font-black text-[var(--text-primary)] uppercase tracking-widest">Intrinsic valuation // {asset.ticker}</h4>
+                                            <ValuationBadge ticker={asset.ticker} currentPrice={asset.price} />
+                                         </div>
+                                         <div className="flex items-center gap-4 text-[10px] text-[var(--text-muted)] font-bold">
+                                             <div className="flex items-center gap-1.5"><Globe size={12} /> SEC DATA</div>
+                                             <div className="flex items-center gap-1.5"><ShieldCheck size={12} /> AUDITED</div>
+                                         </div>
+                                      </div>
+                                      <div className="bg-[var(--bg-card)] border border-[var(--border-main)] rounded p-4 h-64 shadow-inner">
+                                        <DCFChart ticker={asset.ticker} />
+                                      </div>
+                                   </div>
+                                   <div className="lg:col-span-4 space-y-4">
+                                      <h4 className="text-[11px] font-black text-[var(--text-primary)] uppercase tracking-widest px-2">Node Intelligence</h4>
+                                      <div className="space-y-3">
+                                         <div className="term-card p-4 bg-[var(--bg-card)] border-l-4 border-l-[var(--accent-blue)]">
+                                            <div className="text-[10px] text-[var(--text-muted)] font-bold mb-1 uppercase">Sentiment Scan</div>
+                                            <div className="text-[12px] text-[var(--text-primary)] font-medium leading-relaxed">
+                                               Positive correlation with technical breakout markers. Order flow suggests institutional accumulation.
+                                            </div>
+                                         </div>
+                                         <button 
+                                           onClick={() => deletePosition(asset.ticker)}
+                                           className="w-full flex items-center justify-center gap-2 py-2.5 rounded border border-[var(--accent-red)]/30 text-[var(--accent-red)] text-[10px] font-bold hover:bg-[var(--accent-red)]/10 transition-all uppercase tracking-widest"
+                                         >
+                                           <Trash2 size={12} /> Remove Asset
+                                         </button>
+                                      </div>
+                                   </div>
                                 </div>
-                              )}
-                              <div>
-                                <div className="font-semibold text-white leading-tight">{p.ticker}</div>
-                                <div className="text-[11px] text-slate-500 truncate max-w-[110px]">{p.companyName}</div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="text-right px-3 py-3 text-slate-400 text-xs">
-                            {fmt(p.shares, p.shares % 1 === 0 ? 0 : 4)}
-                          </td>
-                          <td className="text-right px-3 py-3">
-                            <div className="text-white text-xs font-medium">{fmt(p.currentPrice)}</div>
-                            <div className="text-[10px] text-slate-600">Ø {fmt(p.avgBuyPrice)}</div>
-                          </td>
-                          <td className="text-right px-3 py-3">
-                            <div className="text-white font-semibold text-xs">{fmtEur(p.value)}</div>
-                            <div className="text-[10px] text-slate-600">{fmtEur(p.cost)} Einstand</div>
-                          </td>
-                          <td className="text-right px-3 py-3">
-                            <div className={`font-bold text-xs ${p.pnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                              {p.pnl >= 0 ? '+' : ''}{fmtEur(p.pnl)}
-                            </div>
-                            <div className={`text-[10px] font-medium ${p.pnlPct >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                              {p.pnlPct >= 0 ? '+' : ''}{fmt(p.pnlPct)}%
-                            </div>
-                            <MiniBar pct={p.pnlPct} color={p.pnlPct >= 0 ? PNL_POS : '#f43f5e'} />
-                          </td>
-                          <td className="text-right px-3 py-3">
-                            <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${p.dayChangePct >= 0 ? 'text-emerald-400 bg-emerald-500/10' : 'text-red-400 bg-red-500/10'}`}>
-                              {p.dayChangePct >= 0 ? '+' : ''}{fmt(p.dayChangePct)}%
-                            </span>
-                          </td>
-                          <td className="text-right px-3 py-3">
-                            <div className="text-xs text-white font-medium">{fmt(p.weight, 1)}%</div>
-                            <MiniBar pct={p.weight} color={CHART_COLORS[i % CHART_COLORS.length]} />
-                          </td>
-                          <td className="px-3 py-3">
-                            <button onClick={() => deletePosition(p.ticker)}
-                              className="p-1.5 rounded-lg text-slate-700 hover:text-red-400 hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100">
-                              <Trash2 size={13} />
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Right column */}
-            <div className="space-y-4">
-
-              {/* Donut Chart */}
-              <div className="bg-slate-900/60 border border-white/8 rounded-2xl p-5">
-                <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Allokation</div>
-                <ResponsiveContainer width="100%" height={180}>
-                  <PieChart>
-                    <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80}
-                      paddingAngle={2} dataKey="value" stroke="none">
-                      {pieData.map((entry) => <Cell key={entry.name} fill={entry.color} />)}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', fontSize: 12 }}
-                      formatter={(val: number) => [fmtEur(val), 'Wert']}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="space-y-2 mt-1">
-                  {positions.map((p, i) => (
-                    <div key={p.ticker} className="flex items-center gap-2 text-xs">
-                      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
-                      <span className="text-slate-300 font-medium w-14 flex-shrink-0">{p.ticker}</span>
-                      <div className="flex-1 h-1 rounded-full bg-slate-800 overflow-hidden">
-                        <div className="h-full rounded-full" style={{ width: `${p.weight}%`, backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
-                      </div>
-                      <span className="text-slate-400 w-9 text-right">{fmt(p.weight, 1)}%</span>
-                    </div>
+                              </motion.div>
+                            </td>
+                          </tr>
+                        )}
+                      </AnimatePresence>
+                    </React.Fragment>
                   ))}
-                </div>
-              </div>
-
-              {/* P&L Bar Chart */}
-              <div className="bg-slate-900/60 border border-white/8 rounded-2xl p-5">
-                <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Rendite pro Position</div>
-                <ResponsiveContainer width="100%" height={160}>
-                  <BarChart data={barData} barSize={18} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                    <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false}
-                      tickFormatter={v => `${v}%`} />
-                    <Tooltip
-                      contentStyle={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', fontSize: 12 }}
-                      formatter={(val: number) => [`${val >= 0 ? '+' : ''}${val}%`, 'Rendite']}
-                    />
-                    <Bar dataKey="pnl" radius={[4, 4, 0, 0]}>
-                      {barData.map((entry) => <Cell key={entry.name} fill={entry.fill} />)}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* Nächste Schritte Teaser */}
-              <div className="bg-slate-900/40 border border-indigo-500/10 rounded-2xl p-4">
-                <div className="text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                  <Activity size={11} /> In Entwicklung
-                </div>
-                <div className="space-y-1.5 text-xs text-slate-500">
-                  <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-slate-700 flex-shrink-0" />Performance vs. S&P 500</div>
-                  <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-slate-700 flex-shrink-0" />Interner Zinsfuß (IRR)</div>
-                  <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-slate-700 flex-shrink-0" />Korrelationsmatrix</div>
-                  <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-slate-700 flex-shrink-0" />Sharpe Ratio · Beta · Volatilität</div>
-                </div>
-              </div>
+                </tbody>
+              </table>
             </div>
-          </div>
-        </>
-      )}
+         </div>
+      </div>
+
+      {/* ── Auth Modal ────────────────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {authStep !== 'none' && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
+              className="term-card max-w-sm w-full p-8 shadow-2xl bg-[var(--bg-card)]"
+            >
+              {authStep === 'request' ? (
+                <div className="text-center space-y-6">
+                  <div className="w-16 h-16 bg-[var(--accent-blue)]/10 rounded-full flex items-center justify-center mx-auto text-[var(--accent-blue)]">
+                    <ShieldCheck size={32} />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-[var(--text-primary)] uppercase tracking-widest mb-2">Trade Republic</h2>
+                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                      Sitzung abgelaufen. Neuen Login-Code von Trade Republic anfordern?
+                    </p>
+                  </div>
+                  <button
+                    onClick={requestLogin} disabled={authing}
+                    className="w-full py-3 rounded-lg bg-[var(--accent-blue)] text-white text-xs font-bold hover:brightness-110 transition-all disabled:opacity-40 shadow-lg"
+                  >
+                    {authing ? 'Fordere an...' : 'Login-Code senden'}
+                  </button>
+                  <button onClick={() => setAuthStep('none')} className="text-[10px] font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] uppercase tracking-widest">Abbrechen</button>
+                </div>
+              ) : (
+                <div className="text-center space-y-6">
+                  <div>
+                    <h2 className="text-sm font-bold text-[var(--text-primary)] uppercase tracking-widest mb-2">Code eingeben</h2>
+                    <p className="text-xs text-[var(--text-secondary)]">
+                      Gib den 4-stelligen Code aus der TR App ein.
+                    </p>
+                  </div>
+                  <input
+                    type="text" inputMode="numeric" maxLength={6} value={authCode} autoFocus
+                    onChange={e => setAuthCode(e.target.value.replace(/\D/g, ''))}
+                    onKeyDown={e => e.key === 'Enter' && submitAuth()}
+                    placeholder="0000"
+                    className="w-full text-center text-3xl font-bold tracking-[0.5em] bg-[var(--bg-main)] border border-[var(--border-main)] rounded-lg px-4 py-4 text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-blue)] transition-all font-mono"
+                  />
+                  {syncError?.message && (
+                    <p className="text-[10px] font-bold text-[var(--accent-red)] uppercase">{syncError.message}</p>
+                  )}
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      onClick={() => { setAuthStep('request'); setAuthCode(''); }}
+                      className="flex-1 py-3 rounded-lg border border-[var(--border-main)] text-[10px] font-bold text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)] transition-all uppercase tracking-widest"
+                    >
+                      Zurück
+                    </button>
+                    <button
+                      onClick={submitAuth}
+                      disabled={authCode.length < 4 || authing}
+                      className="flex-1 py-3 rounded-lg bg-[var(--accent-blue)] text-white text-[10px] font-bold hover:brightness-110 transition-all disabled:opacity-40 uppercase tracking-widest shadow-lg"
+                    >
+                      {authing ? 'Verifiziere...' : 'Bestätigen'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Error Toast ───────────────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {syncError && !syncError.sessionExpired && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+            className="fixed top-6 left-1/2 -translate-x-1/2 z-[200] max-w-md w-full px-4"
+          >
+            <div className="term-card border-[var(--accent-red)]/40 bg-[var(--bg-card)] p-3 flex items-center gap-3 shadow-2xl">
+              <AlertTriangle size={14} className="text-[var(--accent-red)] flex-shrink-0" />
+              <p className="text-xs font-bold text-[var(--text-primary)] flex-1">{syncError.message}</p>
+              <button onClick={() => setSyncError(null)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]">
+                <X size={12} />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

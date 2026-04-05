@@ -19,11 +19,11 @@ export interface FearAndGreedData {
 }
 
 export function FearAndGreedStatusColor(score: number) {
-  if (score <= 25) return 'text-rose-500';
-  if (score <= 45) return 'text-orange-500';
-  if (score <= 55) return 'text-slate-400';
-  if (score <= 75) return 'text-cyan-400';
-  return 'text-emerald-400';
+  if (score <= 25) return 'var(--accent-red)';
+  if (score <= 45) return 'var(--accent-red)';
+  if (score <= 55) return 'var(--text-muted)';
+  if (score <= 75) return 'var(--accent-green)';
+  return 'var(--accent-green)';
 }
 
 function getStatusLabel(score: number) {
@@ -39,7 +39,6 @@ export function FearAndGreedGauge({ data, title, compact = false, showLegend = f
   const s = data.current || 50;
   const angle = (s / 100) * 180;
 
-  // Arc segments with color zones
   const getArcPath = (startScore: number, endScore: number, radius: number) => {
     const startAngle = (startScore / 100) * Math.PI - Math.PI;
     const endAngle = (endScore / 100) * Math.PI - Math.PI;
@@ -52,115 +51,100 @@ export function FearAndGreedGauge({ data, title, compact = false, showLegend = f
   };
 
   const getStatusColor = (score: number) => {
-    if (score <= 25) return { text: 'text-rose-500', bg: 'bg-rose-500', stroke: '#f43f5e' };
-    if (score <= 45) return { text: 'text-orange-500', bg: 'bg-orange-500', stroke: '#f97316' };
-    if (score <= 55) return { text: 'text-slate-400', bg: 'bg-slate-400', stroke: '#94a3b8' };
-    if (score <= 75) return { text: 'text-emerald-400', bg: 'bg-emerald-400', stroke: '#4ade80' };
-    return { text: 'text-emerald-500', bg: 'bg-emerald-500', stroke: '#22c55e' };
+    if (score <= 25) return { text: 'text-[var(--accent-red)]', bg: 'bg-[var(--accent-red)]', stroke: 'var(--accent-red)' };
+    if (score <= 45) return { text: 'text-[var(--accent-red)]', bg: 'bg-[var(--accent-red)]', stroke: 'var(--accent-red)' };
+    if (score <= 55) return { text: 'text-[var(--text-muted)]', bg: 'bg-[var(--text-muted)]', stroke: 'var(--text-muted)' };
+    if (score <= 75) return { text: 'text-[var(--accent-green)]', bg: 'bg-[var(--accent-green)]', stroke: 'var(--accent-green)' };
+    return { text: 'text-[var(--accent-green)]', bg: 'bg-[var(--accent-green)]', stroke: 'var(--accent-green)' };
   };
 
   const colors = getStatusColor(s);
 
   return (
     <motion.div
-      className="glass-panel rounded-[2rem] p-8 lg:p-10 flex flex-col items-center justify-center relative overflow-hidden border border-white/5 bg-slate-950/40"
-      initial={{ opacity: 0, scale: 0.95 }}
+      className="analytics-card p-6 lg:p-8 flex flex-col items-center justify-center relative overflow-hidden w-full h-full"
+      initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+      transition={{ duration: 0.4 }}
     >
-      {/* Background Glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-gradient-to-b from-indigo-500/5 to-transparent pointer-events-none" />
+      <div className="absolute top-0 right-0 w-24 h-24 bg-[var(--accent-blue)]/5 blur-3xl pointer-events-none rounded-full" />
 
-      {/* Title */}
-      <div className="text-center mb-8 relative z-10 w-full">
-        <h3 className="text-lg font-bold text-white tracking-tight opacity-90">{title}</h3>
-        <p className="text-[10px] text-slate-500 uppercase tracking-[0.25em] font-black mt-1">Sentiment Snapshot</p>
+      <div className="text-center mb-6 relative z-10 w-full">
+        <h3 className="section-title text-[var(--test-primary)]">{title}</h3>
+        <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-widest font-bold mt-1">Sentiment Matrix</p>
       </div>
 
-      <div className="relative w-full max-w-[440px] aspect-[2/1] overflow-visible mb-6">
+      <div className="relative w-full max-w-[400px] aspect-[2/1] overflow-visible mb-6">
         <svg viewBox="0 0 400 220" className="w-full h-full">
-          {/* Color zone segments - visible background */}
-          <path d={getArcPath(0, 25, 160)} fill="none" stroke="#f43f5e" strokeWidth="12" strokeOpacity="0.25" />
-          <path d={getArcPath(25, 45, 160)} fill="none" stroke="#f97316" strokeWidth="12" strokeOpacity="0.25" />
-          <path d={getArcPath(45, 55, 160)} fill="none" stroke="#94a3b8" strokeWidth="12" strokeOpacity="0.25" />
-          <path d={getArcPath(55, 75, 160)} fill="none" stroke="#4ade80" strokeWidth="12" strokeOpacity="0.25" />
-          <path d={getArcPath(75, 100, 160)} fill="none" stroke="#22c55e" strokeWidth="12" strokeOpacity="0.25" />
+          <path d={getArcPath(0, 25, 160)} fill="none" stroke="var(--accent-red)" strokeWidth="8" strokeOpacity="0.1" />
+          <path d={getArcPath(25, 45, 160)} fill="none" stroke="var(--accent-red)" strokeWidth="8" strokeOpacity="0.1" />
+          <path d={getArcPath(45, 55, 160)} fill="none" stroke="var(--text-muted)" strokeWidth="8" strokeOpacity="0.1" />
+          <path d={getArcPath(55, 75, 160)} fill="none" stroke="var(--accent-green)" strokeWidth="8" strokeOpacity="0.1" />
+          <path d={getArcPath(75, 100, 160)} fill="none" stroke="var(--accent-green)" strokeWidth="8" strokeOpacity="0.1" />
 
-          {/* Active Progress line */}
           <path
             d={getArcPath(0, s, 160)}
             fill="none"
             stroke={colors.stroke}
-            strokeWidth="12"
-            strokeLinecap="round"
+            strokeWidth="8"
+            strokeLinecap="butt"
             className="transition-all duration-1000 ease-out"
           />
 
-          {/* Tick marks at zone boundaries */}
           {[0, 25, 45, 55, 75, 100].map(m => {
              const angle = (m / 100) * Math.PI - Math.PI;
-             const x1 = 200 + 150 * Math.cos(angle);
-             const y1 = 200 + 150 * Math.sin(angle);
-             const x2 = 200 + 170 * Math.cos(angle);
-             const y2 = 200 + 170 * Math.sin(angle);
-             return <line key={m} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#475569" strokeWidth="2" />;
+             const x1 = 200 + 155 * Math.cos(angle);
+             const y1 = 200 + 155 * Math.sin(angle);
+             const x2 = 200 + 165 * Math.cos(angle);
+             const y2 = 200 + 165 * Math.sin(angle);
+             return <line key={m} x1={x1} y1={y1} x2={x2} y2={y2} stroke="var(--border-main)" strokeWidth="2" />;
           })}
 
-          {/* Numbers */}
-          <g fontSize="11" fontWeight="bold" fill="#64748b" className="font-mono">
-            <text x="35" y="215" textAnchor="start">0</text>
-            <text x="200" y="50" textAnchor="middle">50</text>
-            <text x="365" y="215" textAnchor="end">100</text>
+          <g fontSize="10" fontWeight="bold" fill="var(--text-muted)" className="tabular-nums">
+            <text x="35" y="210" textAnchor="start">0</text>
+            <text x="200" y="45" textAnchor="middle">50</text>
+            <text x="365" y="210" textAnchor="end">100</text>
           </g>
         </svg>
 
-        {/* Needle */}
         <motion.div
-          className="absolute bottom-0 left-1/2 w-[3px] h-[165px] origin-bottom z-20"
+          className="absolute bottom-0 left-1/2 w-[2px] h-[160px] origin-bottom z-20"
           initial={{ rotate: -90 }}
           animate={{ rotate: angle - 90 }}
-          transition={{ type: 'spring', damping: 20, stiffness: 60 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 80 }}
         >
-          <div className={`w-full h-full ${colors.bg} rounded-full shadow-lg`} />
-          <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full ${colors.bg} border-4 border-slate-900 shadow-xl`} />
+          <div className={`w-full h-full ${colors.bg} shadow-lg`} />
+          <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full ${colors.bg} border-2 border-[var(--bg-card)] shadow-xl`} />
         </motion.div>
 
-        {/* Center Score */}
-        <div className="absolute bottom-[0px] left-1/2 -translate-x-1/2 w-full text-center z-30">
-           <div className="flex flex-col items-center">
-              <motion.div
-                className="flex items-baseline gap-1"
-                key={s}
-                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-              >
-                <span className={`text-7xl font-black tracking-tighter tabular-nums drop-shadow-2xl ${colors.text}`}>
-                  {s}
-                </span>
-              </motion.div>
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-full text-center z-30">
+            <div className="flex flex-col items-center">
+              <span className={`text-6xl font-black tracking-tighter tabular-nums ${colors.text}`}>
+                {s}
+              </span>
               <div
-                className={`text-sm font-bold uppercase tracking-widest px-4 py-1.5 rounded-full border border-current bg-white/5 backdrop-blur-md shadow-2xl mt-2 ${colors.text}`}
+                className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded border tabular-nums mt-1 ${colors.text} border-current bg-[var(--bg-card)] shadow-lg`}
               >
                 {getStatusLabel(s)}
               </div>
-           </div>
+            </div>
         </div>
       </div>
 
-      {/* Legend - CNN Style */}
       {showLegend && (
-        <div className="w-full max-w-[440px] mt-4">
-          <div className="grid grid-cols-5 gap-2">
+        <div className="w-full max-w-[400px] mt-2">
+          <div className="grid grid-cols-5 gap-1">
             {[
-              { label: 'Extreme Fear', color: 'bg-rose-500', range: '0-25' },
-              { label: 'Fear', color: 'bg-orange-500', range: '25-45' },
-              { label: 'Neutral', color: 'bg-slate-400', range: '45-55' },
-              { label: 'Greed', color: 'bg-emerald-400', range: '55-75' },
-              { label: 'Extreme Greed', color: 'bg-emerald-500', range: '75-100' },
+              { label: 'Extreme Fear', color: 'bg-[var(--accent-red)]', range: '0-25' },
+              { label: 'Fear', color: 'bg-[var(--accent-red)] opacity-60', range: '25-45' },
+              { label: 'Neutral', color: 'bg-[var(--text-muted)]', range: '45-55' },
+              { label: 'Greed', color: 'bg-[var(--accent-green)] opacity-60', range: '55-75' },
+              { label: 'Extreme Greed', color: 'bg-[var(--accent-green)]', range: '75-100' },
             ].map((zone, i) => (
               <div key={i} className="text-center">
-                <div className={`h-2 ${zone.color} rounded-full mb-2`} />
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-tight">{zone.label}</p>
-                <p className="text-[9px] text-slate-600 font-mono mt-0.5">{zone.range}</p>
+                <div className={`h-1.5 ${zone.color} rounded-sm mb-1.5`} />
+                <p className="text-[8px] font-bold text-[var(--text-muted)] uppercase tracking-wider leading-tight">{zone.label}</p>
+                <p className="text-[8px] text-[var(--text-muted)] font-mono mt-0.5 tabular-nums">{zone.range}</p>
               </div>
             ))}
           </div>

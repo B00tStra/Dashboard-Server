@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
-  ResponsiveContainer,
-  AreaChart, Area,
-  LineChart, Line,
-  BarChart, Bar,
-  XAxis, YAxis,
-  CartesianGrid, Tooltip,
-  ReferenceLine,
+  ResponsiveContainer, AreaChart, Area, LineChart, Line,
+  XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts';
-import {
-  Activity, BarChart2, TrendingUp,
-  DollarSign, Percent, Users, TrendingDown as TrendDown,
-  Layers, Droplets, Database, Brain, Zap, AlertCircle,
-} from 'lucide-react';
+import { Activity, TrendingUp, TrendingDown } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 import { FearAndGreedData } from '../components/FearAndGreedGauge';
+import { motion } from 'framer-motion';
 
 const API_BASE = '/api';
+
+function mockTrend(base: number, length = 40, variance = 10): { v: number; date: string }[] {
+  let v = base;
+  return Array.from({ length }, (_, i) => {
+    v += (Math.random() - 0.5) * variance;
+    v = Math.max(0, Math.min(100, v));
+    return { v: parseFloat(v.toFixed(2)), date: `${i}` };
+  });
+}
 
 function useFetch<T>(endpoint: string, initialData: T): T {
   const [data, setData] = useState<T>(initialData);
@@ -25,210 +25,66 @@ function useFetch<T>(endpoint: string, initialData: T): T {
     fetch(`${API_BASE}${endpoint}`)
       .then(r => r.json())
       .then(setData)
-      .catch(err => console.error('API Fetch Error:', err));
+      .catch(err => console.error('MarketAnalysis Fetch Error:', err));
   }, [endpoint]);
   return data;
 }
 
-// ── Interfaces ────────────────────────────────────────────────────────────────
-
-interface FredSeries {
-  current: number;
-  prev: number;
-  history: { date: string; v: number }[];
-}
-
-interface FredCharts {
-  fedFunds: FredSeries;
-  cpi: FredSeries;
-  unemployment: FredSeries;
-  yieldCurve: FredSeries;
-  payrolls: FredSeries;
-  gdpGrowth: FredSeries;
-  consumerSentiment: FredSeries;
-  breakevenInflation: FredSeries;
-  fedBalanceSheet: FredSeries;
-  joblessClaims: FredSeries;
-  wtiOil: FredSeries;
-  yieldCurveSnapshot: { label: string; value: number }[];
-}
-
-interface MarketData {
-  stocks: { macro: any[]; fearAndGreed: FearAndGreedData };
-  crypto: { macro: any[]; fearAndGreed: FearAndGreedData };
-  fredCharts?: FredCharts;
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function delta(current: number, prev: number) {
-  const d = parseFloat((current - prev).toFixed(2));
-  return { d, sign: d > 0 ? '+' : '', color: d > 0 ? 'text-emerald-400' : d < 0 ? 'text-rose-400' : 'text-slate-500' };
-}
-
-function fgColor(score: number) {
-  if (score <= 25) return { text: 'text-rose-400', stroke: '#f43f5e', bg: 'bg-rose-500', label: 'Extreme Fear' };
-  if (score <= 45) return { text: 'text-orange-400', stroke: '#f97316', bg: 'bg-orange-500', label: 'Fear' };
-  if (score <= 55) return { text: 'text-slate-300', stroke: '#94a3b8', bg: 'bg-slate-400', label: 'Neutral' };
-  if (score <= 75) return { text: 'text-emerald-400', stroke: '#4ade80', bg: 'bg-emerald-400', label: 'Greed' };
-  return { text: 'text-emerald-300', stroke: '#22c55e', bg: 'bg-emerald-500', label: 'Extreme Greed' };
-}
-
-// ── Section Header ─────────────────────────────────────────────────────────────
-
-function SectionHeader({ icon: Icon, title, subtitle, color = 'indigo' }: {
-  icon: React.ElementType; title: string; subtitle?: string; color?: string;
-}) {
-  const colorMap: Record<string, string> = {
-    indigo: 'bg-indigo-500/15 border-indigo-500/30 text-indigo-400',
-    cyan:   'bg-cyan-500/15 border-cyan-500/30 text-cyan-400',
-    amber:  'bg-amber-500/15 border-amber-500/30 text-amber-400',
-    rose:   'bg-rose-500/15 border-rose-500/30 text-rose-400',
-    emerald:'bg-emerald-500/15 border-emerald-500/30 text-emerald-400',
-    purple: 'bg-purple-500/15 border-purple-500/30 text-purple-400',
-  };
-  const cls = colorMap[color] || colorMap.indigo;
-  return (
-    <div className="flex items-center gap-3 mb-5">
-      <div className={`w-8 h-8 rounded-lg flex items-center justify-center border ${cls}`}>
-        <Icon size={15} />
-      </div>
-      <div>
-        <h2 className="text-sm font-black text-white uppercase tracking-wider">{title}</h2>
-        {subtitle && <p className="text-[10px] text-slate-500 mt-0.5">{subtitle}</p>}
-      </div>
-    </div>
-  );
-}
-
-// ── KPI Card ──────────────────────────────────────────────────────────────────
-
-interface KpiCardProps {
-  label: string; value: string | number; unit?: string;
-  current: number; prev: number;
-  status: 'good' | 'bad' | 'neutral' | 'warning';
-  icon: React.ElementType;
-  description?: string;
-}
-
-function KpiCard({ label, value, unit = '', current, prev, status, icon: Icon, description }: KpiCardProps) {
-  const { d, sign, color: dc } = delta(current, prev);
-  const border = status === 'good' ? 'border-emerald-500/30 hover:border-emerald-400/50'
-    : status === 'bad'     ? 'border-rose-500/30 hover:border-rose-400/50'
-    : status === 'warning' ? 'border-amber-500/30 hover:border-amber-400/50'
-    : 'border-slate-700/50 hover:border-slate-600/60';
-  const glow = status === 'good' ? 'bg-emerald-500/5' : status === 'bad' ? 'bg-rose-500/5' : status === 'warning' ? 'bg-amber-500/5' : '';
-  const dot  = status === 'good' ? 'bg-emerald-400' : status === 'bad' ? 'bg-rose-400' : status === 'warning' ? 'bg-amber-400' : 'bg-slate-500';
-  const ico  = status === 'good' ? 'text-emerald-400' : status === 'bad' ? 'text-rose-400' : status === 'warning' ? 'text-amber-400' : 'text-slate-400';
-
-  return (
-    <div className={`relative rounded-2xl p-4 border transition-all duration-200 cursor-default ${border} ${glow} bg-slate-900/60 backdrop-blur-sm`}>
-      <div className="flex items-start justify-between mb-3">
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-800/80 border border-slate-700/50">
-          <Icon size={14} className={ico} />
-        </div>
-        <div className={`w-2 h-2 rounded-full mt-1 ${dot}`} />
-      </div>
-      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{label}</p>
-      <p className="text-2xl font-black text-white tracking-tight leading-none">
-        {value}<span className="text-sm font-bold text-slate-400 ml-0.5">{unit}</span>
-      </p>
-      <div className="flex items-center gap-2 mt-2">
-        <span className={`text-[10px] font-bold ${dc}`}>{sign}{d}{unit}</span>
-        {description && <span className="text-[10px] text-slate-600 truncate">{description}</span>}
-      </div>
-    </div>
-  );
-}
-
-// ── Chart Panel ───────────────────────────────────────────────────────────────
-
-interface ChartPanelProps {
-  title: string; subtitle?: string;
-  data: { date: string; v: number }[];
-  color: string; type: 'line' | 'area' | 'bar';
-  unit?: string; referenceValue?: number; referenceLabel?: string;
-  domain?: [number | 'auto', number | 'auto'];
-  height?: number;
-}
-
-function ChartPanel({ title, subtitle, data, color, type, unit = '%', referenceValue, referenceLabel, domain, height = 160 }: ChartPanelProps) {
-  const last  = data[data.length - 1]?.v;
-  const first = data[0]?.v;
-  const trend = last > first ? 'up' : last < first ? 'down' : 'flat';
-  const step  = Math.max(1, Math.floor(data.length / 6));
-  const ticks = data.filter((_, i) => i % step === 0).map(d => d.date);
-
-  const gradId = `grad-${title.replace(/[\s()]/g, '-')}`;
-
-  return (
-    <div className="bg-slate-900/60 border border-slate-700/40 rounded-2xl p-4 backdrop-blur-sm hover:border-slate-600/60 transition-colors">
-      <div className="flex items-center justify-between mb-3">
-        <div>
-          <p className="text-[11px] font-black text-white uppercase tracking-wider">{title}</p>
-          {subtitle && <p className="text-[9px] text-slate-500 mt-0.5">{subtitle}</p>}
-        </div>
-        <div className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border
-          ${trend === 'up'   ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10' :
-            trend === 'down' ? 'text-rose-400 border-rose-500/30 bg-rose-500/10' :
-            'text-slate-400 border-slate-600/30 bg-slate-700/20'}`}>
-          {trend === 'up' ? '▲' : trend === 'down' ? '▼' : '—'} {last?.toFixed(2)}{unit}
-        </div>
-      </div>
-      <div style={{ height }}>
-        <ResponsiveContainer width="100%" height="100%">
-          {type === 'bar' ? (
-            <BarChart data={data} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-              <XAxis dataKey="date" ticks={ticks} tick={{ fill: '#475569', fontSize: 9 }} axisLine={false} tickLine={false} />
-              <YAxis domain={domain || ['auto', 'auto']} tick={{ fill: '#475569', fontSize: 9 }} axisLine={false} tickLine={false} />
-              <Tooltip content={<ChartTooltip unit={unit} />} />
-              {referenceValue !== undefined && <ReferenceLine y={referenceValue} stroke="#475569" strokeDasharray="4 2" label={{ value: referenceLabel || '', fill: '#64748b', fontSize: 9 }} />}
-              <Bar dataKey="v" fill={color} radius={[3, 3, 0, 0]} maxBarSize={20} />
-            </BarChart>
-          ) : type === 'area' ? (
-            <AreaChart data={data} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
-              <defs>
-                <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={color} stopOpacity={0.3} />
-                  <stop offset="95%" stopColor={color} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-              <XAxis dataKey="date" ticks={ticks} tick={{ fill: '#475569', fontSize: 9 }} axisLine={false} tickLine={false} />
-              <YAxis domain={domain || ['auto', 'auto']} tick={{ fill: '#475569', fontSize: 9 }} axisLine={false} tickLine={false} />
-              <Tooltip content={<ChartTooltip unit={unit} />} />
-              {referenceValue !== undefined && <ReferenceLine y={referenceValue} stroke={color} strokeDasharray="4 2" strokeOpacity={0.5} label={{ value: referenceLabel || '', fill: '#94a3b8', fontSize: 9 }} />}
-              <Area type="monotone" dataKey="v" stroke={color} fill={`url(#${gradId})`} strokeWidth={2} dot={false} isAnimationActive={false} />
-            </AreaChart>
-          ) : (
-            <LineChart data={data} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-              <XAxis dataKey="date" ticks={ticks} tick={{ fill: '#475569', fontSize: 9 }} axisLine={false} tickLine={false} />
-              <YAxis domain={domain || ['auto', 'auto']} tick={{ fill: '#475569', fontSize: 9 }} axisLine={false} tickLine={false} />
-              <Tooltip content={<ChartTooltip unit={unit} />} />
-              {referenceValue !== undefined && <ReferenceLine y={referenceValue} stroke="#ef4444" strokeDasharray="4 2" label={{ value: referenceLabel || '', fill: '#ef4444', fontSize: 9, position: 'right' }} />}
-              <Line type="monotone" dataKey="v" stroke={color} strokeWidth={2} dot={false} isAnimationActive={false} />
-            </LineChart>
-          )}
-        </ResponsiveContainer>
-      </div>
-    </div>
-  );
-}
-
-function ChartTooltip({ active, payload, label, unit = '' }: any) {
+// ── Chart tooltip ─────────────────────────────────────────────────────────────
+const TermTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-slate-900/95 border border-slate-700/60 rounded-xl px-3 py-2 shadow-2xl backdrop-blur-md text-xs">
-      <p className="text-slate-400 mb-1">{label}</p>
-      <p className="font-black text-white">{payload[0]?.value?.toFixed(2)}{unit}</p>
+    <div className="term-card px-3 py-2 text-[10px] font-mono shadow-xl">
+      <div className="micro-label mb-1">{label}</div>
+      {payload.map((p: any) => (
+        <div key={p.dataKey} className="flex items-center gap-2">
+          <span style={{ color: p.color }}>■</span>
+          <span className="text-[var(--text-primary)] font-bold">{typeof p.value === 'number' ? p.value.toFixed(2) : p.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// ── Macro Area Chart ──────────────────────────────────────────────────────────
+function MacroAreaChart({ data, color = 'var(--accent-blue)', height = 160 }: { data: any[]; color?: string; height?: number }) {
+  const gradId = `grad-${color.replace(/[^a-zA-Z0-9]/g, '')}`;
+  return (
+    <div style={{ height }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data} margin={{ top: 4, right: 0, left: -24, bottom: 0 }}>
+          <defs>
+            <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={color} stopOpacity={0.12} />
+              <stop offset="95%" stopColor={color} stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="0" vertical={false} stroke="var(--chart-grid)" />
+          <XAxis dataKey="date" hide />
+          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: 'var(--text-muted)' }} domain={['dataMin', 'dataMax']} />
+          <Tooltip content={<TermTooltip />} cursor={{ stroke: 'var(--border-main)', strokeWidth: 1 }} />
+          <Area type="monotone" dataKey="v" stroke={color} strokeWidth={1.5} fill={`url(#${gradId})`} dot={false} isAnimationActive={false} />
+        </AreaChart>
+      </ResponsiveContainer>
     </div>
   );
 }
 
-// ── Yield Curve Snapshot ──────────────────────────────────────────────────────
+// ── Sparkline ─────────────────────────────────────────────────────────────────
+function Sparkline({ data, color = 'var(--text-muted)' }: { data: any[]; color?: string }) {
+  return (
+    <div className="h-8 w-20">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data}>
+          <YAxis domain={['dataMin', 'dataMax']} hide />
+          <Line type="monotone" dataKey="v" stroke={color} strokeWidth={1.5} dot={false} isAnimationActive={false} />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
 
+// ── Yield Curve ───────────────────────────────────────────────────────────────
 function YieldCurvePanel({ snapshot }: { snapshot: { label: string; value: number }[] }) {
   if (!snapshot?.length) return null;
   const minVal = Math.min(...snapshot.map(p => p.value));
@@ -237,208 +93,113 @@ function YieldCurvePanel({ snapshot }: { snapshot: { label: string; value: numbe
   const isInverted = snapshot.some((p, i) => i > 0 && p.value < snapshot[i - 1].value);
 
   return (
-    <div className="bg-slate-900/60 border border-slate-700/40 rounded-2xl p-5 backdrop-blur-sm">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <p className="text-[11px] font-black text-white uppercase tracking-wider">Vollständige Zinskurve</p>
-          <p className="text-[9px] text-slate-500 mt-0.5">US-Staatsanleihen · Alle Laufzeiten</p>
-        </div>
-        <div className={`flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full border ${
-          isInverted ? 'text-rose-400 border-rose-500/30 bg-rose-500/10' : 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10'
-        }`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${isInverted ? 'bg-rose-400 animate-pulse' : 'bg-emerald-400'}`} />
-          {isInverted ? 'INVERTIERT' : 'NORMAL'}
-        </div>
-      </div>
-      <div className="flex items-end gap-1 h-24 mb-2">
-        {snapshot.map((point, i) => {
-          const h = ((point.value - minVal) / range) * 80 + 15;
-          const isLow = i > 0 && point.value < snapshot[i - 1].value;
-          return (
-            <div key={point.label} className="flex-1 h-full flex flex-col justify-end items-center group relative">
-              <div className={`w-full rounded-t-sm transition-all ${isLow ? 'bg-rose-500/60 group-hover:bg-rose-400' : 'bg-indigo-500/60 group-hover:bg-indigo-400'}`}
-                style={{ height: `${h}%` }} />
-              <div className="absolute bottom-full mb-1 hidden group-hover:block z-10 pointer-events-none">
-                <div className="bg-slate-800 border border-slate-600 rounded-lg px-2 py-1 text-[10px] whitespace-nowrap">
-                  <span className="font-black text-white">{point.value.toFixed(2)}%</span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <div className="flex gap-1">
-        {snapshot.map(p => <div key={p.label} className="flex-1 text-center text-[9px] text-slate-500 font-bold">{p.label}</div>)}
-      </div>
-      <div className="flex justify-between mt-2 text-[9px] text-slate-600 font-bold">
-        <span>Tief: {minVal.toFixed(2)}%</span>
-        <span>Hoch: {maxVal.toFixed(2)}%</span>
-      </div>
-    </div>
-  );
-}
-
-// ── Fear & Greed Panel (flat design) ─────────────────────────────────────────
-
-function FearGreedPanel({ data, label }: { data: FearAndGreedData; label: string }) {
-  const navigate = useNavigate();
-  const s  = data.current || 50;
-  const c  = fgColor(s);
-  const pct = (s / 100) * 100;
-
-  const comparisons = [
-    { label: 'Yesterday',   value: data.yesterday },
-    { label: 'Last Week',   value: data.lastWeek },
-    { label: 'Last Month',  value: data.lastMonth },
-  ];
-
-  return (
-    <div className="bg-slate-900/60 border border-slate-700/40 rounded-2xl p-5 backdrop-blur-sm flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-[11px] font-black text-white uppercase tracking-wider">Fear & Greed Index</p>
-          <p className="text-[9px] text-slate-500 mt-0.5">{label}</p>
-        </div>
-        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${c.text} border-current bg-white/5`}>
-          {c.label.toUpperCase()}
+    <div className="term-card">
+      <div className="term-header">
+        <span className="micro-label text-[var(--text-secondary)]">Yield Curve — U.S. Treasuries</span>
+        <span className={`flex items-center gap-1.5 micro-label text-[9px] ${isInverted ? 'text-[var(--accent-red)]' : 'text-[var(--accent-green)]'}`}>
+          <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${isInverted ? 'bg-[var(--accent-red)]' : 'bg-[var(--accent-green)]'}`} />
+          {isInverted ? 'INVERTED' : 'NORMAL'}
         </span>
       </div>
-
-      {/* Score + bar */}
-      <div>
-        <div className="flex items-baseline gap-3 mb-3">
-          <span className={`text-5xl font-black tabular-nums ${c.text}`}>{s}</span>
-          <span className="text-slate-500 text-sm font-bold">/ 100</span>
-        </div>
-        <div className="relative h-2.5 bg-slate-800 rounded-full overflow-hidden">
-          {/* gradient track */}
-          <div className="absolute inset-0 rounded-full"
-            style={{ background: 'linear-gradient(to right, #f43f5e 0%, #f97316 25%, #94a3b8 45%, #4ade80 65%, #22c55e 100%)' }}
-          />
-          {/* dark overlay from right */}
-          <div className="absolute inset-0 rounded-full bg-slate-800"
-            style={{ left: `${pct}%` }}
-          />
-          {/* needle */}
-          <div className="absolute top-0 bottom-0 w-0.5 bg-white shadow-md"
-            style={{ left: `calc(${pct}% - 1px)` }}
-          />
-        </div>
-        <div className="flex justify-between mt-1 text-[9px] text-slate-600 font-bold">
-          <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+      <div className="p-4">
+        <div className="flex items-end gap-2 h-36">
+          {snapshot.map((point, i) => {
+            const h = ((point.value - minVal) / range) * 80 + 20;
+            const isLow = i > 0 && point.value < snapshot[i - 1].value;
+            return (
+              <div key={point.label} className="flex-1 h-full flex flex-col justify-end items-center group">
+                <motion.div
+                  initial={{ height: 0 }} animate={{ height: `${h}%` }}
+                  transition={{ duration: 0.4, delay: i * 0.03 }}
+                  className={`w-full rounded-t-md transition-opacity group-hover:opacity-100 opacity-80 ${isLow ? 'bg-[var(--accent-red)]/50 group-hover:bg-[var(--accent-red)]/70' : 'bg-[var(--accent-blue)]/50 group-hover:bg-[var(--accent-blue)]/70'}`}
+                />
+                <div className="absolute -top-6 hidden group-hover:block z-50 pointer-events-none">
+                  <div className="term-card px-2 py-1 text-[9px] font-mono text-[var(--accent-blue)]">{point.value.toFixed(2)}%</div>
+                </div>
+                <span className="micro-label text-[8px] mt-1.5 group-hover:text-[var(--text-primary)] transition-colors">{point.label}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
-
-      {/* Historical comparisons */}
-      <div className="grid grid-cols-3 gap-2">
-        {comparisons.map(cmp => {
-          const cc = fgColor(cmp.value || 50);
-          return (
-            <div key={cmp.label} className="bg-slate-800/50 border border-slate-700/40 rounded-xl p-3 text-center">
-              <p className="text-[9px] text-slate-500 font-bold mb-1">{cmp.label}</p>
-              <p className={`text-xl font-black ${cc.text}`}>{cmp.value ?? '—'}</p>
-              <p className="text-[9px] text-slate-600 mt-0.5">{cc.label}</p>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Zone legend */}
-      <div className="grid grid-cols-5 gap-1.5">
-        {[
-          { label: 'Ext. Fear',  color: 'bg-rose-500',    range: '0–25' },
-          { label: 'Fear',       color: 'bg-orange-500',  range: '25–45' },
-          { label: 'Neutral',    color: 'bg-slate-400',   range: '45–55' },
-          { label: 'Greed',      color: 'bg-emerald-400', range: '55–75' },
-          { label: 'Ext. Greed', color: 'bg-emerald-500', range: '75–100' },
-        ].map((z, i) => (
-          <div key={i} className="text-center">
-            <div className={`h-1.5 ${z.color} rounded-full mb-1.5`} />
-            <p className="text-[9px] text-slate-400 font-bold leading-tight">{z.label}</p>
-            <p className="text-[8px] text-slate-600 font-mono">{z.range}</p>
-          </div>
-        ))}
-      </div>
-
-      <button onClick={() => navigate('/fear-and-greed')}
-        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/20 transition-all text-xs font-bold group">
-        <Activity size={14} />
-        Detailed View
-        <span className="ml-auto group-hover:translate-x-1 transition-transform">→</span>
-      </button>
     </div>
   );
 }
 
-// ── Recession Signals ─────────────────────────────────────────────────────────
+// ── Sector Grid ───────────────────────────────────────────────────────────────
+function SectorGrid({ sectors }: { sectors: { name: string; change: number }[] }) {
+  return (
+    <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-11 gap-2">
+      {sectors.map(s => (
+        <div key={s.name} className="term-card term-card-hover p-3 flex flex-col items-center text-center group">
+          <p className="micro-label text-[8px] mb-1.5 truncate w-full group-hover:text-[var(--text-secondary)] transition-colors">{s.name}</p>
+          <span className={`data-value text-xs font-bold ${s.change >= 0 ? 'text-pos' : 'text-neg'}`}>
+            {s.change >= 0 ? '+' : ''}{s.change.toFixed(2)}%
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
-function RecessionPanel({ fc }: { fc: FredCharts }) {
-  const signals = [
-    {
-      label: 'Zinskurve invertiert',
-      active: (fc.yieldCurve.current ?? 0) < 0,
-      value: `${fc.yieldCurve.current?.toFixed(2)}%`,
-      note: 'Historisch 6–18 Monate vor Rezession',
-    },
-    {
-      label: 'Inflation über Ziel',
-      active: (fc.cpi.current ?? 0) > 2.5,
-      value: `${fc.cpi.current?.toFixed(1)}% (Ziel: 2%)`,
-      note: 'Zwingt Fed zu erhöhten Zinsen',
-    },
-    {
-      label: 'BIP-Wachstum unter 1%',
-      active: (fc.gdpGrowth.current ?? 0) < 1,
-      value: `${fc.gdpGrowth.current?.toFixed(1)}%`,
-      note: 'Stagnationsbereich',
-    },
-    {
-      label: 'Arbeitslosigkeit steigt',
-      active: fc.unemployment.current > fc.unemployment.prev,
-      value: `${fc.unemployment.current}% (vorher: ${fc.unemployment.prev}%)`,
-      note: 'Sahm-Regel: +0,5pp = Rezessionssignal',
-    },
-    {
-      label: 'Erstanträge über 350K',
-      active: (fc.joblessClaims.current ?? 0) > 350,
-      value: `${fc.joblessClaims.current}K / Woche`,
-      note: 'Frühindikator für Arbeitsmarktabkühlung',
-    },
-  ];
-
-  const activeCount = signals.filter(s => s.active).length;
+// ── Fear & Greed ──────────────────────────────────────────────────────────────
+function FearGreedCard({ fgData }: { fgData: FearAndGreedData | undefined }) {
+  const score = fgData?.current ?? 0;
+  const label = score >= 75 ? 'Extreme Greed' : score >= 55 ? 'Greed' : score >= 45 ? 'Neutral' : score >= 25 ? 'Fear' : 'Extreme Fear';
+  const color  = score >= 55 ? 'var(--accent-green)' : score >= 45 ? 'var(--text-muted)' : 'var(--accent-red)';
+  const pct = (score / 100) * 180; // degrees for half-circle
 
   return (
-    <div className="bg-slate-900/60 border border-slate-700/40 rounded-2xl p-5 backdrop-blur-sm flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <p className="text-[11px] font-black text-white uppercase tracking-wider">Rezessionssignale</p>
-        <div className={`flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full border ${
-          activeCount >= 3 ? 'text-rose-400 border-rose-500/30 bg-rose-500/10' :
-          activeCount >= 2 ? 'text-amber-400 border-amber-500/30 bg-amber-500/10' :
-          'text-emerald-400 border-emerald-500/30 bg-emerald-500/10'
-        }`}>
-          {activeCount >= 3 ? <AlertCircle size={10} /> : activeCount >= 2 ? <Zap size={10} /> : <Activity size={10} />}
-          {activeCount} / {signals.length} aktiv
+    <div className="term-card">
+      <div className="term-header">
+        <span className="micro-label text-[var(--text-secondary)]">Fear & Greed Index</span>
+      </div>
+      <div className="p-4 flex flex-col items-center">
+        <div className="relative w-40 h-20 mt-2 mb-4">
+          {/* Track */}
+          <svg viewBox="0 0 100 50" className="w-full h-full overflow-visible">
+            <path d="M 5 50 A 45 45 0 0 1 95 50" fill="none" stroke="var(--border-main)" strokeWidth="8" strokeLinecap="round" />
+            <path
+              d="M 5 50 A 45 45 0 0 1 95 50"
+              fill="none"
+              stroke={color}
+              strokeWidth="8"
+              strokeLinecap="round"
+              strokeDasharray={`${(pct / 180) * 141.3} 141.3`}
+            />
+            <text x="50" y="46" textAnchor="middle" fontSize="18" fontWeight="bold" fontFamily="JetBrains Mono" fill="var(--text-primary)">{score}</text>
+          </svg>
+        </div>
+        <span className="data-value text-xs font-bold" style={{ color }}>{label}</span>
+        <div className="flex justify-between w-full mt-3 pt-3 border-t border-[var(--border-dim)]">
+          {['Fear', 'Neutral', 'Greed'].map(l => (
+            <span key={l} className="micro-label text-[8px]">{l}</span>
+          ))}
         </div>
       </div>
+    </div>
+  );
+}
 
-      <div className="space-y-2">
-        {signals.map(sig => (
-          <div key={sig.label} className={`flex items-start gap-3 rounded-xl px-3 py-2.5 border transition-colors ${
-            sig.active
-              ? 'bg-rose-950/30 border-rose-500/20'
-              : 'bg-slate-800/30 border-slate-700/30'
-          }`}>
-            <div className={`w-2 h-2 rounded-full mt-1 flex-shrink-0 ${sig.active ? 'bg-rose-400 shadow-[0_0_6px_#f87171]' : 'bg-emerald-500'}`} />
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[11px] font-bold text-white">{sig.label}</span>
-                <span className={`text-[10px] font-bold ${sig.active ? 'text-rose-400' : 'text-emerald-400'}`}>{sig.value}</span>
-              </div>
-              <p className="text-[9px] text-slate-500 mt-0.5">{sig.note}</p>
-            </div>
-          </div>
-        ))}
+// ── KPI Card ──────────────────────────────────────────────────────────────────
+function KpiCard({ title, value, change, trend, unit = '' }: { title: string; value: string | number; change: string; trend: 'up' | 'down'; unit?: string }) {
+  const Icon = trend === 'up' ? TrendingUp : TrendingDown;
+  const iconClass = trend === 'up' ? 'icon-bg-green' : 'icon-bg-red';
+  return (
+    <div className="term-card term-card-hover p-5 flex flex-col justify-between h-28 group">
+      <div className="flex items-start justify-between">
+        <span className="micro-label">{title}</span>
+        <div className={`w-8 h-8 flex items-center justify-center ${iconClass}`}>
+          <Icon size={14} />
+        </div>
+      </div>
+      <div>
+        <div className="data-value text-lg font-bold text-[var(--text-primary)]">
+          {value}<span className="text-xs text-[var(--text-muted)] ml-1 font-normal">{unit}</span>
+        </div>
+        <div className={`flex items-center gap-1 micro-label text-[9px] mt-0.5 ${trend === 'up' ? 'text-pos' : 'text-neg'}`}>
+          {change}
+        </div>
       </div>
     </div>
   );
@@ -447,198 +208,131 @@ function RecessionPanel({ fc }: { fc: FredCharts }) {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 const MarketAnalysis: React.FC = () => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'stocks' | 'crypto'>('stocks');
-
   const marketDataRaw = useFetch<any>('/market-data', null);
-  const marketData: MarketData = {
-    stocks: { macro: [], fearAndGreed: { current: 50, yesterday: 50, lastWeek: 50, lastMonth: 50, status: 'Neutral', indicators: [] } },
-    crypto: { macro: [], fearAndGreed: { current: 50, yesterday: 50, lastWeek: 50, lastMonth: 50, status: 'Neutral', indicators: [] } },
-    ...(marketDataRaw || {})
-  };
 
-  const isStocks  = activeTab === 'stocks';
-  const fearAndGreed = isStocks ? marketData.stocks.fearAndGreed : marketData.crypto.fearAndGreed;
-  const fc = marketData.fredCharts;
+  const stocks = marketDataRaw?.stocks || {};
+  const macro  = marketDataRaw?.macro  || {};
+  const currentData = activeTab === 'stocks' ? stocks : (marketDataRaw?.crypto || {});
+  const fgData: FearAndGreedData | undefined = currentData.fearAndGreed;
 
-  const liveTag = (
-    <div className="ml-auto flex items-center gap-1.5">
-      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-      <span className="text-[10px] text-cyan-400 font-bold">LIVE</span>
-    </div>
-  );
+  const tableData = [
+    { name: 'S&P 500 Index',    vol: '12.4%', change: '+2.41%', trend: 'up' as const },
+    { name: 'US 10Y Treasury',  vol: '4.2%',  change: '-1.12%', trend: 'down' as const },
+    { name: 'Bitcoin',          vol: '48.2%', change: '+12.42%', trend: 'up' as const },
+    { name: 'Gold Bullion',     vol: '8.1%',  change: '+0.54%', trend: 'up' as const },
+  ];
+  const sparklines = useMemo(() => tableData.map(() => mockTrend(50, 10, 5)), []);
 
   return (
-    <div className="p-6 md:p-8 space-y-10 max-w-[1600px] mx-auto">
+    <div className="space-y-5 w-full">
 
-      {/* ── Header ── */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4 border-b border-white/5">
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-          <h1 className="text-3xl font-black text-white tracking-tight flex items-center gap-3">
-            <BarChart2 className="text-indigo-400" size={28} />
-            Marktanalyse
-          </h1>
-          <p className="text-slate-400 text-sm mt-2 font-medium">
-            Makroökonomische Echtzeit-Daten · Quelle: Federal Reserve (FRED)
-          </p>
-        </motion.div>
-        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-          <div className="flex bg-slate-900/80 p-1.5 rounded-xl border border-white/5 shadow-inner">
-            <button className={`px-8 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all duration-300 ${isStocks ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
-              onClick={() => setActiveTab('stocks')}>Aktien</button>
-            <button className={`px-8 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all duration-300 ${!isStocks ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
-              onClick={() => setActiveTab('crypto')}>Krypto</button>
-          </div>
-        </motion.div>
-      </div>
-
-      {fc ? (
-        <>
-          {/* ══════════════════════════════════════════════════════════
-              SEKTION 1 · MARKTSTIMMUNG & REZESSIONSRISIKO
-          ══════════════════════════════════════════════════════════ */}
-          <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-            <SectionHeader icon={TrendingUp} title="Marktstimmung & Rezessionsrisiko" subtitle="Fear & Greed · Signalübersicht" color="rose" />
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-              <FearGreedPanel data={fearAndGreed} label={isStocks ? 'US Stock Market' : 'Crypto Market'} />
-              <RecessionPanel fc={fc} />
-            </div>
-          </motion.section>
-
-          {/* ══════════════════════════════════════════════════════════
-              SEKTION 2 · GELDPOLITIK & ZINSEN
-          ══════════════════════════════════════════════════════════ */}
-          <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
-            <div className="flex items-center gap-3 mb-5">
-              <SectionHeader icon={Percent} title="Geldpolitik & Zinsen" subtitle="Leitzins · Zinsstrukturkurve · Fed-Bilanz" color="indigo" />
-              {liveTag}
-            </div>
-
-            {/* KPIs */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
-              <KpiCard label="Fed-Leitzins" value={fc.fedFunds.current} unit="%"
-                current={fc.fedFunds.current} prev={fc.fedFunds.prev}
-                status={fc.fedFunds.current < fc.fedFunds.prev ? 'good' : fc.fedFunds.current > 5 ? 'bad' : 'neutral'}
-                icon={Percent} description="FEDFUNDS" />
-              <KpiCard label="Zinsstruktur (10J−2J)" value={fc.yieldCurve.current?.toFixed(2) ?? '—'} unit="%"
-                current={fc.yieldCurve.current ?? 0} prev={fc.yieldCurve.prev ?? 0}
-                status={(fc.yieldCurve.current ?? 0) < -0.5 ? 'bad' : (fc.yieldCurve.current ?? 0) < 0 ? 'warning' : 'good'}
-                icon={Activity} description={fc.yieldCurve.current < 0 ? '⚠ Invertiert' : 'Normal'} />
-              <KpiCard label="Fed-Bilanzsumme" value={fc.fedBalanceSheet.current?.toFixed(1) ?? '—'} unit="T"
-                current={fc.fedBalanceSheet.current ?? 0} prev={fc.fedBalanceSheet.prev ?? 0}
-                status={fc.fedBalanceSheet.current < fc.fedBalanceSheet.prev ? 'good' : 'warning'}
-                icon={Database} description="QT = schrumpft" />
-            </div>
-
-            {/* Charts */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <ChartPanel title="Fed-Leitzins" subtitle="Effektiver Zinssatz (FEDFUNDS)"
-                data={fc.fedFunds.history} color="#818cf8" type="area" unit="%"
-                referenceValue={2} referenceLabel="Neutral ~2%" domain={[0, 'auto']} />
-              <ChartPanel title="Zinsstrukturkurve" subtitle="10J − 2J Spread (T10Y2Y)"
-                data={fc.yieldCurve.history} color={fc.yieldCurve.current < 0 ? '#f43f5e' : '#34d399'} type="line" unit="%"
-                referenceValue={0} referenceLabel="Invertierung" />
-              <ChartPanel title="Fed-Bilanzsumme" subtitle="Gesamtvermögen (WALCL)"
-                data={fc.fedBalanceSheet.history} color="#c084fc" type="area" unit="T"
-                domain={['auto', 'auto']} />
-            </div>
-
-            {/* Full yield curve */}
-            <YieldCurvePanel snapshot={fc.yieldCurveSnapshot} />
-          </motion.section>
-
-          {/* ══════════════════════════════════════════════════════════
-              SEKTION 2 · INFLATION & ROHSTOFFE
-          ══════════════════════════════════════════════════════════ */}
-          <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
-            <SectionHeader icon={TrendDown} title="Inflation & Rohstoffe" subtitle="Verbraucherpreise · Markterwartungen · Energiepreise" color="amber" />
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
-              <KpiCard label="Inflation (VPI JaJ)" value={fc.cpi.current?.toFixed(1) ?? '—'} unit="%"
-                current={fc.cpi.current ?? 0} prev={fc.cpi.prev ?? 0}
-                status={(fc.cpi.current ?? 99) < 2.5 ? 'good' : (fc.cpi.current ?? 99) < 3.5 ? 'warning' : 'bad'}
-                icon={TrendDown} description="Ziel: 2%" />
-              <KpiCard label="Breakeven-Inflation" value={fc.breakevenInflation.current?.toFixed(2) ?? '—'} unit="%"
-                current={fc.breakevenInflation.current ?? 0} prev={fc.breakevenInflation.prev ?? 0}
-                status={(fc.breakevenInflation.current ?? 99) < 2.5 ? 'good' : (fc.breakevenInflation.current ?? 99) < 3 ? 'warning' : 'bad'}
-                icon={DollarSign} description="Markterwartung 10J" />
-              <KpiCard label="Rohöl WTI" value={fc.wtiOil.current?.toFixed(1) ?? '—'} unit="$"
-                current={fc.wtiOil.current ?? 0} prev={fc.wtiOil.prev ?? 0}
-                status={(fc.wtiOil.current ?? 0) < 70 ? 'good' : (fc.wtiOil.current ?? 0) < 90 ? 'neutral' : 'bad'}
-                icon={Droplets} description="DCOILWTICO" />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <ChartPanel title="Inflation (VPI JaJ)" subtitle="Alle Verbraucher (CPIAUCSL)"
-                data={fc.cpi.history} color="#f59e0b" type="area" unit="%"
-                referenceValue={2} referenceLabel="Fed-Ziel" domain={[0, 'auto']} />
-              <ChartPanel title="Breakeven-Inflation" subtitle="Markterwartung 10J (T10YIE)"
-                data={fc.breakevenInflation.history} color="#4ade80" type="line" unit="%"
-                referenceValue={2} referenceLabel="Fed-Ziel" domain={[1.5, 3.5]} />
-              <ChartPanel title="Rohöl WTI" subtitle="Preis je Barrel (DCOILWTICO)"
-                data={fc.wtiOil.history} color="#fbbf24" type="line" unit="$"
-                referenceValue={80} referenceLabel="$80" />
-            </div>
-          </motion.section>
-
-          {/* ══════════════════════════════════════════════════════════
-              SEKTION 3 · KONJUNKTUR & ARBEITSMARKT
-          ══════════════════════════════════════════════════════════ */}
-          <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.11 }}>
-            <SectionHeader icon={Layers} title="Konjunktur & Arbeitsmarkt" subtitle="BIP · Beschäftigung · Verbraucherstimmung" color="emerald" />
-
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-5">
-              <KpiCard label="BIP-Wachstum (real)" value={fc.gdpGrowth.current} unit="%"
-                current={fc.gdpGrowth.current} prev={fc.gdpGrowth.prev}
-                status={fc.gdpGrowth.current > 2 ? 'good' : fc.gdpGrowth.current > 0 ? 'warning' : 'bad'}
-                icon={BarChart2} description="Quartal" />
-              <KpiCard label="Stellenzuwachs" value={`+${fc.payrolls.current?.toLocaleString() ?? '—'}`} unit="K"
-                current={fc.payrolls.current ?? 0} prev={fc.payrolls.prev ?? 0}
-                status={(fc.payrolls.current ?? 0) > 100 ? 'good' : (fc.payrolls.current ?? 0) > 0 ? 'warning' : 'bad'}
-                icon={Layers} description="Monatliche Änderung" />
-              <KpiCard label="Arbeitslosenquote" value={fc.unemployment.current} unit="%"
-                current={fc.unemployment.current} prev={fc.unemployment.prev}
-                status={fc.unemployment.current < 4.5 ? 'good' : fc.unemployment.current < 6 ? 'warning' : 'bad'}
-                icon={Users} description="UNRATE" />
-              <KpiCard label="Erstanträge Arbeitslos" value={fc.joblessClaims.current?.toLocaleString() ?? '—'} unit="K"
-                current={fc.joblessClaims.current ?? 0} prev={fc.joblessClaims.prev ?? 0}
-                status={(fc.joblessClaims.current ?? 999) < 250 ? 'good' : (fc.joblessClaims.current ?? 999) < 350 ? 'warning' : 'bad'}
-                icon={Users} description="Wöchentlich" />
-              <KpiCard label="Verbraucherstimmung" value={fc.consumerSentiment.current} unit=""
-                current={fc.consumerSentiment.current} prev={fc.consumerSentiment.prev}
-                status={fc.consumerSentiment.current > 80 ? 'good' : fc.consumerSentiment.current > 60 ? 'warning' : 'bad'}
-                icon={Brain} description="UMich-Index" />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-4">
-              <ChartPanel title="BIP-Wachstum (real)" subtitle="Vierteljährliche Änderung %"
-                data={fc.gdpGrowth.history} color="#a78bfa" type="bar" unit="%"
-                referenceValue={0} domain={['auto', 'auto']} />
-              <ChartPanel title="Stellenzuwachs" subtitle="Non-Farm Payrolls (PAYEMS)"
-                data={fc.payrolls.history} color="#22d3ee" type="bar" unit="K"
-                referenceValue={0} domain={['auto', 'auto']} />
-              <ChartPanel title="Verbraucherstimmung" subtitle="Univ. of Michigan (UMCSENT)"
-                data={fc.consumerSentiment.history} color="#fb923c" type="area" unit=""
-                referenceValue={70} referenceLabel="Ø ~70" domain={[40, 'auto']} />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <ChartPanel title="Arbeitslosenquote" subtitle="US (UNRATE)"
-                data={fc.unemployment.history} color="#94a3b8" type="area" unit="%"
-                referenceValue={4} referenceLabel="Hist. Ø" domain={[3, 'auto']} height={130} />
-              <ChartPanel title="Erstanträge Arbeitslosenhilfe" subtitle="Wöchentlich (ICSA)"
-                data={fc.joblessClaims.history} color="#fb923c" type="bar" unit="K"
-                referenceValue={250} referenceLabel="Alarm: 350K" domain={[150, 'auto']} height={130} />
-            </div>
-          </motion.section>
-
-        </>
-      ) : (
-        <div className="h-32 flex items-center justify-center border border-dashed border-slate-700/50 rounded-2xl">
-          <div className="flex items-center gap-3 text-slate-500">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-            <span className="text-sm font-bold">FRED-Daten werden geladen…</span>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <Activity size={14} className="text-[var(--accent-blue)]" />
+          <div>
+            <h1 className="text-sm font-semibold text-[var(--text-primary)]">Market Analysis</h1>
+            <p className="micro-label text-[9px] mt-0.5">FRED Macro Data · St. Louis Fed</p>
           </div>
         </div>
-      )}
+        <div className="flex items-center gap-0.5 bg-[var(--bg-card)] border border-[var(--border-main)] rounded-xl p-1">
+          {(['stocks', 'crypto'] as const).map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-3 py-1 rounded-lg micro-label text-[9px] transition-all ${activeTab === tab ? 'bg-[var(--accent-blue)] text-white' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
+            >
+              {tab === 'stocks' ? 'Equities' : 'Crypto'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* KPI Row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <KpiCard title="Net Liquid Cap"       value="117.4" unit="T"  change="+1.24%"  trend="up" />
+        <KpiCard title="Volatility (VIX)"     value="14.2"            change="-4.15%"  trend="down" />
+        <KpiCard title="Strategic Inflow"     value="842"   unit="B"  change="+12.2%"  trend="up" />
+        <KpiCard title="Cluster Coefficient"  value="0.84"            change="-0.02"   trend="down" />
+      </div>
+
+      {/* Sector Grid */}
+      <div className="term-card">
+        <div className="term-header">
+          <span className="micro-label text-[var(--text-secondary)]">{t('sector_performance') || 'Sector Performance'}</span>
+        </div>
+        <div className="p-4">
+          <SectorGrid sectors={stocks.sectorPerformance || []} />
+        </div>
+      </div>
+
+      {/* Main 2-col layout */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
+
+        {/* Left: FRED Charts */}
+        <div className="xl:col-span-8 space-y-5">
+
+          {/* CPI + Yield */}
+          <div className="term-card">
+            <div className="term-header">
+              <span className="micro-label text-[var(--text-secondary)]">Macro Feed — FRED Data</span>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5"><div className="w-2 h-px bg-[var(--accent-purple)]" /><span className="micro-label text-[9px] text-[var(--accent-purple)]">CPI</span></div>
+                <div className="flex items-center gap-1.5"><div className="w-2 h-px bg-[var(--accent-blue)]" /><span className="micro-label text-[9px] text-[var(--accent-blue)]">10Y Yield</span></div>
+              </div>
+            </div>
+            <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <p className="micro-label text-[9px] mb-3">U.S. Consumer Price Index (YoY)</p>
+                <MacroAreaChart data={macro.cpiChart || []} color="var(--accent-purple)" height={160} />
+              </div>
+              <div>
+                <p className="micro-label text-[9px] mb-3">U.S. Treasury Yield (10Y)</p>
+                <MacroAreaChart data={macro.yieldChart || []} color="var(--accent-blue)" height={160} />
+              </div>
+            </div>
+          </div>
+
+          {/* Asset correlation table */}
+          <div className="term-card">
+            <div className="term-header">
+              <span className="micro-label text-[var(--text-secondary)]">Inter-Market Asset Correlation</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left whitespace-nowrap">
+                <thead className="border-b border-[var(--border-dim)] bg-[var(--bg-main)]/50">
+                  <tr>
+                    <th className="py-2 px-4 micro-label font-normal text-[var(--text-muted)]">Asset Class</th>
+                    <th className="py-2 px-4 micro-label font-normal text-[var(--text-muted)] text-right">Volatility</th>
+                    <th className="py-2 px-4 micro-label font-normal text-[var(--text-muted)] text-right">7D Change</th>
+                    <th className="py-2 px-4 micro-label font-normal text-[var(--text-muted)] text-right">Trend</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--border-dim)]/60">
+                  {tableData.map((r, idx) => (
+                    <tr key={r.name} className="hover:bg-[var(--bg-card-hover)] transition-colors group">
+                      <td className="py-2.5 px-4 text-xs font-medium text-[var(--text-primary)] group-hover:text-[var(--accent-blue)] transition-colors">{r.name}</td>
+                      <td className="py-2.5 px-4 text-right data-value text-xs text-[var(--text-muted)]">{r.vol}</td>
+                      <td className={`py-2.5 px-4 text-right data-value text-xs font-bold ${r.trend === 'up' ? 'text-pos' : 'text-neg'}`}>{r.change}</td>
+                      <td className="py-2.5 px-4 text-right flex justify-end">
+                        <Sparkline data={sparklines[idx]} color={r.trend === 'up' ? 'var(--accent-green)' : 'var(--accent-red)'} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Right: F&G + Yield Curve */}
+        <div className="xl:col-span-4 space-y-5">
+          <FearGreedCard fgData={fgData} />
+          <YieldCurvePanel snapshot={macro.yieldCurve || []} />
+        </div>
+      </div>
     </div>
   );
 };

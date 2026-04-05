@@ -1,0 +1,2561 @@
+{
+  "generated_at": "2026-04-03T09:12:16.047584Z",
+  "total_invested": 6797.76,
+  "series": [
+    {
+      "date": "2025-04-03",
+      "value": 8968.05,
+      "invested": 6797.76,
+      "value_pct": 0.0,
+      "spy_pct": 0.0
+    },
+    {
+      "date": "2025-04-04",
+      "value": 8426.02,
+      "invested": 6797.76,
+      "value_pct": -6.04,
+      "spy_pct": -5.85
+    },
+    {
+      "date": "2025-04-05",
+      "value": 8419.26,
+      "invested": 6797.76,
+      "value_pct": -6.12,
+      "spy_pct": -5.85
+    },
+    {
+      "date": "2025-04-06",
+      "value": 8351.34,
+      "invested": 6797.76,
+      "value_pct": -6.88,
+      "spy_pct": -5.85
+    },
+    {
+      "date": "2025-04-07",
+      "value": 8506.24,
+      "invested": 6797.76,
+      "value_pct": -5.15,
+      "spy_pct": -6.02
+    },
+    {
+      "date": "2025-04-08",
+      "value": 8390.83,
+      "invested": 6797.76,
+      "value_pct": -6.44,
+      "spy_pct": -7.49
+    },
+    {
+      "date": "2025-04-09",
+      "value": 9498.34,
+      "invested": 6797.76,
+      "value_pct": 5.91,
+      "spy_pct": 2.22
+    },
+    {
+      "date": "2025-04-10",
+      "value": 9006.89,
+      "invested": 6797.76,
+      "value_pct": 0.43,
+      "spy_pct": -2.26
+    },
+    {
+      "date": "2025-04-11",
+      "value": 9087.14,
+      "invested": 6797.76,
+      "value_pct": 1.33,
+      "spy_pct": -0.51
+    },
+    {
+      "date": "2025-04-12",
+      "value": 9118.16,
+      "invested": 6797.76,
+      "value_pct": 1.67,
+      "spy_pct": -0.51
+    },
+    {
+      "date": "2025-04-13",
+      "value": 9101.21,
+      "invested": 6797.76,
+      "value_pct": 1.48,
+      "spy_pct": -0.51
+    },
+    {
+      "date": "2025-04-14",
+      "value": 9239.57,
+      "invested": 6797.76,
+      "value_pct": 3.03,
+      "spy_pct": 0.45
+    },
+    {
+      "date": "2025-04-15",
+      "value": 9410.67,
+      "invested": 6797.76,
+      "value_pct": 4.94,
+      "spy_pct": 0.17
+    },
+    {
+      "date": "2025-04-16",
+      "value": 9185.47,
+      "invested": 6797.76,
+      "value_pct": 2.42,
+      "spy_pct": -2.06
+    },
+    {
+      "date": "2025-04-17",
+      "value": 8997.26,
+      "invested": 6797.76,
+      "value_pct": 0.33,
+      "spy_pct": -1.92
+    },
+    {
+      "date": "2025-04-18",
+      "value": 8994.15,
+      "invested": 6797.76,
+      "value_pct": 0.29,
+      "spy_pct": -1.92
+    },
+    {
+      "date": "2025-04-19",
+      "value": 9006.81,
+      "invested": 6797.76,
+      "value_pct": 0.43,
+      "spy_pct": -1.92
+    },
+    {
+      "date": "2025-04-20",
+      "value": 8998.5,
+      "invested": 6797.76,
+      "value_pct": 0.34,
+      "spy_pct": -1.92
+    },
+    {
+      "date": "2025-04-21",
+      "value": 8846.6,
+      "invested": 6797.76,
+      "value_pct": -1.35,
+      "spy_pct": -4.25
+    },
+    {
+      "date": "2025-04-22",
+      "value": 9060.89,
+      "invested": 6797.76,
+      "value_pct": 1.04,
+      "spy_pct": -1.76
+    },
+    {
+      "date": "2025-04-23",
+      "value": 9494.83,
+      "invested": 6797.76,
+      "value_pct": 5.87,
+      "spy_pct": -0.24
+    },
+    {
+      "date": "2025-04-24",
+      "value": 10622.07,
+      "invested": 6797.76,
+      "value_pct": 18.44,
+      "spy_pct": 1.86
+    },
+    {
+      "date": "2025-04-25",
+      "value": 10706.77,
+      "invested": 6797.76,
+      "value_pct": 19.39,
+      "spy_pct": 2.6
+    },
+    {
+      "date": "2025-04-26",
+      "value": 10704.29,
+      "invested": 6797.76,
+      "value_pct": 19.36,
+      "spy_pct": 2.6
+    },
+    {
+      "date": "2025-04-27",
+      "value": 10700.34,
+      "invested": 6797.76,
+      "value_pct": 19.32,
+      "spy_pct": 2.6
+    },
+    {
+      "date": "2025-04-28",
+      "value": 10647.88,
+      "invested": 6797.76,
+      "value_pct": 18.73,
+      "spy_pct": 2.64
+    },
+    {
+      "date": "2025-04-29",
+      "value": 10711.73,
+      "invested": 6797.76,
+      "value_pct": 19.44,
+      "spy_pct": 3.28
+    },
+    {
+      "date": "2025-04-30",
+      "value": 10832.8,
+      "invested": 6797.76,
+      "value_pct": 20.79,
+      "spy_pct": 3.32
+    },
+    {
+      "date": "2025-05-01",
+      "value": 10902.93,
+      "invested": 6797.76,
+      "value_pct": 21.58,
+      "spy_pct": 4.06
+    },
+    {
+      "date": "2025-05-02",
+      "value": 11108.58,
+      "invested": 6797.76,
+      "value_pct": 23.87,
+      "spy_pct": 5.6
+    },
+    {
+      "date": "2025-05-03",
+      "value": 11099.95,
+      "invested": 6797.76,
+      "value_pct": 23.77,
+      "spy_pct": 5.6
+    },
+    {
+      "date": "2025-05-04",
+      "value": 11081.54,
+      "invested": 6797.76,
+      "value_pct": 23.57,
+      "spy_pct": 5.6
+    },
+    {
+      "date": "2025-05-05",
+      "value": 11095.87,
+      "invested": 6797.76,
+      "value_pct": 23.73,
+      "spy_pct": 5.0
+    },
+    {
+      "date": "2025-05-06",
+      "value": 10990.74,
+      "invested": 6797.76,
+      "value_pct": 22.55,
+      "spy_pct": 4.12
+    },
+    {
+      "date": "2025-05-07",
+      "value": 11146.35,
+      "invested": 6797.76,
+      "value_pct": 24.29,
+      "spy_pct": 4.56
+    },
+    {
+      "date": "2025-05-08",
+      "value": 11121.11,
+      "invested": 6797.76,
+      "value_pct": 24.01,
+      "spy_pct": 5.28
+    },
+    {
+      "date": "2025-05-09",
+      "value": 11176.15,
+      "invested": 6797.76,
+      "value_pct": 24.62,
+      "spy_pct": 5.15
+    },
+    {
+      "date": "2025-05-10",
+      "value": 11200.17,
+      "invested": 6797.76,
+      "value_pct": 24.89,
+      "spy_pct": 5.15
+    },
+    {
+      "date": "2025-05-11",
+      "value": 11188.43,
+      "invested": 6797.76,
+      "value_pct": 24.76,
+      "spy_pct": 5.15
+    },
+    {
+      "date": "2025-05-12",
+      "value": 11537.22,
+      "invested": 6797.76,
+      "value_pct": 28.65,
+      "spy_pct": 8.62
+    },
+    {
+      "date": "2025-05-13",
+      "value": 11802.44,
+      "invested": 6797.76,
+      "value_pct": 31.61,
+      "spy_pct": 9.34
+    },
+    {
+      "date": "2025-05-14",
+      "value": 11735.47,
+      "invested": 6797.76,
+      "value_pct": 30.86,
+      "spy_pct": 9.48
+    },
+    {
+      "date": "2025-05-15",
+      "value": 11783.09,
+      "invested": 6797.76,
+      "value_pct": 31.39,
+      "spy_pct": 10.02
+    },
+    {
+      "date": "2025-05-16",
+      "value": 11853.02,
+      "invested": 6797.76,
+      "value_pct": 32.17,
+      "spy_pct": 10.71
+    },
+    {
+      "date": "2025-05-17",
+      "value": 11847.51,
+      "invested": 6797.76,
+      "value_pct": 32.11,
+      "spy_pct": 10.71
+    },
+    {
+      "date": "2025-05-18",
+      "value": 11881.05,
+      "invested": 6797.76,
+      "value_pct": 32.48,
+      "spy_pct": 10.71
+    },
+    {
+      "date": "2025-05-19",
+      "value": 11729.33,
+      "invested": 6797.76,
+      "value_pct": 30.79,
+      "spy_pct": 10.83
+    },
+    {
+      "date": "2025-05-20",
+      "value": 11692.57,
+      "invested": 6797.76,
+      "value_pct": 30.38,
+      "spy_pct": 10.46
+    },
+    {
+      "date": "2025-05-21",
+      "value": 11632.74,
+      "invested": 6797.76,
+      "value_pct": 29.71,
+      "spy_pct": 8.6
+    },
+    {
+      "date": "2025-05-22",
+      "value": 11663.59,
+      "invested": 6797.76,
+      "value_pct": 30.06,
+      "spy_pct": 8.64
+    },
+    {
+      "date": "2025-05-23",
+      "value": 11506.54,
+      "invested": 6797.76,
+      "value_pct": 28.31,
+      "spy_pct": 7.9
+    },
+    {
+      "date": "2025-05-24",
+      "value": 11513.33,
+      "invested": 6797.76,
+      "value_pct": 28.38,
+      "spy_pct": 7.9
+    },
+    {
+      "date": "2025-05-25",
+      "value": 11521.86,
+      "invested": 6797.76,
+      "value_pct": 28.48,
+      "spy_pct": 7.9
+    },
+    {
+      "date": "2025-05-26",
+      "value": 11522.03,
+      "invested": 6797.76,
+      "value_pct": 28.48,
+      "spy_pct": 7.9
+    },
+    {
+      "date": "2025-05-27",
+      "value": 11768.17,
+      "invested": 6797.76,
+      "value_pct": 31.22,
+      "spy_pct": 10.15
+    },
+    {
+      "date": "2025-05-28",
+      "value": 11701.41,
+      "invested": 6797.76,
+      "value_pct": 30.48,
+      "spy_pct": 9.51
+    },
+    {
+      "date": "2025-05-29",
+      "value": 11561.53,
+      "invested": 6797.76,
+      "value_pct": 28.92,
+      "spy_pct": 9.94
+    },
+    {
+      "date": "2025-05-30",
+      "value": 11504.02,
+      "invested": 6797.76,
+      "value_pct": 28.28,
+      "spy_pct": 9.82
+    },
+    {
+      "date": "2025-05-31",
+      "value": 11508.74,
+      "invested": 6797.76,
+      "value_pct": 28.33,
+      "spy_pct": 9.82
+    },
+    {
+      "date": "2025-06-01",
+      "value": 11516.8,
+      "invested": 6797.76,
+      "value_pct": 28.42,
+      "spy_pct": 9.82
+    },
+    {
+      "date": "2025-06-02",
+      "value": 11560.85,
+      "invested": 6797.76,
+      "value_pct": 28.91,
+      "spy_pct": 10.44
+    },
+    {
+      "date": "2025-06-03",
+      "value": 11584.73,
+      "invested": 6797.76,
+      "value_pct": 29.18,
+      "spy_pct": 11.07
+    },
+    {
+      "date": "2025-06-04",
+      "value": 11605.64,
+      "invested": 6797.76,
+      "value_pct": 29.41,
+      "spy_pct": 11.04
+    },
+    {
+      "date": "2025-06-05",
+      "value": 11606.73,
+      "invested": 6797.76,
+      "value_pct": 29.42,
+      "spy_pct": 10.5
+    },
+    {
+      "date": "2025-06-06",
+      "value": 11752.19,
+      "invested": 6797.76,
+      "value_pct": 31.05,
+      "spy_pct": 11.63
+    },
+    {
+      "date": "2025-06-07",
+      "value": 11764.48,
+      "invested": 6797.76,
+      "value_pct": 31.18,
+      "spy_pct": 11.63
+    },
+    {
+      "date": "2025-06-08",
+      "value": 11768.93,
+      "invested": 6797.76,
+      "value_pct": 31.23,
+      "spy_pct": 11.63
+    },
+    {
+      "date": "2025-06-09",
+      "value": 11789.28,
+      "invested": 6797.76,
+      "value_pct": 31.46,
+      "spy_pct": 11.73
+    },
+    {
+      "date": "2025-06-10",
+      "value": 11633.27,
+      "invested": 6797.76,
+      "value_pct": 29.72,
+      "spy_pct": 12.37
+    },
+    {
+      "date": "2025-06-11",
+      "value": 11567.61,
+      "invested": 6797.76,
+      "value_pct": 28.99,
+      "spy_pct": 12.05
+    },
+    {
+      "date": "2025-06-12",
+      "value": 11538.71,
+      "invested": 6797.76,
+      "value_pct": 28.66,
+      "spy_pct": 12.49
+    },
+    {
+      "date": "2025-06-13",
+      "value": 11351.41,
+      "invested": 6797.76,
+      "value_pct": 26.58,
+      "spy_pct": 11.24
+    },
+    {
+      "date": "2025-06-14",
+      "value": 11340.3,
+      "invested": 6797.76,
+      "value_pct": 26.45,
+      "spy_pct": 11.24
+    },
+    {
+      "date": "2025-06-15",
+      "value": 11353.31,
+      "invested": 6797.76,
+      "value_pct": 26.6,
+      "spy_pct": 11.24
+    },
+    {
+      "date": "2025-06-16",
+      "value": 11572.03,
+      "invested": 6797.76,
+      "value_pct": 29.04,
+      "spy_pct": 12.29
+    },
+    {
+      "date": "2025-06-17",
+      "value": 11538.11,
+      "invested": 6797.76,
+      "value_pct": 28.66,
+      "spy_pct": 11.33
+    },
+    {
+      "date": "2025-06-18",
+      "value": 11342.74,
+      "invested": 6797.76,
+      "value_pct": 26.48,
+      "spy_pct": 11.32
+    },
+    {
+      "date": "2025-06-19",
+      "value": 11339.35,
+      "invested": 6797.76,
+      "value_pct": 26.44,
+      "spy_pct": 11.32
+    },
+    {
+      "date": "2025-06-20",
+      "value": 11222.71,
+      "invested": 6797.76,
+      "value_pct": 25.14,
+      "spy_pct": 11.06
+    },
+    {
+      "date": "2025-06-21",
+      "value": 11206.59,
+      "invested": 6797.76,
+      "value_pct": 24.96,
+      "spy_pct": 11.06
+    },
+    {
+      "date": "2025-06-22",
+      "value": 11193.78,
+      "invested": 6797.76,
+      "value_pct": 24.82,
+      "spy_pct": 11.06
+    },
+    {
+      "date": "2025-06-23",
+      "value": 11371.86,
+      "invested": 6797.76,
+      "value_pct": 26.8,
+      "spy_pct": 12.15
+    },
+    {
+      "date": "2025-06-24",
+      "value": 11587.91,
+      "invested": 6797.76,
+      "value_pct": 29.21,
+      "spy_pct": 13.39
+    },
+    {
+      "date": "2025-06-25",
+      "value": 11684.23,
+      "invested": 6797.76,
+      "value_pct": 30.29,
+      "spy_pct": 13.46
+    },
+    {
+      "date": "2025-06-26",
+      "value": 11769.8,
+      "invested": 6797.76,
+      "value_pct": 31.24,
+      "spy_pct": 14.34
+    },
+    {
+      "date": "2025-06-27",
+      "value": 11863.88,
+      "invested": 6797.76,
+      "value_pct": 32.29,
+      "spy_pct": 14.91
+    },
+    {
+      "date": "2025-06-28",
+      "value": 11878.45,
+      "invested": 6797.76,
+      "value_pct": 32.45,
+      "spy_pct": 14.91
+    },
+    {
+      "date": "2025-06-29",
+      "value": 11889.49,
+      "invested": 6797.76,
+      "value_pct": 32.58,
+      "spy_pct": 14.91
+    },
+    {
+      "date": "2025-06-30",
+      "value": 11947.97,
+      "invested": 6797.76,
+      "value_pct": 33.23,
+      "spy_pct": 15.46
+    },
+    {
+      "date": "2025-07-01",
+      "value": 11701.67,
+      "invested": 6797.76,
+      "value_pct": 30.48,
+      "spy_pct": 15.42
+    },
+    {
+      "date": "2025-07-02",
+      "value": 11730.7,
+      "invested": 6797.76,
+      "value_pct": 30.81,
+      "spy_pct": 15.95
+    },
+    {
+      "date": "2025-07-03",
+      "value": 12052.89,
+      "invested": 6797.76,
+      "value_pct": 34.4,
+      "spy_pct": 16.86
+    },
+    {
+      "date": "2025-07-04",
+      "value": 12032.91,
+      "invested": 6797.76,
+      "value_pct": 34.18,
+      "spy_pct": 16.86
+    },
+    {
+      "date": "2025-07-05",
+      "value": 12034.26,
+      "invested": 6797.76,
+      "value_pct": 34.19,
+      "spy_pct": 16.86
+    },
+    {
+      "date": "2025-07-06",
+      "value": 12047.52,
+      "invested": 6797.76,
+      "value_pct": 34.34,
+      "spy_pct": 16.86
+    },
+    {
+      "date": "2025-07-07",
+      "value": 11938.96,
+      "invested": 6797.76,
+      "value_pct": 33.13,
+      "spy_pct": 15.99
+    },
+    {
+      "date": "2025-07-08",
+      "value": 11867.3,
+      "invested": 6797.76,
+      "value_pct": 32.33,
+      "spy_pct": 15.93
+    },
+    {
+      "date": "2025-07-09",
+      "value": 11839.48,
+      "invested": 6797.76,
+      "value_pct": 32.02,
+      "spy_pct": 16.62
+    },
+    {
+      "date": "2025-07-10",
+      "value": 11484.56,
+      "invested": 6797.76,
+      "value_pct": 28.06,
+      "spy_pct": 16.95
+    },
+    {
+      "date": "2025-07-11",
+      "value": 11267.3,
+      "invested": 6797.76,
+      "value_pct": 25.64,
+      "spy_pct": 16.54
+    },
+    {
+      "date": "2025-07-12",
+      "value": 11263.41,
+      "invested": 6797.76,
+      "value_pct": 25.59,
+      "spy_pct": 16.54
+    },
+    {
+      "date": "2025-07-13",
+      "value": 11277.85,
+      "invested": 6797.76,
+      "value_pct": 25.76,
+      "spy_pct": 16.54
+    },
+    {
+      "date": "2025-07-14",
+      "value": 11501.53,
+      "invested": 6797.76,
+      "value_pct": 28.25,
+      "spy_pct": 16.76
+    },
+    {
+      "date": "2025-07-15",
+      "value": 11508.17,
+      "invested": 6797.76,
+      "value_pct": 28.32,
+      "spy_pct": 16.26
+    },
+    {
+      "date": "2025-07-16",
+      "value": 11624.54,
+      "invested": 6797.76,
+      "value_pct": 29.62,
+      "spy_pct": 16.65
+    },
+    {
+      "date": "2025-07-17",
+      "value": 11611.87,
+      "invested": 6797.76,
+      "value_pct": 29.48,
+      "spy_pct": 17.36
+    },
+    {
+      "date": "2025-07-18",
+      "value": 11578.14,
+      "invested": 6797.76,
+      "value_pct": 29.1,
+      "spy_pct": 17.28
+    },
+    {
+      "date": "2025-07-19",
+      "value": 11578.35,
+      "invested": 6797.76,
+      "value_pct": 29.11,
+      "spy_pct": 17.28
+    },
+    {
+      "date": "2025-07-20",
+      "value": 11582.64,
+      "invested": 6797.76,
+      "value_pct": 29.15,
+      "spy_pct": 17.28
+    },
+    {
+      "date": "2025-07-21",
+      "value": 11593.82,
+      "invested": 6797.76,
+      "value_pct": 29.28,
+      "spy_pct": 17.5
+    },
+    {
+      "date": "2025-07-22",
+      "value": 11584.43,
+      "invested": 6797.76,
+      "value_pct": 29.17,
+      "spy_pct": 17.52
+    },
+    {
+      "date": "2025-07-23",
+      "value": 11519.65,
+      "invested": 6797.76,
+      "value_pct": 28.45,
+      "spy_pct": 18.52
+    },
+    {
+      "date": "2025-07-24",
+      "value": 11859.66,
+      "invested": 6797.76,
+      "value_pct": 32.24,
+      "spy_pct": 18.56
+    },
+    {
+      "date": "2025-07-25",
+      "value": 11660.05,
+      "invested": 6797.76,
+      "value_pct": 30.02,
+      "spy_pct": 19.06
+    },
+    {
+      "date": "2025-07-26",
+      "value": 11659.69,
+      "invested": 6797.76,
+      "value_pct": 30.01,
+      "spy_pct": 19.06
+    },
+    {
+      "date": "2025-07-27",
+      "value": 11675.14,
+      "invested": 6797.76,
+      "value_pct": 30.19,
+      "spy_pct": 19.06
+    },
+    {
+      "date": "2025-07-28",
+      "value": 11854.94,
+      "invested": 6797.76,
+      "value_pct": 32.19,
+      "spy_pct": 19.03
+    },
+    {
+      "date": "2025-07-29",
+      "value": 11937.93,
+      "invested": 6797.76,
+      "value_pct": 33.12,
+      "spy_pct": 18.71
+    },
+    {
+      "date": "2025-07-30",
+      "value": 11835.26,
+      "invested": 6797.76,
+      "value_pct": 31.97,
+      "spy_pct": 18.56
+    },
+    {
+      "date": "2025-07-31",
+      "value": 11492.22,
+      "invested": 6797.76,
+      "value_pct": 28.15,
+      "spy_pct": 18.12
+    },
+    {
+      "date": "2025-08-01",
+      "value": 11148.98,
+      "invested": 6797.76,
+      "value_pct": 24.32,
+      "spy_pct": 16.18
+    },
+    {
+      "date": "2025-08-02",
+      "value": 11136.03,
+      "invested": 6797.76,
+      "value_pct": 24.17,
+      "spy_pct": 16.18
+    },
+    {
+      "date": "2025-08-03",
+      "value": 11155.01,
+      "invested": 6797.76,
+      "value_pct": 24.39,
+      "spy_pct": 16.18
+    },
+    {
+      "date": "2025-08-04",
+      "value": 11296.08,
+      "invested": 6797.76,
+      "value_pct": 25.96,
+      "spy_pct": 17.95
+    },
+    {
+      "date": "2025-08-05",
+      "value": 11085.82,
+      "invested": 6797.76,
+      "value_pct": 23.61,
+      "spy_pct": 17.35
+    },
+    {
+      "date": "2025-08-06",
+      "value": 11197.11,
+      "invested": 6797.76,
+      "value_pct": 24.86,
+      "spy_pct": 18.25
+    },
+    {
+      "date": "2025-08-07",
+      "value": 10874.62,
+      "invested": 6797.76,
+      "value_pct": 21.26,
+      "spy_pct": 18.15
+    },
+    {
+      "date": "2025-08-08",
+      "value": 10879.91,
+      "invested": 6797.76,
+      "value_pct": 21.32,
+      "spy_pct": 19.07
+    },
+    {
+      "date": "2025-08-09",
+      "value": 10884.34,
+      "invested": 6797.76,
+      "value_pct": 21.37,
+      "spy_pct": 19.07
+    },
+    {
+      "date": "2025-08-10",
+      "value": 10907.0,
+      "invested": 6797.76,
+      "value_pct": 21.62,
+      "spy_pct": 19.07
+    },
+    {
+      "date": "2025-08-11",
+      "value": 10755.98,
+      "invested": 6797.76,
+      "value_pct": 19.94,
+      "spy_pct": 18.84
+    },
+    {
+      "date": "2025-08-12",
+      "value": 10814.18,
+      "invested": 6797.76,
+      "value_pct": 20.59,
+      "spy_pct": 20.1
+    },
+    {
+      "date": "2025-08-13",
+      "value": 10957.91,
+      "invested": 6797.76,
+      "value_pct": 22.19,
+      "spy_pct": 20.51
+    },
+    {
+      "date": "2025-08-14",
+      "value": 10801.64,
+      "invested": 6797.76,
+      "value_pct": 20.45,
+      "spy_pct": 20.52
+    },
+    {
+      "date": "2025-08-15",
+      "value": 10915.39,
+      "invested": 6797.76,
+      "value_pct": 21.71,
+      "spy_pct": 20.24
+    },
+    {
+      "date": "2025-08-16",
+      "value": 10920.15,
+      "invested": 6797.76,
+      "value_pct": 21.77,
+      "spy_pct": 20.24
+    },
+    {
+      "date": "2025-08-17",
+      "value": 10924.78,
+      "invested": 6797.76,
+      "value_pct": 21.82,
+      "spy_pct": 20.24
+    },
+    {
+      "date": "2025-08-18",
+      "value": 11117.42,
+      "invested": 6797.76,
+      "value_pct": 23.97,
+      "spy_pct": 20.22
+    },
+    {
+      "date": "2025-08-19",
+      "value": 10934.62,
+      "invested": 6797.76,
+      "value_pct": 21.93,
+      "spy_pct": 19.56
+    },
+    {
+      "date": "2025-08-20",
+      "value": 10985.17,
+      "invested": 6797.76,
+      "value_pct": 22.49,
+      "spy_pct": 19.25
+    },
+    {
+      "date": "2025-08-21",
+      "value": 10835.54,
+      "invested": 6797.76,
+      "value_pct": 20.82,
+      "spy_pct": 18.77
+    },
+    {
+      "date": "2025-08-22",
+      "value": 11004.97,
+      "invested": 6797.76,
+      "value_pct": 22.71,
+      "spy_pct": 20.59
+    },
+    {
+      "date": "2025-08-23",
+      "value": 10998.8,
+      "invested": 6797.76,
+      "value_pct": 22.64,
+      "spy_pct": 20.59
+    },
+    {
+      "date": "2025-08-24",
+      "value": 10989.94,
+      "invested": 6797.76,
+      "value_pct": 22.55,
+      "spy_pct": 20.59
+    },
+    {
+      "date": "2025-08-25",
+      "value": 10863.52,
+      "invested": 6797.76,
+      "value_pct": 21.14,
+      "spy_pct": 20.06
+    },
+    {
+      "date": "2025-08-26",
+      "value": 10788.68,
+      "invested": 6797.76,
+      "value_pct": 20.3,
+      "spy_pct": 20.56
+    },
+    {
+      "date": "2025-08-27",
+      "value": 10984.1,
+      "invested": 6797.76,
+      "value_pct": 22.48,
+      "spy_pct": 20.84
+    },
+    {
+      "date": "2025-08-28",
+      "value": 11371.93,
+      "invested": 6797.76,
+      "value_pct": 26.8,
+      "spy_pct": 21.27
+    },
+    {
+      "date": "2025-08-29",
+      "value": 11188.71,
+      "invested": 6797.76,
+      "value_pct": 24.76,
+      "spy_pct": 20.54
+    },
+    {
+      "date": "2025-08-30",
+      "value": 11187.44,
+      "invested": 6797.76,
+      "value_pct": 24.75,
+      "spy_pct": 20.54
+    },
+    {
+      "date": "2025-08-31",
+      "value": 11179.64,
+      "invested": 6797.76,
+      "value_pct": 24.66,
+      "spy_pct": 20.54
+    },
+    {
+      "date": "2025-09-01",
+      "value": 11177.82,
+      "invested": 6797.76,
+      "value_pct": 24.64,
+      "spy_pct": 20.54
+    },
+    {
+      "date": "2025-09-02",
+      "value": 11161.12,
+      "invested": 6797.76,
+      "value_pct": 24.45,
+      "spy_pct": 19.65
+    },
+    {
+      "date": "2025-09-03",
+      "value": 11241.36,
+      "invested": 6797.76,
+      "value_pct": 25.35,
+      "spy_pct": 20.3
+    },
+    {
+      "date": "2025-09-04",
+      "value": 11083.53,
+      "invested": 6797.76,
+      "value_pct": 23.59,
+      "spy_pct": 21.3
+    },
+    {
+      "date": "2025-09-05",
+      "value": 11157.52,
+      "invested": 6797.76,
+      "value_pct": 24.41,
+      "spy_pct": 20.95
+    },
+    {
+      "date": "2025-09-06",
+      "value": 11149.55,
+      "invested": 6797.76,
+      "value_pct": 24.33,
+      "spy_pct": 20.95
+    },
+    {
+      "date": "2025-09-07",
+      "value": 11166.4,
+      "invested": 6797.76,
+      "value_pct": 24.51,
+      "spy_pct": 20.95
+    },
+    {
+      "date": "2025-09-08",
+      "value": 11388.12,
+      "invested": 6797.76,
+      "value_pct": 26.99,
+      "spy_pct": 21.25
+    },
+    {
+      "date": "2025-09-09",
+      "value": 11389.54,
+      "invested": 6797.76,
+      "value_pct": 27.0,
+      "spy_pct": 21.53
+    },
+    {
+      "date": "2025-09-10",
+      "value": 11376.02,
+      "invested": 6797.76,
+      "value_pct": 26.85,
+      "spy_pct": 21.88
+    },
+    {
+      "date": "2025-09-11",
+      "value": 11477.22,
+      "invested": 6797.76,
+      "value_pct": 27.98,
+      "spy_pct": 22.89
+    },
+    {
+      "date": "2025-09-12",
+      "value": 11370.45,
+      "invested": 6797.76,
+      "value_pct": 26.79,
+      "spy_pct": 22.85
+    },
+    {
+      "date": "2025-09-13",
+      "value": 11370.99,
+      "invested": 6797.76,
+      "value_pct": 26.79,
+      "spy_pct": 22.85
+    },
+    {
+      "date": "2025-09-14",
+      "value": 11362.28,
+      "invested": 6797.76,
+      "value_pct": 26.7,
+      "spy_pct": 22.85
+    },
+    {
+      "date": "2025-09-15",
+      "value": 11552.81,
+      "invested": 6797.76,
+      "value_pct": 28.82,
+      "spy_pct": 23.51
+    },
+    {
+      "date": "2025-09-16",
+      "value": 11406.23,
+      "invested": 6797.76,
+      "value_pct": 27.19,
+      "spy_pct": 23.34
+    },
+    {
+      "date": "2025-09-17",
+      "value": 11590.49,
+      "invested": 6797.76,
+      "value_pct": 29.24,
+      "spy_pct": 23.18
+    },
+    {
+      "date": "2025-09-18",
+      "value": 11579.37,
+      "invested": 6797.76,
+      "value_pct": 29.12,
+      "spy_pct": 23.76
+    },
+    {
+      "date": "2025-09-19",
+      "value": 11704.65,
+      "invested": 6797.76,
+      "value_pct": 30.51,
+      "spy_pct": 24.37
+    },
+    {
+      "date": "2025-09-20",
+      "value": 11706.35,
+      "invested": 6797.76,
+      "value_pct": 30.53,
+      "spy_pct": 24.37
+    },
+    {
+      "date": "2025-09-21",
+      "value": 11699.79,
+      "invested": 6797.76,
+      "value_pct": 30.46,
+      "spy_pct": 24.37
+    },
+    {
+      "date": "2025-09-22",
+      "value": 11538.1,
+      "invested": 6797.76,
+      "value_pct": 28.66,
+      "spy_pct": 24.96
+    },
+    {
+      "date": "2025-09-23",
+      "value": 11350.44,
+      "invested": 6797.76,
+      "value_pct": 26.57,
+      "spy_pct": 24.28
+    },
+    {
+      "date": "2025-09-24",
+      "value": 11387.94,
+      "invested": 6797.76,
+      "value_pct": 26.98,
+      "spy_pct": 23.89
+    },
+    {
+      "date": "2025-09-25",
+      "value": 11218.52,
+      "invested": 6797.76,
+      "value_pct": 25.09,
+      "spy_pct": 23.31
+    },
+    {
+      "date": "2025-09-26",
+      "value": 11378.01,
+      "invested": 6797.76,
+      "value_pct": 26.87,
+      "spy_pct": 24.02
+    },
+    {
+      "date": "2025-09-27",
+      "value": 11374.7,
+      "invested": 6797.76,
+      "value_pct": 26.84,
+      "spy_pct": 24.02
+    },
+    {
+      "date": "2025-09-28",
+      "value": 11402.9,
+      "invested": 6797.76,
+      "value_pct": 27.15,
+      "spy_pct": 24.02
+    },
+    {
+      "date": "2025-09-29",
+      "value": 11470.67,
+      "invested": 6797.76,
+      "value_pct": 27.91,
+      "spy_pct": 24.37
+    },
+    {
+      "date": "2025-09-30",
+      "value": 11296.27,
+      "invested": 6797.76,
+      "value_pct": 25.96,
+      "spy_pct": 24.84
+    },
+    {
+      "date": "2025-10-01",
+      "value": 11295.15,
+      "invested": 6797.76,
+      "value_pct": 25.95,
+      "spy_pct": 25.26
+    },
+    {
+      "date": "2025-10-02",
+      "value": 11320.21,
+      "invested": 6797.76,
+      "value_pct": 26.23,
+      "spy_pct": 25.41
+    },
+    {
+      "date": "2025-10-03",
+      "value": 11313.98,
+      "invested": 6797.76,
+      "value_pct": 26.16,
+      "spy_pct": 25.41
+    },
+    {
+      "date": "2025-10-04",
+      "value": 11306.37,
+      "invested": 6797.76,
+      "value_pct": 26.07,
+      "spy_pct": 25.41
+    },
+    {
+      "date": "2025-10-05",
+      "value": 11316.84,
+      "invested": 6797.76,
+      "value_pct": 26.19,
+      "spy_pct": 25.41
+    },
+    {
+      "date": "2025-10-06",
+      "value": 11566.19,
+      "invested": 6797.76,
+      "value_pct": 28.97,
+      "spy_pct": 25.85
+    },
+    {
+      "date": "2025-10-07",
+      "value": 11494.58,
+      "invested": 6797.76,
+      "value_pct": 28.17,
+      "spy_pct": 25.39
+    },
+    {
+      "date": "2025-10-08",
+      "value": 11802.52,
+      "invested": 6797.76,
+      "value_pct": 31.61,
+      "spy_pct": 26.14
+    },
+    {
+      "date": "2025-10-09",
+      "value": 11814.38,
+      "invested": 6797.76,
+      "value_pct": 31.74,
+      "spy_pct": 25.77
+    },
+    {
+      "date": "2025-10-10",
+      "value": 11319.41,
+      "invested": 6797.76,
+      "value_pct": 26.22,
+      "spy_pct": 22.37
+    },
+    {
+      "date": "2025-10-11",
+      "value": 11287.61,
+      "invested": 6797.76,
+      "value_pct": 25.86,
+      "spy_pct": 22.37
+    },
+    {
+      "date": "2025-10-12",
+      "value": 11352.12,
+      "invested": 6797.76,
+      "value_pct": 26.58,
+      "spy_pct": 22.37
+    },
+    {
+      "date": "2025-10-13",
+      "value": 11648.32,
+      "invested": 6797.76,
+      "value_pct": 29.89,
+      "spy_pct": 24.25
+    },
+    {
+      "date": "2025-10-14",
+      "value": 11483.72,
+      "invested": 6797.76,
+      "value_pct": 28.05,
+      "spy_pct": 24.1
+    },
+    {
+      "date": "2025-10-15",
+      "value": 11500.96,
+      "invested": 6797.76,
+      "value_pct": 28.24,
+      "spy_pct": 24.65
+    },
+    {
+      "date": "2025-10-16",
+      "value": 11367.24,
+      "invested": 6797.76,
+      "value_pct": 26.75,
+      "spy_pct": 23.8
+    },
+    {
+      "date": "2025-10-17",
+      "value": 11421.66,
+      "invested": 6797.76,
+      "value_pct": 27.36,
+      "spy_pct": 24.5
+    },
+    {
+      "date": "2025-10-18",
+      "value": 11435.71,
+      "invested": 6797.76,
+      "value_pct": 27.52,
+      "spy_pct": 24.5
+    },
+    {
+      "date": "2025-10-19",
+      "value": 11446.94,
+      "invested": 6797.76,
+      "value_pct": 27.64,
+      "spy_pct": 24.5
+    },
+    {
+      "date": "2025-10-20",
+      "value": 11664.72,
+      "invested": 6797.76,
+      "value_pct": 30.07,
+      "spy_pct": 25.8
+    },
+    {
+      "date": "2025-10-21",
+      "value": 11831.01,
+      "invested": 6797.76,
+      "value_pct": 31.92,
+      "spy_pct": 25.79
+    },
+    {
+      "date": "2025-10-22",
+      "value": 11643.91,
+      "invested": 6797.76,
+      "value_pct": 29.84,
+      "spy_pct": 25.14
+    },
+    {
+      "date": "2025-10-23",
+      "value": 11754.46,
+      "invested": 6797.76,
+      "value_pct": 31.07,
+      "spy_pct": 25.88
+    },
+    {
+      "date": "2025-10-24",
+      "value": 11777.5,
+      "invested": 6797.76,
+      "value_pct": 31.33,
+      "spy_pct": 26.91
+    },
+    {
+      "date": "2025-10-25",
+      "value": 11782.16,
+      "invested": 6797.76,
+      "value_pct": 31.38,
+      "spy_pct": 26.91
+    },
+    {
+      "date": "2025-10-26",
+      "value": 11811.16,
+      "invested": 6797.76,
+      "value_pct": 31.7,
+      "spy_pct": 26.91
+    },
+    {
+      "date": "2025-10-27",
+      "value": 11982.97,
+      "invested": 6797.76,
+      "value_pct": 33.62,
+      "spy_pct": 28.41
+    },
+    {
+      "date": "2025-10-28",
+      "value": 11896.73,
+      "invested": 6797.76,
+      "value_pct": 32.66,
+      "spy_pct": 28.75
+    },
+    {
+      "date": "2025-10-29",
+      "value": 11711.27,
+      "invested": 6797.76,
+      "value_pct": 30.59,
+      "spy_pct": 28.81
+    },
+    {
+      "date": "2025-10-30",
+      "value": 11803.2,
+      "invested": 6797.76,
+      "value_pct": 31.61,
+      "spy_pct": 27.4
+    },
+    {
+      "date": "2025-10-31",
+      "value": 11719.59,
+      "invested": 6797.76,
+      "value_pct": 30.68,
+      "spy_pct": 27.81
+    },
+    {
+      "date": "2025-11-01",
+      "value": 11722.5,
+      "invested": 6797.76,
+      "value_pct": 30.71,
+      "spy_pct": 27.81
+    },
+    {
+      "date": "2025-11-02",
+      "value": 11734.42,
+      "invested": 6797.76,
+      "value_pct": 30.85,
+      "spy_pct": 27.81
+    },
+    {
+      "date": "2025-11-03",
+      "value": 11636.23,
+      "invested": 6797.76,
+      "value_pct": 29.75,
+      "spy_pct": 28.05
+    },
+    {
+      "date": "2025-11-04",
+      "value": 11290.21,
+      "invested": 6797.76,
+      "value_pct": 25.89,
+      "spy_pct": 26.54
+    },
+    {
+      "date": "2025-11-05",
+      "value": 11238.95,
+      "invested": 6797.76,
+      "value_pct": 25.32,
+      "spy_pct": 26.97
+    },
+    {
+      "date": "2025-11-06",
+      "value": 10886.55,
+      "invested": 6797.76,
+      "value_pct": 21.39,
+      "spy_pct": 25.61
+    },
+    {
+      "date": "2025-11-07",
+      "value": 10927.96,
+      "invested": 6797.76,
+      "value_pct": 21.85,
+      "spy_pct": 25.73
+    },
+    {
+      "date": "2025-11-08",
+      "value": 10914.81,
+      "invested": 6797.76,
+      "value_pct": 21.71,
+      "spy_pct": 25.73
+    },
+    {
+      "date": "2025-11-09",
+      "value": 10943.44,
+      "invested": 6797.76,
+      "value_pct": 22.03,
+      "spy_pct": 25.73
+    },
+    {
+      "date": "2025-11-10",
+      "value": 11070.71,
+      "invested": 6797.76,
+      "value_pct": 23.45,
+      "spy_pct": 27.7
+    },
+    {
+      "date": "2025-11-11",
+      "value": 10954.07,
+      "invested": 6797.76,
+      "value_pct": 22.15,
+      "spy_pct": 27.99
+    },
+    {
+      "date": "2025-11-12",
+      "value": 11089.39,
+      "invested": 6797.76,
+      "value_pct": 23.65,
+      "spy_pct": 28.06
+    },
+    {
+      "date": "2025-11-13",
+      "value": 10859.34,
+      "invested": 6797.76,
+      "value_pct": 21.09,
+      "spy_pct": 25.94
+    },
+    {
+      "date": "2025-11-14",
+      "value": 10793.76,
+      "invested": 6797.76,
+      "value_pct": 20.36,
+      "spy_pct": 25.91
+    },
+    {
+      "date": "2025-11-15",
+      "value": 10803.17,
+      "invested": 6797.76,
+      "value_pct": 20.46,
+      "spy_pct": 25.91
+    },
+    {
+      "date": "2025-11-16",
+      "value": 10789.94,
+      "invested": 6797.76,
+      "value_pct": 20.32,
+      "spy_pct": 25.91
+    },
+    {
+      "date": "2025-11-17",
+      "value": 10589.18,
+      "invested": 6797.76,
+      "value_pct": 18.08,
+      "spy_pct": 24.74
+    },
+    {
+      "date": "2025-11-18",
+      "value": 10413.55,
+      "invested": 6797.76,
+      "value_pct": 16.12,
+      "spy_pct": 23.69
+    },
+    {
+      "date": "2025-11-19",
+      "value": 10328.22,
+      "invested": 6797.76,
+      "value_pct": 15.17,
+      "spy_pct": 24.17
+    },
+    {
+      "date": "2025-11-20",
+      "value": 10008.48,
+      "invested": 6797.76,
+      "value_pct": 11.6,
+      "spy_pct": 22.28
+    },
+    {
+      "date": "2025-11-21",
+      "value": 10071.11,
+      "invested": 6797.76,
+      "value_pct": 12.3,
+      "spy_pct": 23.5
+    },
+    {
+      "date": "2025-11-22",
+      "value": 10066.12,
+      "invested": 6797.76,
+      "value_pct": 12.24,
+      "spy_pct": 23.5
+    },
+    {
+      "date": "2025-11-23",
+      "value": 10086.41,
+      "invested": 6797.76,
+      "value_pct": 12.47,
+      "spy_pct": 23.5
+    },
+    {
+      "date": "2025-11-24",
+      "value": 10227.5,
+      "invested": 6797.76,
+      "value_pct": 14.04,
+      "spy_pct": 25.32
+    },
+    {
+      "date": "2025-11-25",
+      "value": 10248.59,
+      "invested": 6797.76,
+      "value_pct": 14.28,
+      "spy_pct": 26.49
+    },
+    {
+      "date": "2025-11-26",
+      "value": 10151.07,
+      "invested": 6797.76,
+      "value_pct": 13.19,
+      "spy_pct": 27.37
+    },
+    {
+      "date": "2025-11-27",
+      "value": 10153.01,
+      "invested": 6797.76,
+      "value_pct": 13.21,
+      "spy_pct": 27.37
+    },
+    {
+      "date": "2025-11-28",
+      "value": 10266.19,
+      "invested": 6797.76,
+      "value_pct": 14.48,
+      "spy_pct": 28.06
+    },
+    {
+      "date": "2025-11-29",
+      "value": 10263.46,
+      "invested": 6797.76,
+      "value_pct": 14.44,
+      "spy_pct": 28.06
+    },
+    {
+      "date": "2025-11-30",
+      "value": 10256.44,
+      "invested": 6797.76,
+      "value_pct": 14.37,
+      "spy_pct": 28.06
+    },
+    {
+      "date": "2025-12-01",
+      "value": 10311.02,
+      "invested": 6797.76,
+      "value_pct": 14.98,
+      "spy_pct": 27.48
+    },
+    {
+      "date": "2025-12-02",
+      "value": 10362.16,
+      "invested": 6797.76,
+      "value_pct": 15.55,
+      "spy_pct": 27.71
+    },
+    {
+      "date": "2025-12-03",
+      "value": 10431.73,
+      "invested": 6797.76,
+      "value_pct": 16.32,
+      "spy_pct": 28.16
+    },
+    {
+      "date": "2025-12-04",
+      "value": 10463.63,
+      "invested": 6797.76,
+      "value_pct": 16.68,
+      "spy_pct": 28.25
+    },
+    {
+      "date": "2025-12-05",
+      "value": 10560.45,
+      "invested": 6797.76,
+      "value_pct": 17.76,
+      "spy_pct": 28.49
+    },
+    {
+      "date": "2025-12-06",
+      "value": 10558.19,
+      "invested": 6797.76,
+      "value_pct": 17.73,
+      "spy_pct": 28.49
+    },
+    {
+      "date": "2025-12-07",
+      "value": 10565.81,
+      "invested": 6797.76,
+      "value_pct": 17.82,
+      "spy_pct": 28.49
+    },
+    {
+      "date": "2025-12-08",
+      "value": 10544.34,
+      "invested": 6797.76,
+      "value_pct": 17.58,
+      "spy_pct": 28.11
+    },
+    {
+      "date": "2025-12-09",
+      "value": 10585.62,
+      "invested": 6797.76,
+      "value_pct": 18.04,
+      "spy_pct": 28.0
+    },
+    {
+      "date": "2025-12-10",
+      "value": 10534.6,
+      "invested": 6797.76,
+      "value_pct": 17.47,
+      "spy_pct": 28.85
+    },
+    {
+      "date": "2025-12-11",
+      "value": 10668.85,
+      "invested": 6797.76,
+      "value_pct": 18.97,
+      "spy_pct": 29.15
+    },
+    {
+      "date": "2025-12-12",
+      "value": 10539.19,
+      "invested": 6797.76,
+      "value_pct": 17.52,
+      "spy_pct": 27.76
+    },
+    {
+      "date": "2025-12-13",
+      "value": 10541.31,
+      "invested": 6797.76,
+      "value_pct": 17.54,
+      "spy_pct": 27.76
+    },
+    {
+      "date": "2025-12-14",
+      "value": 10520.78,
+      "invested": 6797.76,
+      "value_pct": 17.31,
+      "spy_pct": 27.76
+    },
+    {
+      "date": "2025-12-15",
+      "value": 9656.3,
+      "invested": 6797.76,
+      "value_pct": 7.67,
+      "spy_pct": 27.56
+    },
+    {
+      "date": "2025-12-16",
+      "value": 9817.93,
+      "invested": 6797.76,
+      "value_pct": 9.48,
+      "spy_pct": 27.22
+    },
+    {
+      "date": "2025-12-17",
+      "value": 9723.42,
+      "invested": 6797.76,
+      "value_pct": 8.42,
+      "spy_pct": 25.82
+    },
+    {
+      "date": "2025-12-18",
+      "value": 9606.55,
+      "invested": 6797.76,
+      "value_pct": 7.12,
+      "spy_pct": 26.77
+    },
+    {
+      "date": "2025-12-19",
+      "value": 9811.04,
+      "invested": 6797.76,
+      "value_pct": 9.4,
+      "spy_pct": 27.91
+    },
+    {
+      "date": "2025-12-20",
+      "value": 9811.88,
+      "invested": 6797.76,
+      "value_pct": 9.41,
+      "spy_pct": 27.91
+    },
+    {
+      "date": "2025-12-21",
+      "value": 9813.52,
+      "invested": 6797.76,
+      "value_pct": 9.43,
+      "spy_pct": 27.91
+    },
+    {
+      "date": "2025-12-22",
+      "value": 9870.36,
+      "invested": 6797.76,
+      "value_pct": 10.06,
+      "spy_pct": 28.71
+    },
+    {
+      "date": "2025-12-23",
+      "value": 9761.57,
+      "invested": 6797.76,
+      "value_pct": 8.85,
+      "spy_pct": 29.3
+    },
+    {
+      "date": "2025-12-24",
+      "value": 9690.34,
+      "invested": 6797.76,
+      "value_pct": 8.05,
+      "spy_pct": 29.75
+    },
+    {
+      "date": "2025-12-25",
+      "value": 9682.64,
+      "invested": 6797.76,
+      "value_pct": 7.97,
+      "spy_pct": 29.75
+    },
+    {
+      "date": "2025-12-26",
+      "value": 9752.34,
+      "invested": 6797.76,
+      "value_pct": 8.75,
+      "spy_pct": 29.74
+    },
+    {
+      "date": "2025-12-27",
+      "value": 9760.57,
+      "invested": 6797.76,
+      "value_pct": 8.84,
+      "spy_pct": 29.74
+    },
+    {
+      "date": "2025-12-28",
+      "value": 9761.63,
+      "invested": 6797.76,
+      "value_pct": 8.85,
+      "spy_pct": 29.74
+    },
+    {
+      "date": "2025-12-29",
+      "value": 9788.48,
+      "invested": 6797.76,
+      "value_pct": 9.15,
+      "spy_pct": 29.28
+    },
+    {
+      "date": "2025-12-30",
+      "value": 9774.08,
+      "invested": 6797.76,
+      "value_pct": 8.99,
+      "spy_pct": 29.12
+    },
+    {
+      "date": "2025-12-31",
+      "value": 9708.31,
+      "invested": 6797.76,
+      "value_pct": 8.25,
+      "spy_pct": 28.16
+    },
+    {
+      "date": "2026-01-01",
+      "value": 9720.16,
+      "invested": 6797.76,
+      "value_pct": 8.39,
+      "spy_pct": 28.16
+    },
+    {
+      "date": "2026-01-02",
+      "value": 9537.25,
+      "invested": 6797.76,
+      "value_pct": 6.35,
+      "spy_pct": 28.4
+    },
+    {
+      "date": "2026-01-03",
+      "value": 9542.86,
+      "invested": 6797.76,
+      "value_pct": 6.41,
+      "spy_pct": 28.4
+    },
+    {
+      "date": "2026-01-04",
+      "value": 9551.45,
+      "invested": 6797.76,
+      "value_pct": 6.51,
+      "spy_pct": 28.4
+    },
+    {
+      "date": "2026-01-05",
+      "value": 9586.18,
+      "invested": 6797.76,
+      "value_pct": 6.89,
+      "spy_pct": 29.25
+    },
+    {
+      "date": "2026-01-06",
+      "value": 9584.47,
+      "invested": 6797.76,
+      "value_pct": 6.87,
+      "spy_pct": 30.02
+    },
+    {
+      "date": "2026-01-07",
+      "value": 9621.65,
+      "invested": 6797.76,
+      "value_pct": 7.29,
+      "spy_pct": 29.6
+    },
+    {
+      "date": "2026-01-08",
+      "value": 9366.43,
+      "invested": 6797.76,
+      "value_pct": 4.44,
+      "spy_pct": 29.59
+    },
+    {
+      "date": "2026-01-09",
+      "value": 9165.86,
+      "invested": 6797.76,
+      "value_pct": 2.21,
+      "spy_pct": 30.45
+    },
+    {
+      "date": "2026-01-10",
+      "value": 9164.77,
+      "invested": 6797.76,
+      "value_pct": 2.19,
+      "spy_pct": 30.45
+    },
+    {
+      "date": "2026-01-11",
+      "value": 9174.16,
+      "invested": 6797.76,
+      "value_pct": 2.3,
+      "spy_pct": 30.45
+    },
+    {
+      "date": "2026-01-12",
+      "value": 9230.29,
+      "invested": 6797.76,
+      "value_pct": 2.92,
+      "spy_pct": 30.65
+    },
+    {
+      "date": "2026-01-13",
+      "value": 9187.79,
+      "invested": 6797.76,
+      "value_pct": 2.45,
+      "spy_pct": 30.39
+    },
+    {
+      "date": "2026-01-14",
+      "value": 9026.37,
+      "invested": 6797.76,
+      "value_pct": 0.65,
+      "spy_pct": 29.75
+    },
+    {
+      "date": "2026-01-15",
+      "value": 8910.81,
+      "invested": 6797.76,
+      "value_pct": -0.64,
+      "spy_pct": 30.1
+    },
+    {
+      "date": "2026-01-16",
+      "value": 8768.84,
+      "invested": 6797.76,
+      "value_pct": -2.22,
+      "spy_pct": 30.0
+    },
+    {
+      "date": "2026-01-17",
+      "value": 8764.11,
+      "invested": 6797.76,
+      "value_pct": -2.27,
+      "spy_pct": 30.0
+    },
+    {
+      "date": "2026-01-18",
+      "value": 8743.08,
+      "invested": 6797.76,
+      "value_pct": -2.51,
+      "spy_pct": 30.0
+    },
+    {
+      "date": "2026-01-19",
+      "value": 8727.6,
+      "invested": 6797.76,
+      "value_pct": -2.68,
+      "spy_pct": 30.0
+    },
+    {
+      "date": "2026-01-20",
+      "value": 8588.55,
+      "invested": 6797.76,
+      "value_pct": -4.23,
+      "spy_pct": 27.35
+    },
+    {
+      "date": "2026-01-21",
+      "value": 8682.2,
+      "invested": 6797.76,
+      "value_pct": -3.19,
+      "spy_pct": 28.82
+    },
+    {
+      "date": "2026-01-22",
+      "value": 8869.96,
+      "invested": 6797.76,
+      "value_pct": -1.09,
+      "spy_pct": 29.49
+    },
+    {
+      "date": "2026-01-23",
+      "value": 9108.7,
+      "invested": 6797.76,
+      "value_pct": 1.57,
+      "spy_pct": 29.54
+    },
+    {
+      "date": "2026-01-24",
+      "value": 9105.37,
+      "invested": 6797.76,
+      "value_pct": 1.53,
+      "spy_pct": 29.54
+    },
+    {
+      "date": "2026-01-25",
+      "value": 9073.44,
+      "invested": 6797.76,
+      "value_pct": 1.18,
+      "spy_pct": 29.54
+    },
+    {
+      "date": "2026-01-26",
+      "value": 9214.48,
+      "invested": 6797.76,
+      "value_pct": 2.75,
+      "spy_pct": 30.2
+    },
+    {
+      "date": "2026-01-27",
+      "value": 9036.97,
+      "invested": 6797.76,
+      "value_pct": 0.77,
+      "spy_pct": 30.71
+    },
+    {
+      "date": "2026-01-28",
+      "value": 8959.97,
+      "invested": 6797.76,
+      "value_pct": -0.09,
+      "spy_pct": 30.7
+    },
+    {
+      "date": "2026-01-29",
+      "value": 8363.32,
+      "invested": 6797.76,
+      "value_pct": -6.74,
+      "spy_pct": 30.44
+    },
+    {
+      "date": "2026-01-30",
+      "value": 8272.85,
+      "invested": 6797.76,
+      "value_pct": -7.75,
+      "spy_pct": 30.05
+    },
+    {
+      "date": "2026-01-31",
+      "value": 8217.85,
+      "invested": 6797.76,
+      "value_pct": -8.37,
+      "spy_pct": 30.05
+    },
+    {
+      "date": "2026-02-01",
+      "value": 8200.4,
+      "invested": 6797.76,
+      "value_pct": -8.56,
+      "spy_pct": 30.05
+    },
+    {
+      "date": "2026-02-02",
+      "value": 8292.75,
+      "invested": 6797.76,
+      "value_pct": -7.53,
+      "spy_pct": 30.7
+    },
+    {
+      "date": "2026-02-03",
+      "value": 7876.7,
+      "invested": 6797.76,
+      "value_pct": -12.17,
+      "spy_pct": 29.59
+    },
+    {
+      "date": "2026-02-04",
+      "value": 7659.79,
+      "invested": 6797.76,
+      "value_pct": -14.59,
+      "spy_pct": 28.97
+    },
+    {
+      "date": "2026-02-05",
+      "value": 7171.31,
+      "invested": 6797.76,
+      "value_pct": -20.03,
+      "spy_pct": 27.36
+    },
+    {
+      "date": "2026-02-06",
+      "value": 7301.8,
+      "invested": 6797.76,
+      "value_pct": -18.58,
+      "spy_pct": 29.8
+    },
+    {
+      "date": "2026-02-07",
+      "value": 7293.42,
+      "invested": 6797.76,
+      "value_pct": -18.67,
+      "spy_pct": 29.8
+    },
+    {
+      "date": "2026-02-08",
+      "value": 7298.38,
+      "invested": 6797.76,
+      "value_pct": -18.62,
+      "spy_pct": 29.8
+    },
+    {
+      "date": "2026-02-09",
+      "value": 7486.72,
+      "invested": 6797.76,
+      "value_pct": -16.52,
+      "spy_pct": 30.43
+    },
+    {
+      "date": "2026-02-10",
+      "value": 7578.07,
+      "invested": 6797.76,
+      "value_pct": -15.5,
+      "spy_pct": 30.08
+    },
+    {
+      "date": "2026-02-11",
+      "value": 7298.69,
+      "invested": 6797.76,
+      "value_pct": -18.61,
+      "spy_pct": 30.05
+    },
+    {
+      "date": "2026-02-12",
+      "value": 7302.82,
+      "invested": 6797.76,
+      "value_pct": -18.57,
+      "spy_pct": 28.04
+    },
+    {
+      "date": "2026-02-13",
+      "value": 7530.83,
+      "invested": 6797.76,
+      "value_pct": -16.03,
+      "spy_pct": 28.13
+    },
+    {
+      "date": "2026-02-14",
+      "value": 7543.78,
+      "invested": 6797.76,
+      "value_pct": -15.88,
+      "spy_pct": 28.13
+    },
+    {
+      "date": "2026-02-15",
+      "value": 7533.57,
+      "invested": 6797.76,
+      "value_pct": -16.0,
+      "spy_pct": 28.13
+    },
+    {
+      "date": "2026-02-16",
+      "value": 7535.63,
+      "invested": 6797.76,
+      "value_pct": -15.97,
+      "spy_pct": 28.13
+    },
+    {
+      "date": "2026-02-17",
+      "value": 7443.13,
+      "invested": 6797.76,
+      "value_pct": -17.0,
+      "spy_pct": 28.34
+    },
+    {
+      "date": "2026-02-18",
+      "value": 7486.8,
+      "invested": 6797.76,
+      "value_pct": -16.52,
+      "spy_pct": 28.99
+    },
+    {
+      "date": "2026-02-19",
+      "value": 7479.31,
+      "invested": 6797.76,
+      "value_pct": -16.6,
+      "spy_pct": 28.65
+    },
+    {
+      "date": "2026-02-20",
+      "value": 7331.32,
+      "invested": 6797.76,
+      "value_pct": -18.25,
+      "spy_pct": 29.58
+    },
+    {
+      "date": "2026-02-21",
+      "value": 7332.14,
+      "invested": 6797.76,
+      "value_pct": -18.24,
+      "spy_pct": 29.58
+    },
+    {
+      "date": "2026-02-22",
+      "value": 7323.23,
+      "invested": 6797.76,
+      "value_pct": -18.34,
+      "spy_pct": 29.58
+    },
+    {
+      "date": "2026-02-23",
+      "value": 7077.98,
+      "invested": 6797.76,
+      "value_pct": -21.08,
+      "spy_pct": 28.25
+    },
+    {
+      "date": "2026-02-24",
+      "value": 7254.04,
+      "invested": 6797.76,
+      "value_pct": -19.11,
+      "spy_pct": 29.18
+    },
+    {
+      "date": "2026-02-25",
+      "value": 7406.33,
+      "invested": 6797.76,
+      "value_pct": -17.41,
+      "spy_pct": 30.28
+    },
+    {
+      "date": "2026-02-26",
+      "value": 7581.61,
+      "invested": 6797.76,
+      "value_pct": -15.46,
+      "spy_pct": 29.55
+    },
+    {
+      "date": "2026-02-27",
+      "value": 7584.33,
+      "invested": 6797.76,
+      "value_pct": -15.43,
+      "spy_pct": 28.93
+    },
+    {
+      "date": "2026-02-28",
+      "value": 7595.39,
+      "invested": 6797.76,
+      "value_pct": -15.31,
+      "spy_pct": 28.93
+    },
+    {
+      "date": "2026-03-01",
+      "value": 7588.29,
+      "invested": 6797.76,
+      "value_pct": -15.39,
+      "spy_pct": 28.93
+    },
+    {
+      "date": "2026-03-02",
+      "value": 7655.72,
+      "invested": 6797.76,
+      "value_pct": -14.63,
+      "spy_pct": 29.0
+    },
+    {
+      "date": "2026-03-03",
+      "value": 7765.22,
+      "invested": 6797.76,
+      "value_pct": -13.41,
+      "spy_pct": 27.87
+    },
+    {
+      "date": "2026-03-04",
+      "value": 7939.96,
+      "invested": 6797.76,
+      "value_pct": -11.46,
+      "spy_pct": 28.77
+    },
+    {
+      "date": "2026-03-05",
+      "value": 8209.2,
+      "invested": 6797.76,
+      "value_pct": -8.46,
+      "spy_pct": 28.05
+    },
+    {
+      "date": "2026-03-06",
+      "value": 8280.36,
+      "invested": 6797.76,
+      "value_pct": -7.67,
+      "spy_pct": 26.37
+    },
+    {
+      "date": "2026-03-07",
+      "value": 8272.36,
+      "invested": 6797.76,
+      "value_pct": -7.76,
+      "spy_pct": 26.37
+    },
+    {
+      "date": "2026-03-08",
+      "value": 8265.63,
+      "invested": 6797.76,
+      "value_pct": -7.83,
+      "spy_pct": 26.37
+    },
+    {
+      "date": "2026-03-09",
+      "value": 8249.46,
+      "invested": 6797.76,
+      "value_pct": -8.01,
+      "spy_pct": 27.48
+    },
+    {
+      "date": "2026-03-10",
+      "value": 8047.13,
+      "invested": 6797.76,
+      "value_pct": -10.27,
+      "spy_pct": 27.27
+    },
+    {
+      "date": "2026-03-11",
+      "value": 7999.2,
+      "invested": 6797.76,
+      "value_pct": -10.8,
+      "spy_pct": 27.11
+    },
+    {
+      "date": "2026-03-12",
+      "value": 7839.18,
+      "invested": 6797.76,
+      "value_pct": -12.59,
+      "spy_pct": 25.18
+    },
+    {
+      "date": "2026-03-13",
+      "value": 7852.58,
+      "invested": 6797.76,
+      "value_pct": -12.44,
+      "spy_pct": 24.48
+    },
+    {
+      "date": "2026-03-14",
+      "value": 7854.09,
+      "invested": 6797.76,
+      "value_pct": -12.42,
+      "spy_pct": 24.48
+    },
+    {
+      "date": "2026-03-15",
+      "value": 7872.99,
+      "invested": 6797.76,
+      "value_pct": -12.21,
+      "spy_pct": 24.48
+    },
+    {
+      "date": "2026-03-16",
+      "value": 7970.12,
+      "invested": 6797.76,
+      "value_pct": -11.13,
+      "spy_pct": 25.74
+    },
+    {
+      "date": "2026-03-17",
+      "value": 8013.3,
+      "invested": 6797.76,
+      "value_pct": -10.65,
+      "spy_pct": 26.07
+    },
+    {
+      "date": "2026-03-18",
+      "value": 7899.08,
+      "invested": 6797.76,
+      "value_pct": -11.92,
+      "spy_pct": 24.31
+    },
+    {
+      "date": "2026-03-19",
+      "value": 7873.41,
+      "invested": 6797.76,
+      "value_pct": -12.21,
+      "spy_pct": 24.01
+    },
+    {
+      "date": "2026-03-20",
+      "value": 7712.54,
+      "invested": 6797.76,
+      "value_pct": -14.0,
+      "spy_pct": 22.23
+    },
+    {
+      "date": "2026-03-21",
+      "value": 7695.44,
+      "invested": 6797.76,
+      "value_pct": -14.19,
+      "spy_pct": 22.23
+    },
+    {
+      "date": "2026-03-22",
+      "value": 7688.47,
+      "invested": 6797.76,
+      "value_pct": -14.27,
+      "spy_pct": 22.23
+    },
+    {
+      "date": "2026-03-23",
+      "value": 7780.59,
+      "invested": 6797.76,
+      "value_pct": -13.24,
+      "spy_pct": 23.51
+    },
+    {
+      "date": "2026-03-24",
+      "value": 7479.98,
+      "invested": 6797.76,
+      "value_pct": -16.59,
+      "spy_pct": 23.1
+    },
+    {
+      "date": "2026-03-25",
+      "value": 7525.99,
+      "invested": 6797.76,
+      "value_pct": -16.08,
+      "spy_pct": 23.78
+    },
+    {
+      "date": "2026-03-26",
+      "value": 7405.67,
+      "invested": 6797.76,
+      "value_pct": -17.42,
+      "spy_pct": 21.57
+    },
+    {
+      "date": "2026-03-27",
+      "value": 7181.22,
+      "invested": 6797.76,
+      "value_pct": -19.92,
+      "spy_pct": 19.5
+    },
+    {
+      "date": "2026-03-28",
+      "value": 7179.54,
+      "invested": 6797.76,
+      "value_pct": -19.94,
+      "spy_pct": 19.5
+    },
+    {
+      "date": "2026-03-29",
+      "value": 7178.36,
+      "invested": 6797.76,
+      "value_pct": -19.96,
+      "spy_pct": 19.5
+    },
+    {
+      "date": "2026-03-30",
+      "value": 7367.13,
+      "invested": 6797.76,
+      "value_pct": -17.85,
+      "spy_pct": 19.1
+    },
+    {
+      "date": "2026-03-31",
+      "value": 7452.77,
+      "invested": 6797.76,
+      "value_pct": -16.9,
+      "spy_pct": 22.56
+    },
+    {
+      "date": "2026-04-01",
+      "value": 7464.74,
+      "invested": 6797.76,
+      "value_pct": -16.76,
+      "spy_pct": 23.49
+    },
+    {
+      "date": "2026-04-02",
+      "value": 7443.27,
+      "invested": 6797.76,
+      "value_pct": -17.0,
+      "spy_pct": 23.6
+    }
+  ]
+}

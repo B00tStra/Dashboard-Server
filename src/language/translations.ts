@@ -37,6 +37,13 @@ const en: Translations = {
   card_analysis_stat2:    'Bullish',
   card_analysis_stat3:    'Signals',
 
+  card_portfolio_title:    'Portfolio',
+  card_portfolio_subtitle: 'Values · P&L · Assets',
+  card_portfolio_desc:     'Comprehensive portfolio tracking with real-time value, detailed profit/loss analysis, and position weights.',
+  card_portfolio_stat1:    'Positions',
+  card_portfolio_stat2:    'Total P&L',
+  card_portfolio_stat3:    'Day Chg',
+
   card_settings_title:    'Settings',
   card_settings_subtitle: 'Config · Files · Schedule',
   card_settings_desc:     'Control hub for agent configuration, cron jobs, file explorer, token usage and system soul editor.',
@@ -242,6 +249,13 @@ const de: Translations = {
   card_analysis_stat1:    'Ticker',
   card_analysis_stat2:    'Bullisch',
   card_analysis_stat3:    'Signale',
+
+  card_portfolio_title:    'Portfolio',
+  card_portfolio_subtitle: 'Werte · G&V · Assets',
+  card_portfolio_desc:     'Umfassendes Portfolio-Tracking mit Echtzeit-Werten, detaillierter Gewinn- und Verlustanalyse sowie Gewichtungen.',
+  card_portfolio_stat1:    'Positionen',
+  card_portfolio_stat2:    'Gesamt G&V',
+  card_portfolio_stat3:    'Tag',
 
   card_settings_title:    'Einstellungen',
   card_settings_subtitle: 'Konfig · Dateien · Zeitpläne',

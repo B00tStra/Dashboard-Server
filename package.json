@@ -1,5 +1,5 @@
 {
-  "name": "stock-market-dashboard",
+  "name": "investment-tracker",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,6 +7,7 @@
     "dev": "vite",
     "server": "node server/index.js",
     "build": "tsc && vite build",
+    "deploy": "tsc && vite build && pkill -f 'node server/index.js' 2>/dev/null; sleep 1; nohup node server/index.js > /tmp/dashboard.log 2>&1 &",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -41,6 +42,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
     "postcss": "^8.4.27",
+    "puppeteer": "^24.40.0",
     "tailwindcss": "^3.3.3",
     "typescript": "^5.0.2",
     "vite": "^4.4.5"
